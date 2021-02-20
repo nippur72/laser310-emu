@@ -15,6 +15,15 @@ void debugAfter()  { byte unused = (byte) EM_ASM_INT({ if(debugAfter !== undefin
 EMSCRIPTEN_KEEPALIVE
 void laser310_set_debug(bool v) { debug = v; }
 
+byte cassette_in;
+
+// I/O latch
+byte speaker_B;        // bit 5
+byte vdc_background;   // bit 4
+byte vdc_mode;         // bit 3
+byte cassette_out;     // bit 2
+byte cassette_out_MSB; // bit 1
+byte speaker_A;        // bit 0
 
 EMSCRIPTEN_KEEPALIVE
 uint16_t laser310_tick() {
@@ -36,23 +45,23 @@ uint16_t laser310_tick() {
 
    // ticks the MC6847
    {
-      uint64_t pins;
-      /*
-      #define MC6847_FS  int (1ULL<<40)      // field sync
-      #define MC6847_HS  hs (1ULL<<41)      // horizontal sync
-      #define MC6847_RP  ? (1ULL<<42)      // row preset (not emulated)
+      // MC6847_FS     connected to INT in cpu.c
+      // MC6847_HS     not used           horizontal sync)
+      // MC6847_RP     not used           row preset (not emulated)
+      //
+      // MC6847_AG     => vdc_mode        graphics mode enable
+      // MC6847_AS     => ?               semi-graphics mode enable
+      // MC6847_INTEXT => 0               internal/external select
+      // MC6847_INV    => ?               invert enable
+      // MC6847_GM0    => 0               graphics mode select 0
+      // MC6847_GM1    => 1               graphics mode select 1
+      // MC6847_GM2    => 0               graphics mode select 2
+      // MC6847_CSS    => vdc_background  color select pin
 
-      #define MC6847_AG    35   (1ULL<<43)      // graphics mode enable
-      #define MC6847_AS    D7   (1ULL<<44)      // semi-graphics mode enable
-      #define MC6847_INTEXT 0  (1ULL<<45)      // internal/external select
-      #define MC6847_INV   D6   (1ULL<<46)      // invert enable
-      #define MC6847_GM0   0   (1ULL<<47)      // graphics mode select 0
-      #define MC6847_GM1   1   (1ULL<<48)      // graphics mode select 1
-      #define MC6847_GM2   0   (1ULL<<49)      // graphics mode select 2
-      #define MC6847_CSS   39   (1ULL<<50)      // color select pin
-      */
-
-      mc6847_tick(&mc, pins);
+      // uint64_t pins = MC6847_GM1;
+      // if(vdc_mode) pins |= MC6847_AG;
+      // if(vdc_background) pins |= MC6847_CSS;
+      // mc6847_tick(&mc, pins);
    }
 
    return ticks;
@@ -86,6 +95,12 @@ void laser310_init() {
 
 EMSCRIPTEN_KEEPALIVE
 void laser310_reset() {
-
+   cassette_in       = 0;
+   speaker_B         = 0;
+   vdc_background    = 0;
+   vdc_mode          = 0;
+   cassette_out      = 0;
+   cassette_out_MSB  = 0;
+   speaker_A         = 0;
 }
 

@@ -6,4 +6,4 @@
 typedef uint8_t byte;
 typedef uint16_t word;
 
-#define KEEP EMSCRIPTEN_KEEPALIVE
+//#define EMSCRIPTEN_KEEPALIVE

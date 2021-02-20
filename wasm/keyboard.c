@@ -23,11 +23,10 @@ byte keyboard_poll(word address)
    byte KB = address & 0xFF;
 
    byte KA = 0b11111111;
-   for(int row=0; row<8; row++) {
-      if((KB & (1<<row)) == 0) {
-        KA = KA & KAX[row];
+   for(int col=0; col<8; col++) {
+      if((KB & (1<<col)) == 0) {
+        KA = KA & KAX[col];
       }
    }
-
    return KA;
 }

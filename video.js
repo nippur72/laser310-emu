@@ -17,12 +17,10 @@ function calculateGeometry_mc() {
 
 calculateGeometry_mc();
 
-/**************************************************/
 const MC_DOT_WIDTH = 320;
 const MC_DOT_HEIGHT = 243;
 const MC_OFFSET_X = -48;
 const MC_OFFSET_Y = -8;
-
 
 let mc6847_canvas = document.getElementById("canvas");
 let mc6847_context = mc6847_canvas.getContext('2d');
@@ -56,7 +54,6 @@ function vdp_screen_update_mc(ptr) {
    mc6847_imagedata.data.set(mc6847_imagedata_buf8);
    mc6847_context.putImageData(mc6847_imagedata, MC_OFFSET_X, MC_OFFSET_Y);
 
-   /*
    frames++;
    if(end_of_frame_hook !== undefined) end_of_frame_hook();
 
@@ -64,5 +61,4 @@ function vdp_screen_update_mc(ptr) {
       // update LED
       document.getElementById("LED").style.visibility = LED>0 ? "visible" : "hidden";
    }
-   */
 }

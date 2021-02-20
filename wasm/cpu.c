@@ -13,11 +13,24 @@ extern mc6847_t mc;
 
 uint64_t tick(int num_ticks, uint64_t pins, void* user_data) {
 
+   // MC6847_AG     => vdc_mode        graphics mode enable
+   // MC6847_AS     => ?               semi-graphics mode enable
+   // MC6847_INTEXT => 0               internal/external select
+   // MC6847_INV    => ?               invert enable
+   // MC6847_GM0    => 0               graphics mode select 0
+   // MC6847_GM1    => 1               graphics mode select 1
+   // MC6847_GM2    => 0               graphics mode select 2
+   // MC6847_CSS    => vdc_background  color select pin
+
+   // tick the VDC
+   uint64_t vdc_pins = MC6847_INV | MC6847_GM1;
+   if(vdc_mode      ) vdc_pins |= MC6847_AG;
+   if(vdc_background) vdc_pins |= MC6847_CSS;
+   vdc_pins = mc6847_tick(&mc, vdc_pins);
+   if(vdc_pins & MC6847_FS) pins |= Z80_INT;     // connect the /INT line to MC6847 FS pin
+
    // NMI connected to VCC on the Laser 310
    pins &= ~Z80_NMI;
-
-   if(mc.fs) pins |= Z80_INT;
-   else      pins &= ~Z80_INT;
 
    if(pins & Z80_MREQ) {
       if(pins & Z80_RD) {

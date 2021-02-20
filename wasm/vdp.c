@@ -18,7 +18,7 @@ void mc_screen_update_cb(uint32_t *buffer) {
 }
 
 void mc_init() {
-    mc_desc.tick_hz = 3500000;                                                 /* the CPU tick rate in hz */
+    mc_desc.tick_hz = 3580000/2;                                               /* the CPU tick rate in hz */
     mc_desc.rgba8_buffer = mc_display_buffer;                                  /* pointer to an RGBA8 framebuffer where video image is written to */
     mc_desc.rgba8_buffer_size = MC6847_DISPLAY_WIDTH*MC6847_DISPLAY_HEIGHT*4;  /* size of rgba8_buffer in bytes (must be at least 320*244*4=312320 bytes) */
     mc_desc.fetch_cb = mc_fetch_cb;
