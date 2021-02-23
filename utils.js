@@ -173,7 +173,7 @@ function restoreState() {
 
 function dumpPointers() {
    console.log(`
-   +------------------------+ <-  (0x${hex(PROGND,4)}) ${hex(mem_read_word(PROGND),4)}
+   +------------------------+ <-  (0x${hex(BASEND,4)}) ${hex(mem_read_word(BASEND),4)}
    |     BASIC program      |
    +------------------------+ <- TXTTAB (0x${hex(BASTXT,4)}) ${hex(mem_read_word(BASTXT),4)}
    |    System variables    |
@@ -256,3 +256,8 @@ function led_write(value) {
    LED = value;
 }
 
+function getFileExtension(fileName) {
+   let s = fileName.toLowerCase().split(".");
+   if(s.length == 1) return "";
+   return "." + s[s.length-1];
+}

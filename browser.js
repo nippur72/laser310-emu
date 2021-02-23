@@ -83,9 +83,14 @@ dropZone.addEventListener('drop', e => {
 });
 
 async function droppedFile(outName, bytes) {
-   const prg = /\.prg$/i;
-   if(prg.test(outName)) {
-      await writeFile(outName, bytes);
+   const ext = getFileExtension(outName);
+
+   if(ext == ".bin") {
+      await storage.writeFile(outName, bytes);
+      await crun(outName);
+   }
+   else if(ext == ".vz") {
+      await storage.writeFile(outName, bytes);
       await crun(outName);
    }
 }

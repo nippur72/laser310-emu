@@ -1,12 +1,12 @@
 "use strict";
 
-// TODO fix BASTXT, PROGND, CRSR_STATE
+// TODO fix BASTXT, BASEND, CRSR_STATE
 // TODO fix cpuspeed & other
 // TODO check on the real HW port number return
 
-let BASTXT      = 0x8133;    // points to basic free area (start of program)
-let PROGND      = 0x81BB;    // points to end of the basic program
-let CRSR_STATE  = 0x81E9;    // cursor visibility state (for injecting keys)
+let BASTXT;      // points to basic free area (start of program)
+let BASEND;      // points to end of the basic program
+let CRSR_STATE;  // cursor visibility state (for injecting keys)
 
 let cpu;
 
@@ -79,8 +79,8 @@ function main() {
    {
       let firmware;
       if(options.rom == undefined) options.rom = "v21";
-      if(options.rom == "v20") { firmware = vzrom20; BASTXT=0x5224; PROGND=0x5313; CRSR_STATE=0x52C7; }
-      if(options.rom == "v21") { firmware = vzrom21; BASTXT=0x5254; PROGND=0x5343; CRSR_STATE=0x52F7; }
+      if(options.rom == "v20") { firmware = vzrom20; BASTXT=0x78A4; BASEND=0x78F9; CRSR_STATE=0x52C7; }
+      if(options.rom == "v21") { firmware = vzrom21; BASTXT=0x78A4; BASEND=0x78F9; CRSR_STATE=0x52F7; }
       firmware.forEach((v,i)=>rom_load(i,v));
    }
 
