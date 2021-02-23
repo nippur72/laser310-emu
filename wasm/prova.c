@@ -102,5 +102,6 @@ void laser310_reset() {
    cassette_out      = 0;
    cassette_out_MSB  = 0;
    speaker_A         = 0;
+   mc6847_reset(&mc);
 }
 

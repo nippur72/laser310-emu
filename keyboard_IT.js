@@ -1,11 +1,8 @@
 function pckey_to_hardware_keys_ITA(code, key, e) {
-   // console.log(code, key, e);
 
    let hardware_keys = [];
 
    if(e.ctrlKey || e.altKey) hardware_keys.push( KEY_CTRL );
-
-   //if(code === "Home" && e.shiftKey) hardware_keys.push( KEY_SHIFT, KEY_CLR_HOME  );
 
    if(key === "1")             hardware_keys.push( KEY_1  );
    if(key === "2")             hardware_keys.push( KEY_2  );
@@ -18,32 +15,63 @@ function pckey_to_hardware_keys_ITA(code, key, e) {
    if(key === "9")             hardware_keys.push( KEY_9  );
    if(key === "0")             hardware_keys.push( KEY_0  );
 
-   if(code === "KeyQ")         hardware_keys.push( KEY_Q  );
-   if(code === "KeyW")         hardware_keys.push( KEY_W  );
-   if(code === "KeyE")         hardware_keys.push( KEY_E  );
-   if(code === "KeyR")         hardware_keys.push( KEY_R  );
-   if(code === "KeyT")         hardware_keys.push( KEY_T  );
-   if(code === "KeyY")         hardware_keys.push( KEY_Y  );
-   if(code === "KeyU")         hardware_keys.push( KEY_U  );
-   if(code === "KeyI")         hardware_keys.push( KEY_I  );
-   if(code === "KeyO")         hardware_keys.push( KEY_O  );
-   if(code === "KeyP")         hardware_keys.push( KEY_P  );
-   if(code === "KeyA")         hardware_keys.push( KEY_A  );
-   if(code === "KeyS")         hardware_keys.push( KEY_S  );
-   if(code === "KeyD")         hardware_keys.push( KEY_D  );
-   if(code === "KeyF")         hardware_keys.push( KEY_F  );
-   if(code === "KeyG")         hardware_keys.push( KEY_G  );
-   if(code === "KeyH")         hardware_keys.push( KEY_H  );
-   if(code === "KeyJ")         hardware_keys.push( KEY_J  );
-   if(code === "KeyK")         hardware_keys.push( KEY_K  );
-   if(code === "KeyL")         hardware_keys.push( KEY_L  );
-   if(code === "KeyZ")         hardware_keys.push( KEY_Z  );
-   if(code === "KeyX")         hardware_keys.push( KEY_X  );
-   if(code === "KeyC")         hardware_keys.push( KEY_C  );
-   if(code === "KeyV")         hardware_keys.push( KEY_V  );
-   if(code === "KeyB")         hardware_keys.push( KEY_B  );
-   if(code === "KeyN")         hardware_keys.push( KEY_N  );
-   if(code === "KeyM")         hardware_keys.push( KEY_M  );
+   if(e.shiftKey)
+   {
+      if(code === "KeyQ")         hardware_keys.push( KEY_SHIFT, KEY_Q  );
+      if(code === "KeyW")         hardware_keys.push( KEY_SHIFT, KEY_W  );
+      if(code === "KeyE")         hardware_keys.push( KEY_SHIFT, KEY_E  );
+      if(code === "KeyR")         hardware_keys.push( KEY_SHIFT, KEY_R  );
+      if(code === "KeyT")         hardware_keys.push( KEY_SHIFT, KEY_T  );
+      if(code === "KeyY")         hardware_keys.push( KEY_SHIFT, KEY_Y  );
+      if(code === "KeyU")         hardware_keys.push( KEY_SHIFT, KEY_U  );
+      if(code === "KeyI")         hardware_keys.push( KEY_SHIFT, KEY_I  );
+      if(code === "KeyO")         hardware_keys.push( KEY_SHIFT, KEY_O  );
+      if(code === "KeyP")         hardware_keys.push( KEY_SHIFT, KEY_P  );
+      if(code === "KeyA")         hardware_keys.push( KEY_SHIFT, KEY_A  );
+      if(code === "KeyS")         hardware_keys.push( KEY_SHIFT, KEY_S  );
+      if(code === "KeyD")         hardware_keys.push( KEY_SHIFT, KEY_D  );
+      if(code === "KeyF")         hardware_keys.push( KEY_SHIFT, KEY_F  );
+      if(code === "KeyG")         hardware_keys.push( KEY_SHIFT, KEY_G  );
+      if(code === "KeyH")         hardware_keys.push( KEY_SHIFT, KEY_H  );
+      if(code === "KeyJ")         hardware_keys.push( KEY_SHIFT, KEY_J  );
+      if(code === "KeyK")         hardware_keys.push( KEY_SHIFT, KEY_K  );
+      if(code === "KeyL")         hardware_keys.push( KEY_SHIFT, KEY_L  );
+      if(code === "KeyZ")         hardware_keys.push( KEY_SHIFT, KEY_Z  );
+      if(code === "KeyX")         hardware_keys.push( KEY_SHIFT, KEY_X  );
+      if(code === "KeyC")         hardware_keys.push( KEY_SHIFT, KEY_C  );
+      if(code === "KeyV")         hardware_keys.push( KEY_SHIFT, KEY_V  );
+      if(code === "KeyB")         hardware_keys.push( KEY_SHIFT, KEY_B  );
+      if(code === "KeyN")         hardware_keys.push( KEY_SHIFT, KEY_N  );
+      if(code === "KeyM")         hardware_keys.push( KEY_SHIFT, KEY_M  );
+   }
+   else {
+      if(code === "KeyQ")         hardware_keys.push( KEY_Q  );
+      if(code === "KeyW")         hardware_keys.push( KEY_W  );
+      if(code === "KeyE")         hardware_keys.push( KEY_E  );
+      if(code === "KeyR")         hardware_keys.push( KEY_R  );
+      if(code === "KeyT")         hardware_keys.push( KEY_T  );
+      if(code === "KeyY")         hardware_keys.push( KEY_Y  );
+      if(code === "KeyU")         hardware_keys.push( KEY_U  );
+      if(code === "KeyI")         hardware_keys.push( KEY_I  );
+      if(code === "KeyO")         hardware_keys.push( KEY_O  );
+      if(code === "KeyP")         hardware_keys.push( KEY_P  );
+      if(code === "KeyA")         hardware_keys.push( KEY_A  );
+      if(code === "KeyS")         hardware_keys.push( KEY_S  );
+      if(code === "KeyD")         hardware_keys.push( KEY_D  );
+      if(code === "KeyF")         hardware_keys.push( KEY_F  );
+      if(code === "KeyG")         hardware_keys.push( KEY_G  );
+      if(code === "KeyH")         hardware_keys.push( KEY_H  );
+      if(code === "KeyJ")         hardware_keys.push( KEY_J  );
+      if(code === "KeyK")         hardware_keys.push( KEY_K  );
+      if(code === "KeyL")         hardware_keys.push( KEY_L  );
+      if(code === "KeyZ")         hardware_keys.push( KEY_Z  );
+      if(code === "KeyX")         hardware_keys.push( KEY_X  );
+      if(code === "KeyC")         hardware_keys.push( KEY_C  );
+      if(code === "KeyV")         hardware_keys.push( KEY_V  );
+      if(code === "KeyB")         hardware_keys.push( KEY_B  );
+      if(code === "KeyN")         hardware_keys.push( KEY_N  );
+      if(code === "KeyM")         hardware_keys.push( KEY_M  );
+   }
 
    if(code === "Space")        hardware_keys.push( KEY_SPACE  );
    if(code === "Enter")        hardware_keys.push( KEY_RETURN  );
@@ -77,24 +105,20 @@ function pckey_to_hardware_keys_ITA(code, key, e) {
    if(key === ".")             hardware_keys.push( KEY_DOT  );
    if(key === ":")             hardware_keys.push( KEY_COLON  );
 
-   //if(code === "Insert")       hardware_keys.push( KEY_SHIFT, KEY_INST_DEL  );
-   //if(code === "Delete")       hardware_keys.push( KEY_INST_DEL  );
-   //if(code === "Escape")       hardware_keys.push( KEY_ESC  );
-   //if(code === "Backspace")    hardware_keys.push( KEY_INST_DEL  );
-   //if(code === "End")          hardware_keys.push( KEY_SHIFT, KEY_CLR_HOME );
-   //if(code === "Home")         hardware_keys.push( KEY_CLR_HOME  );
-   //if(code === "ControlLeft")  hardware_keys.push( KEY_CTRL  );
-   //if(code === "ControlRight") hardware_keys.push( KEY_CTRL  );
-   //if(code === "ArrowUp")      hardware_keys.push( KEY_UP  );
-   //if(code === "ArrowDown")    hardware_keys.push( KEY_DOWN  );
-   //if(code === "ArrowLeft")    hardware_keys.push( KEY_LEFT  );
-   //if(code === "ArrowRight")   hardware_keys.push( KEY_RIGHT  );
+   if(code === "ArrowUp")      hardware_keys.push( KEY_CTRL, KEY_DOT );
+   if(code === "ArrowDown")    hardware_keys.push( KEY_CTRL, KEY_SPACE );
+   if(code === "ArrowLeft")    hardware_keys.push( KEY_CTRL, KEY_M );
+   if(code === "ArrowRight")   hardware_keys.push( KEY_CTRL, KEY_COMMA );
 
-   //if(code === "PageUp")       hardware_keys.push(  );
-   //if(code === "PageDown")     hardware_keys.push(  );
-   //if(code === "CapsLock")     hardware_keys.push(  );
+   if(code === "Insert")       hardware_keys.push( KEY_CTRL, KEY_L );
+   if(code === "Delete")       hardware_keys.push( KEY_CTRL, KEY_SEMICOLON );
+   if(code === "Backspace")    hardware_keys.push( KEY_CTRL, KEY_SEMICOLON );
+   if(code === "Pause")        hardware_keys.push( KEY_CTRL, KEY_MINUS );
 
-   console.log(hardware_keys);
+   if(code === "PageUp")       hardware_keys.push( KEY_CTRL, KEY_COLON );
+   if(code === "PageDown")     hardware_keys.push( KEY_CTRL, KEY_RETURN );
+
+   if(code === "Escape")       hardware_keys.push( KEY_CTRL, KEY_MINUS );
 
    return hardware_keys;
 }

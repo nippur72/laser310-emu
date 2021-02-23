@@ -23,14 +23,15 @@ uint64_t tick(int num_ticks, uint64_t pins, void* user_data) {
    // MC6847_CSS    => vdc_background  color select pin
 
    // tick the VDC
-   uint64_t vdc_pins = MC6847_INV | MC6847_GM1;
-   if(vdc_mode      ) vdc_pins |= MC6847_AG;
-   if(vdc_background) vdc_pins |= MC6847_CSS;
+   uint64_t vdc_pins = MC6847_GM1;
+
+   if(vdc_mode      ) BITSET(vdc_pins,MC6847_AG);
+   if(vdc_background) BITSET(vdc_pins,MC6847_CSS);
    vdc_pins = mc6847_tick(&mc, vdc_pins);
-   if(vdc_pins & MC6847_FS) pins |= Z80_INT;     // connect the /INT line to MC6847 FS pin
+   if(vdc_pins & MC6847_FS) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
 
    // NMI connected to VCC on the Laser 310
-   pins &= ~Z80_NMI;
+   BITRESET(pins,Z80_NMI);
 
    if(pins & Z80_MREQ) {
       if(pins & Z80_RD) {
