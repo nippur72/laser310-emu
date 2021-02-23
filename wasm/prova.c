@@ -41,28 +41,8 @@ uint16_t laser310_tick() {
       opdone = true;
    }
 
-   psg_ticks(ticks);
-
-   // ticks the MC6847
-   {
-      // MC6847_FS     connected to INT in cpu.c
-      // MC6847_HS     not used           horizontal sync)
-      // MC6847_RP     not used           row preset (not emulated)
-      //
-      // MC6847_AG     => vdc_mode        graphics mode enable
-      // MC6847_AS     => ?               semi-graphics mode enable
-      // MC6847_INTEXT => 0               internal/external select
-      // MC6847_INV    => ?               invert enable
-      // MC6847_GM0    => 0               graphics mode select 0
-      // MC6847_GM1    => 1               graphics mode select 1
-      // MC6847_GM2    => 0               graphics mode select 2
-      // MC6847_CSS    => vdc_background  color select pin
-
-      // uint64_t pins = MC6847_GM1;
-      // if(vdc_mode) pins |= MC6847_AG;
-      // if(vdc_background) pins |= MC6847_CSS;
-      // mc6847_tick(&mc, pins);
-   }
+   // AY-3-8910 disabled for now
+   // psg_ticks(ticks);
 
    return ticks;
 }
