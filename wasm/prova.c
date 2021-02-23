@@ -2,6 +2,7 @@
 
 #include "keyboard.c"
 #include "psg.c"
+#include "buzzer.c"
 #include "mem.c"
 #include "io.c"
 #include "vdp.c"
@@ -43,6 +44,8 @@ uint16_t laser310_tick() {
 
    // AY-3-8910 disabled for now
    // psg_ticks(ticks);
+
+   buzzer_ticks(ticks);
 
    return ticks;
 }
