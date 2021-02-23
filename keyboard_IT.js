@@ -112,7 +112,7 @@ function pckey_to_hardware_keys_ITA(code, key, e) {
 
    if(code === "Insert")       hardware_keys.push( KEY_CTRL, KEY_L );
    if(code === "Delete")       hardware_keys.push( KEY_CTRL, KEY_SEMICOLON );
-   if(code === "Backspace")    hardware_keys.push( KEY_CTRL, KEY_SEMICOLON );
+   if(code === "Backspace")    hardware_keys.push( KEY_CTRL, KEY_M, KEY_CTRL, KEY_SEMICOLON );
    if(code === "Pause")        hardware_keys.push( KEY_CTRL, KEY_MINUS );
 
    if(code === "PageUp")       hardware_keys.push( KEY_CTRL, KEY_COLON );
