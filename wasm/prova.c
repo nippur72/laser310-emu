@@ -1,11 +1,12 @@
+#define CHIPS_ASSERT(c) (1)
+
 #include "laser310.h"
 
-#define CHIPS_IMPL
+float buzzer_audio_buf[4096];
+uint32_t mc_display_buffer[MC6847_DISPLAY_WIDTH*MC6847_DISPLAY_HEIGHT];
 
-#include "mem.c"
-#include "io.c"
-#include "vdp.c"
-#include "cpu.c"
+laser310_t l310;
+laser310_desc_t sysdesc;
 
 bool debug = false;
 
@@ -13,11 +14,7 @@ void debugBefore() { byte unused = (byte) EM_ASM_INT({ if(debugBefore!== undefin
 void debugAfter()  { byte unused = (byte) EM_ASM_INT({ if(debugAfter !== undefined) debugAfter();  }, 0); }
 
 KEEP
-void laser310_set_debug(bool v) { debug = v; }
-
-laser310_t l310;
-laser310_t *sys = &l310;
-laser310_desc_t sysdesc;
+void sys_set_debug(bool v) { debug = v; }
 
 // callback called when audio buffer is full with samples
 void audio_buffer_ready(float *samples, int size) {
@@ -29,41 +26,17 @@ void screen_update(uint32_t *buffer) {
    byte unused = (byte) EM_ASM_INT({ vdp_screen_update_mc($0); }, buffer );
 }
 
-KEEP
-int laser310_tick(laser310_t *sys) {
-   static bool opdone;
-
-   if(debug & opdone) {
-      opdone = false;
-      debugBefore();
-   }
-
-   int ticks = z80_exec(&sys->cpu, 1);
-
-   if(debug & z80_opdone(&sys->cpu)) {
-      debugAfter();
-      opdone = true;
-   }
-
-   float sample = ((sys->cassette_out + sys->cassette_out_MSB + sys->cassette_in) / 4.0) + ((sys->speaker_A - sys->speaker_B) / 4.0);
-   buzzer_ticks(&sys->buzzer, ticks, sample);
-
-   return ticks;
-}
 
 KEEP
-int laser310_ticks(int ncycles, float cyclesPerLine) {
+int sys_ticks(int ncycles) {
 
    int elapsed = 0;
    while(elapsed < ncycles) {
-      int cpu_ticks = laser310_tick(&l310);
-      elapsed += cpu_ticks;
+      elapsed += laser310_tick(&l310);
    }
    return elapsed;
 }
 
-float buzzer_audio_buf[4096];
-uint32_t mc_display_buffer[MC6847_DISPLAY_WIDTH*MC6847_DISPLAY_HEIGHT];
 
 KEEP
 void sys_init() {
@@ -74,20 +47,129 @@ void sys_init() {
    sysdesc.audio_buf_size = 4096;
    sysdesc.buffer_ready_cb = audio_buffer_ready;
    sysdesc.display_buffer = mc_display_buffer;
-   sysdesc.display_buffer_size = sizeof(mc_display_buffer); // MC6847_DISPLAY_WIDTH*MC6847_DISPLAY_HEIGHT*4;
+   sysdesc.display_buffer_size = sizeof(mc_display_buffer);
    sysdesc.screen_update_cb = screen_update;
-
+   sysdesc.debug_before = debugBefore;
+   sysdesc.debug_after = debugAfter;
    laser310_init(&l310, &sysdesc);
-   mc_init();
 }
 
 KEEP
 void sys_reset() {
    laser310_reset(&l310);
-   mc6847_reset(&mc);
 }
 
 KEEP
 void rom_load(word address, byte value) {
-   sys->rom[address] = value;
+   l310.rom[address] = value;
+}
+
+KEEP
+void cpu_reset() {
+   laser310_reset(&l310);
+}
+
+KEEP uint8_t get_z80_a()         { return z80_a(&l310.cpu); }
+KEEP uint8_t get_z80_f()         { return z80_f(&l310.cpu); }
+KEEP uint8_t get_z80_l()         { return z80_l(&l310.cpu); }
+KEEP uint8_t get_z80_h()         { return z80_h(&l310.cpu); }
+KEEP uint8_t get_z80_e()         { return z80_e(&l310.cpu); }
+KEEP uint8_t get_z80_d()         { return z80_d(&l310.cpu); }
+KEEP uint8_t get_z80_c()         { return z80_c(&l310.cpu); }
+KEEP uint8_t get_z80_b()         { return z80_b(&l310.cpu); }
+KEEP uint16_t get_z80_fa()       { return z80_fa(&l310.cpu); }
+KEEP uint16_t get_z80_af()       { return z80_af(&l310.cpu); }
+KEEP uint16_t get_z80_hl()       { return z80_hl(&l310.cpu); }
+KEEP uint16_t get_z80_de()       { return z80_de(&l310.cpu); }
+KEEP uint16_t get_z80_bc()       { return z80_bc(&l310.cpu); }
+KEEP uint16_t get_z80_fa_()      { return z80_fa_(&l310.cpu); }
+KEEP uint16_t get_z80_af_()      { return z80_af_(&l310.cpu); }
+KEEP uint16_t get_z80_hl_()      { return z80_hl_(&l310.cpu); }
+KEEP uint16_t get_z80_de_()      { return z80_de_(&l310.cpu); }
+KEEP uint16_t get_z80_bc_()      { return z80_bc_(&l310.cpu); }
+KEEP uint16_t get_z80_sp()       { return z80_sp(&l310.cpu); }
+KEEP uint16_t get_z80_iy()       { return z80_iy(&l310.cpu); }
+KEEP uint16_t get_z80_ix()       { return z80_ix(&l310.cpu); }
+KEEP uint16_t get_z80_wz()       { return z80_wz(&l310.cpu); }
+KEEP uint16_t get_z80_pc()       { return z80_pc(&l310.cpu); }
+KEEP uint16_t get_z80_ir()       { return z80_ir(&l310.cpu); }
+KEEP uint8_t get_z80_i()         { return z80_i(&l310.cpu); }
+KEEP uint8_t get_z80_r()         { return z80_r(&l310.cpu); }
+KEEP uint8_t get_z80_im()        { return z80_im(&l310.cpu); }
+KEEP bool get_z80_iff1()         { return z80_iff1(&l310.cpu); }
+KEEP bool get_z80_iff2()         { return z80_iff2(&l310.cpu); }
+KEEP bool get_z80_ei_pending()   { return z80_ei_pending(&l310.cpu); }
+
+KEEP void set_z80_a(uint8_t v)         { z80_set_a(&l310.cpu, v); }
+KEEP void set_z80_f(uint8_t v)         { z80_set_f(&l310.cpu, v); }
+KEEP void set_z80_l(uint8_t v)         { z80_set_l(&l310.cpu, v); }
+KEEP void set_z80_h(uint8_t v)         { z80_set_h(&l310.cpu, v); }
+KEEP void set_z80_e(uint8_t v)         { z80_set_e(&l310.cpu, v); }
+KEEP void set_z80_d(uint8_t v)         { z80_set_d(&l310.cpu, v); }
+KEEP void set_z80_c(uint8_t v)         { z80_set_c(&l310.cpu, v); }
+KEEP void set_z80_b(uint8_t v)         { z80_set_b(&l310.cpu, v); }
+KEEP void set_z80_af(uint16_t v)       { z80_set_af(&l310.cpu, v); }
+KEEP void set_z80_fa(uint16_t v)       { z80_set_fa(&l310.cpu, v); }
+KEEP void set_z80_hl(uint16_t v)       { z80_set_hl(&l310.cpu, v); }
+KEEP void set_z80_de(uint16_t v)       { z80_set_de(&l310.cpu, v); }
+KEEP void set_z80_bc(uint16_t v)       { z80_set_bc(&l310.cpu, v); }
+KEEP void set_z80_fa_(uint16_t v)      { z80_set_fa_(&l310.cpu, v); }
+KEEP void set_z80_af_(uint16_t v)      { z80_set_af_(&l310.cpu, v); }
+KEEP void set_z80_hl_(uint16_t v)      { z80_set_hl_(&l310.cpu, v); }
+KEEP void set_z80_de_(uint16_t v)      { z80_set_de_(&l310.cpu, v); }
+KEEP void set_z80_bc_(uint16_t v)      { z80_set_bc_(&l310.cpu, v); }
+KEEP void set_z80_sp(uint16_t v)       { z80_set_sp(&l310.cpu, v); }
+KEEP void set_z80_iy(uint16_t v)       { z80_set_iy(&l310.cpu, v); }
+KEEP void set_z80_ix(uint16_t v)       { z80_set_ix(&l310.cpu, v); }
+KEEP void set_z80_wz(uint16_t v)       { z80_set_wz(&l310.cpu, v); }
+KEEP void set_z80_pc(uint16_t v)       { z80_set_pc(&l310.cpu, v); }
+KEEP void set_z80_ir(uint16_t v)       { z80_set_ir(&l310.cpu, v); }
+KEEP void set_z80_i(uint8_t v)         { z80_set_i(&l310.cpu, v); }
+KEEP void set_z80_r(uint8_t v)         { z80_set_r(&l310.cpu, v); }
+KEEP void set_z80_im(uint8_t v)        { z80_set_im(&l310.cpu, v); }
+KEEP void set_z80_iff1(bool b)         { z80_set_iff1(&l310.cpu, b); }
+KEEP void set_z80_iff2(bool b)         { z80_set_iff2(&l310.cpu, b); }
+KEEP void set_z80_ei_pending(bool b)   { z80_set_ei_pending(&l310.cpu, b); }
+
+KEEP
+byte mem_read(uint16_t address) {
+    return laser310_mem_read(&l310, address);
+}
+
+KEEP
+void mem_write(word address, byte value) {
+   laser310_mem_write(&l310, address, value);
+}
+
+KEEP
+byte io_read(word ioport) {
+   return laser310_io_read(&l310, ioport);
+}
+
+KEEP
+void io_write(word port, byte value) {
+   laser310_io_write(&l310, port, value);
+}
+
+byte led_read(byte port)  {
+   return EM_ASM_INT({ return led_read(); }, 0);
+}
+
+void led_write(byte port, byte value) {
+   byte unused = (byte) EM_ASM_INT({ led_write($0); }, value);
+}
+
+KEEP
+void sys_keyboard_reset() {
+   keyboard_reset(&l310.kbd);
+}
+
+KEEP
+void sys_keyboard_press(byte row, byte col) {
+   keyboard_press(&l310.kbd, row, col);
+}
+
+KEEP
+void sys_keyboard_release(byte row, byte col) {
+   keyboard_release(&l310.kbd, row, col);
 }

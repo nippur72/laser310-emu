@@ -71,16 +71,13 @@ let rom_load;
 let io_read;
 let io_write;
 
-let laser310_tick;
-let laser310_tick_line;
-let laser310_set_debug;
+let sys_set_debug;
 let sys_init;
 let sys_reset;
 
 let keyboard_reset;
 let keyboard_press;
 let keyboard_release;
-let keyboard_poll;
 
 function load_wasm(ready_cb) {
 
@@ -159,16 +156,14 @@ function load_wasm(ready_cb) {
       io_read            = instance.cwrap("io_read", 'number', ['number']);
       io_write           = instance.cwrap("io_write", null, ['number', 'number']);
 
-      laser310_tick         = instance.cwrap("laser310_tick", 'number');
-      laser310_set_debug    = instance.cwrap("laser310_set_debug", null, ['bool']);
+      sys_set_debug    = instance.cwrap("sys_set_debug", null, ['bool']);
       sys_init         = instance.cwrap("sys_init", ['number']);
       sys_reset        = instance.cwrap("sys_reset", null);
-      laser310_ticks        = instance.cwrap("laser310_ticks", 'number', ['number', 'number']);
+      sys_ticks        = instance.cwrap("sys_ticks", 'number', ['number', 'number']);
 
-      keyboard_reset     = instance.cwrap("keyboard_reset"  , null );
-      keyboard_press     = instance.cwrap("keyboard_press"  , null, ['number', 'number'] );
-      keyboard_release   = instance.cwrap("keyboard_release", null, ['number', 'number'] );
-      keyboard_poll      = instance.cwrap("keyboard_poll"   , 'number', ['number'] );
+      keyboard_reset     = instance.cwrap("sys_keyboard_reset"  , null);
+      keyboard_press     = instance.cwrap("sys_keyboard_press"  , null, ['number', 'number'] );
+      keyboard_release   = instance.cwrap("sys_keyboard_release", null, ['number', 'number'] );
 
       // export instance globally (not strictly required)
       wasm_instance = instance;

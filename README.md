@@ -31,7 +31,7 @@ You can plug your own Javascript debug functions by defining
 `debugBefore` is executed before any Z80 instruction; `debugAfter` is executed
 after.
 
-To activate the debug mode use `laser310_set_debug(true)` and `laser310_set_debug(false)`  
+To activate the debug mode use `sys_set_debug(true)` and `sys_set_debug(false)`  
 to deactivate it. Within the debug functions you can access all the emulator variables,
 most likely you'll want to read the Z80 state with `cpu.getState()` or the memory content
 with `mem_read()` and `mem_write()`.

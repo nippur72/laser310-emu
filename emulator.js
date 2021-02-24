@@ -36,7 +36,7 @@ let audio = new Audio(4096);
 let storage = new BrowserStorage("laser310");
 
 function renderFrame() {
-   total_cycles += laser310_ticks(262 * 2 * cyclesPerLine);
+   total_cycles += sys_ticks(262 * 2 * cyclesPerLine);
 }
 
 function poll_keyboard() {
@@ -64,7 +64,7 @@ function oneFrame(timestamp) {
 
    poll_keyboard();
 
-   total_cycles += laser310_ticks(cycles, cyclesPerLine);
+   total_cycles += sys_ticks(cycles, cyclesPerLine);
 
    averageFrameTime = averageFrameTime * 0.992 + msec * 0.008;
 
@@ -94,9 +94,7 @@ function main() {
       }
    };
 
-   cpu.reset();   
-
-   keyboard_reset();
+   cpu.reset();
 
    sys_init();
    sys_reset();
