@@ -1,12 +1,5 @@
 
 let wasm_instance;
-let test_function;
-
-let psg_init;
-let psg_reset;
-let psg_ticks;
-let psg_read;
-let psg_write;
 
 let get_z80_a;
 let get_z80_f;
@@ -96,13 +89,6 @@ function load_wasm(ready_cb) {
 
    let instance = emscripten_module({ wasmBinary: emscripten_wasm_binary, onRuntimeInitialized: ()=>{
       // makes C exported functions available globally
-      test_function = instance.cwrap("test_function");
-
-      psg_init  = instance.cwrap("psg_init");
-      psg_reset = instance.cwrap("psg_reset");
-      psg_ticks = instance.cwrap("psg_ticks", 'void', ['number']);
-      psg_read  = instance.cwrap("psg_read", 'number', ['number']);
-      psg_write = instance.cwrap("psg_write", null, ['number', 'number']);
 
       get_z80_a          = instance.cwrap("get_z80_a", 'number');
       get_z80_f          = instance.cwrap("get_z80_f", 'number');

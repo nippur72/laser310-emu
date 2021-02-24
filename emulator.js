@@ -101,11 +101,6 @@ function main() {
 
    keyboard_reset();
 
-   /*
-   psg_init();
-   psg_reset();
-   */
-
    laser310_init();
    laser310_reset();
 

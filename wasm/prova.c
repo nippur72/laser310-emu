@@ -1,8 +1,9 @@
 #include "laser310.h"
+#include "buzzer.h"
+
+#define CHIPS_IMPL
 
 #include "keyboard.c"
-#include "psg.c"
-#include "buzzer.c"
 #include "mem.c"
 #include "io.c"
 #include "vdp.c"
@@ -16,6 +17,8 @@ void debugAfter()  { byte unused = (byte) EM_ASM_INT({ if(debugAfter !== undefin
 EMSCRIPTEN_KEEPALIVE
 void laser310_set_debug(bool v) { debug = v; }
 
+buzzer_t buzzer;
+
 byte cassette_in;
 
 // I/O latch
@@ -27,7 +30,7 @@ byte cassette_out_MSB; // bit 1
 byte speaker_A;        // bit 0
 
 EMSCRIPTEN_KEEPALIVE
-uint16_t laser310_tick() {
+int laser310_tick() {
    static bool opdone;
 
    if(debug & opdone) {
@@ -35,44 +38,33 @@ uint16_t laser310_tick() {
       debugBefore();
    }
 
-   uint16_t ticks = z80_exec(&cpu, 1);
+   int ticks = z80_exec(&cpu, 1);
 
    if(debug & z80_opdone(&cpu)) {
       debugAfter();
       opdone = true;
    }
 
-   // AY-3-8910 disabled for now
-   // psg_ticks(ticks);
-
-   buzzer_ticks(ticks);
+   float sample = ((cassette_out + cassette_out_MSB + cassette_in) / 4.0) + ((speaker_A - speaker_B) / 4.0);
+   buzzer_ticks(&buzzer, ticks, sample);
 
    return ticks;
 }
 
 EMSCRIPTEN_KEEPALIVE
-uint16_t laser310_ticks(int ncycles, float cyclesPerLine) {
+int laser310_ticks(int ncycles, float cyclesPerLine) {
 
    int elapsed = 0;
-   static float line_ticks = 0;
-
    while(elapsed < ncycles) {
       int cpu_ticks = laser310_tick();
       elapsed += cpu_ticks;
-      line_ticks += cpu_ticks;
-
-      /*
-      if(line_ticks >= cyclesPerLine) {
-         line_ticks-=cyclesPerLine;
-         tms9928_drawline(&vdp);
-      }
-      */
    }
    return elapsed;
 }
 
 EMSCRIPTEN_KEEPALIVE
 void laser310_init() {
+   buzzer_init(&buzzer);
    mc_init();
 }
 

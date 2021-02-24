@@ -13,12 +13,6 @@ byte io_read(word ioport) {
    byte port = ioport & 0xFF;
 
    switch(port) {
-      /*
-      case 0x40:
-      case 0x41:
-      case 0x42:
-      case 0x43: return psg_read(port);
-      */
 
       case 0xFF: return led_read(port);
 
@@ -33,13 +27,6 @@ void io_write(word port, byte value) {
 
    // console.log(`io write ${hex(port)} ${hex(value)}`)
    switch(port & 0xFF) {
-
-      /*
-      case 0x40:
-      case 0x41:
-      case 0x42:
-      case 0x43: psg_write(port, value); return;
-      */
 
       case 0xFF: led_write(port, value); return;
 
