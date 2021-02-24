@@ -62,7 +62,6 @@ let set_z80_iff1;
 let set_z80_iff2;
 let set_z80_ei_pending;
 
-let cpu_init;
 let cpu_reset;
 
 let mem_read;
@@ -151,7 +150,6 @@ function load_wasm(ready_cb) {
       set_z80_iff2       = instance.cwrap("set_z80_iff2", null, ['number']);
       set_z80_ei_pending = instance.cwrap("set_z80_ei_pending", null, ['number']);
 
-      cpu_init            = instance.cwrap("cpu_init", null);
       cpu_reset           = instance.cwrap("cpu_reset", null);
 
       mem_read           = instance.cwrap("mem_read", 'number', ['number']);

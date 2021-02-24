@@ -86,7 +86,6 @@ function main() {
 
    cpu =
    {
-      init: cpu_init,
       reset: cpu_reset,
       getState: ()=>{
          return {
@@ -94,8 +93,6 @@ function main() {
          }
       }
    };
-
-   cpu.init();
 
    cpu.reset();   
 
