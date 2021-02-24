@@ -75,8 +75,8 @@ let io_write;
 let laser310_tick;
 let laser310_tick_line;
 let laser310_set_debug;
-let laser310_init;
-let laser310_reset;
+let sys_init;
+let sys_reset;
 
 let keyboard_reset;
 let keyboard_press;
@@ -163,8 +163,8 @@ function load_wasm(ready_cb) {
 
       laser310_tick         = instance.cwrap("laser310_tick", 'number');
       laser310_set_debug    = instance.cwrap("laser310_set_debug", null, ['bool']);
-      laser310_init         = instance.cwrap("laser310_init", ['number']);
-      laser310_reset        = instance.cwrap("laser310_reset", null);
+      sys_init         = instance.cwrap("sys_init", ['number']);
+      sys_reset        = instance.cwrap("sys_reset", null);
       laser310_ticks        = instance.cwrap("laser310_ticks", 'number', ['number', 'number']);
 
       keyboard_reset     = instance.cwrap("keyboard_reset"  , null );

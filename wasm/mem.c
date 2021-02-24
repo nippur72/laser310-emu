@@ -1,20 +1,14 @@
-#include "laser310.h"
+#include "utils.h"
 
 byte ram[65536];
 byte rom[65536];
 
-extern byte cassette_in;
-extern byte speaker_B;        // bit 5
-extern byte vdc_background;   // bit 4
-extern byte vdc_mode;         // bit 3
-extern byte cassette_out;     // bit 2
-extern byte cassette_out_MSB; // bit 1
-extern byte speaker_A;        // bit 0
+extern laser310_t *sys;
 
 EMSCRIPTEN_KEEPALIVE
 byte mem_read(uint16_t address) {
         if(address < 0x6800) return rom[address];                                 // ROM
-   else if(address < 0x7000) return (cassette_in << 7) | keyboard_poll(address);  // mapped I/O
+   else if(address < 0x7000) return (sys->cassette_in << 7) | keyboard_poll(address);  // mapped I/O
    else                      return ram[address];                                 // RAM
 }
 
@@ -26,12 +20,12 @@ void mem_write(word address, byte value) {
    }
    else if(address < 0x7000) {
       // mapped I/O
-      speaker_B         = (value >> 5) & 1;
-      vdc_background    = (value >> 4) & 1;
-      vdc_mode          = (value >> 3) & 1;
-      cassette_out      = (value >> 2) & 1;
-      cassette_out_MSB  = (value >> 1) & 1;
-      speaker_A         = (value >> 0) & 1;
+      sys->speaker_B         = (value >> 5) & 1;
+      sys->vdc_background    = (value >> 4) & 1;
+      sys->vdc_mode          = (value >> 3) & 1;
+      sys->cassette_out      = (value >> 2) & 1;
+      sys->cassette_out_MSB  = (value >> 1) & 1;
+      sys->speaker_A         = (value >> 0) & 1;
    }
    else {
       // RAM

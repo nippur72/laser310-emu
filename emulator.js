@@ -101,8 +101,8 @@ function main() {
 
    keyboard_reset();
 
-   laser310_init();
-   laser310_reset();
+   sys_init();
+   sys_reset();
 
    audio.start();
 

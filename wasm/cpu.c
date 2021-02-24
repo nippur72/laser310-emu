@@ -25,8 +25,8 @@ uint64_t tick(int num_ticks, uint64_t pins, void* user_data) {
    // tick the VDC
    uint64_t vdc_pins = MC6847_GM1;
 
-   if(vdc_mode      ) BITSET(vdc_pins,MC6847_AG);
-   if(vdc_background) BITSET(vdc_pins,MC6847_CSS);
+   if(sys->vdc_mode      ) BITSET(vdc_pins,MC6847_AG);
+   if(sys->vdc_background) BITSET(vdc_pins,MC6847_CSS);
    vdc_pins = mc6847_tick(&mc, vdc_pins);
    if(vdc_pins & MC6847_FS) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
 

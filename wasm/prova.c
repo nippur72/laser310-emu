@@ -1,5 +1,4 @@
 #include "laser310.h"
-#include "buzzer.h"
 
 #define CHIPS_IMPL
 
@@ -17,19 +16,17 @@ void debugAfter()  { byte unused = (byte) EM_ASM_INT({ if(debugAfter !== undefin
 EMSCRIPTEN_KEEPALIVE
 void laser310_set_debug(bool v) { debug = v; }
 
-buzzer_t buzzer;
+laser310_t l310;
+laser310_t *sys = &l310;
 
-byte cassette_in;
+laser310_desc_t sysdesc;
 
-// I/O latch
-byte speaker_B;        // bit 5
-byte vdc_background;   // bit 4
-byte vdc_mode;         // bit 3
-byte cassette_out;     // bit 2
-byte cassette_out_MSB; // bit 1
-byte speaker_A;        // bit 0
+// call back called when audio buffer is full with samples
+void audio_buffer_ready(float *samples, int size) {
+   uint8_t risp = (uint8_t) EM_ASM_INT({ return ay38910_audio_buf_ready($0, $1); }, samples, size);
+}
 
-EMSCRIPTEN_KEEPALIVE
+KEEP
 int laser310_tick() {
    static bool opdone;
 
@@ -45,13 +42,13 @@ int laser310_tick() {
       opdone = true;
    }
 
-   float sample = ((cassette_out + cassette_out_MSB + cassette_in) / 4.0) + ((speaker_A - speaker_B) / 4.0);
-   buzzer_ticks(&buzzer, ticks, sample);
+   float sample = ((sys->cassette_out + sys->cassette_out_MSB + sys->cassette_in) / 4.0) + ((sys->speaker_A - sys->speaker_B) / 4.0);
+   buzzer_ticks(&sys->buzzer, ticks, sample);
 
    return ticks;
 }
 
-EMSCRIPTEN_KEEPALIVE
+KEEP
 int laser310_ticks(int ncycles, float cyclesPerLine) {
 
    int elapsed = 0;
@@ -62,21 +59,30 @@ int laser310_ticks(int ncycles, float cyclesPerLine) {
    return elapsed;
 }
 
-EMSCRIPTEN_KEEPALIVE
-void laser310_init() {
-   buzzer_init(&buzzer);
+float buzzer_audio_buf[4096];
+
+KEEP
+void sys_init() {
+
+   sysdesc.cpu_clock = 3580000;
+   sysdesc.sample_rate = 48000;
+   sysdesc.audio_buf = buzzer_audio_buf;
+   sysdesc.audio_buf_size = 4096;
+   sysdesc.buffer_ready_cb = audio_buffer_ready;
+
+   laser310_init(&l310, &sysdesc);
    mc_init();
 }
 
-EMSCRIPTEN_KEEPALIVE
-void laser310_reset() {
-   cassette_in       = 0;
-   speaker_B         = 0;
-   vdc_background    = 0;
-   vdc_mode          = 0;
-   cassette_out      = 0;
-   cassette_out_MSB  = 0;
-   speaker_A         = 0;
+KEEP
+void sys_reset() {
+   sys->cassette_in       = 0;
+   sys->speaker_B         = 0;
+   sys->vdc_background    = 0;
+   sys->vdc_mode          = 0;
+   sys->cassette_out      = 0;
+   sys->cassette_out_MSB  = 0;
+   sys->speaker_A         = 0;
    mc6847_reset(&mc);
 }
 
