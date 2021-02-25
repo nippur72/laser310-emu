@@ -20,7 +20,7 @@ byte keyboard_poll(keyboard_t *kbd, word address)
 {
    byte KB = address & 0xFF;
 
-   byte KA = 0b11111111;
+   byte KA = 0b00111111;
    for(int col=0; col<8; col++) {
       if((KB & (1<<col)) == 0) {
         KA = KA & kbd->KAX[col];

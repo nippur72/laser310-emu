@@ -261,3 +261,13 @@ function getFileExtension(fileName) {
    if(s.length == 1) return "";
    return "." + s[s.length-1];
 }
+
+function get_wasm_float32_array(ptr, size) {
+   let start = ptr / wasm_instance.HEAPF32.BYTES_PER_ELEMENT;
+   let buffer = wasm_instance.HEAPF32.subarray(start,start+size);
+   return buffer;
+}
+
+function USR(address) {
+   mem_write_word(30862, address);
+}

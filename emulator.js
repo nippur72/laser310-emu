@@ -3,6 +3,7 @@
 // TODO fix BASTXT, BASEND, CRSR_STATE
 // TODO fix cpuspeed & other
 // TODO check on the real HW port number return
+// TODO check if audio and cpu have the same speed
 
 let BASTXT;      // points to basic free area (start of program)
 let BASEND;      // points to end of the basic program
@@ -129,9 +130,7 @@ function main() {
 
 function ay38910_audio_buf_ready(ptr, size) {
    if(!audio.playing) return;
-   let start = ptr / wasm_instance.HEAPF32.BYTES_PER_ELEMENT;
-   let buffer = wasm_instance.HEAPF32.subarray(start,start+size);
+   let buffer = get_wasm_float32_array(ptr, size);
    audio.playBuffer(buffer);
 }
-
 

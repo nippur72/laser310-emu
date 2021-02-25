@@ -3,6 +3,7 @@
 #define CHIPS_IMPL
 
 #include "buzzer.h"
+#include "tape.h"
 #include "keyboard.c"
 #include "chips/z80.h"
 #include "chips/mc6847.h"
@@ -17,7 +18,9 @@ typedef struct {
    z80_t cpu;             // the Z80 CPU
    mc6847_t vdp;          // the MC6847 VDP
 
-   byte cassette_in;      // bit 7 input latch, D6-D0 are keyboard
+   tape_t tape;           // tape WAV adapter
+
+   byte cassette_in;      // bit 6 input latch, D5-D0 are keyboard
    byte speaker_B;        // bit 5 output latch
    byte vdc_background;   // bit 4 output latch
    byte vdc_mode;         // bit 3 output latch
@@ -26,10 +29,13 @@ typedef struct {
    byte speaker_A;        // bit 0 output latch
 
    int cpu_clock;
+
+   // buzzer audio
    float *audio_buf;
    int audio_buf_size;
    buzzer_t buzzer;
 
+   // debug
    bool debug;
    bool opdone;
    debug_cb debug_before;
@@ -68,11 +74,12 @@ void laser310_reset(laser310_t *sys) {
    z80_reset(&sys->cpu);
    mc6847_reset(&sys->vdp);
    keyboard_reset(&sys->kbd);
+   tape_reset(&sys->tape);
 }
 
 byte laser310_mem_read(laser310_t *sys, uint16_t address) {
         if(address < 0x6800) return sys->rom[address];                                           // ROM
-   else if(address < 0x7000) return (sys->cassette_in << 7) | keyboard_poll(&sys->kbd, address); // mapped I/O
+   else if(address < 0x7000) return (sys->cassette_in << 6) | keyboard_poll(&sys->kbd, address); // mapped I/O
    else                      return sys->ram[address];                                           // RAM
 }
 
@@ -194,6 +201,9 @@ int laser310_tick(laser310_t *sys) {
       sys->opdone = true;
    }
 
+   tape_load_tick(&sys->tape, ticks);
+   sys->cassette_in = sys->tape.load.bit == 0 ? 1 : 0;
+
    float sample_cassette = (sys->cassette_out + sys->cassette_out_MSB + sys->cassette_in) / 2.0;
    float sample_buzzer   = (sys->speaker_A - sys->speaker_B) / 2.0;
    float sample = (sample_cassette + sample_buzzer) / 2.0;
@@ -238,3 +248,4 @@ void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
 
    laser310_reset(sys);
 }
+

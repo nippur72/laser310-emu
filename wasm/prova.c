@@ -173,3 +173,19 @@ KEEP
 void sys_keyboard_release(byte row, byte col) {
    keyboard_release(&l310.kbd, row, col);
 }
+
+KEEP
+void sys_tape_init_load(int size, int sample_rate) {
+   tape_init_load(&l310.tape, size, l310.cpu_clock, sample_rate);
+}
+
+KEEP
+void sys_tape_load_data(int index, byte sample) {
+   tape_load_data(&l310.tape, index, sample);
+}
+
+KEEP
+void sys_tape_playback() {
+   tape_playback(&l310.tape);
+}
+
