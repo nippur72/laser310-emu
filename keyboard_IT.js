@@ -122,3 +122,13 @@ function pckey_to_hardware_keys_ITA(code, key, e) {
 
    return hardware_keys;
 }
+
+function emulatekey(k1, k2) {
+   renderFrame();
+   keyPress(k1);
+   if(k2 !== undefined) keyPress(k2);
+   renderFrame();
+   if(k2 !== undefined) keyRelease(k2);
+   keyRelease(k1);
+   renderFrame();
+}

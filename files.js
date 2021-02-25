@@ -69,7 +69,28 @@ async function load_vz(filename) {
     const vz = await storage.readFile(filename);
     const startAddress = vz[22]+vz[23]*256;
     const bytes        = vz.slice(24);
+    const ftype        = vz[21];
     loadBytes(bytes, startAddress, filename);
+
+    if(ftype == 0xF1) {
+        USR(startAddress); // set USR(0) address;
+        emulatekey(KEY_X);
+        emulatekey(KEY_SHIFT, KEY_MINUS);
+        emulatekey(KEY_U);
+        emulatekey(KEY_S);
+        emulatekey(KEY_R);
+        emulatekey(KEY_SHIFT, KEY_8);
+        emulatekey(KEY_X);
+        emulatekey(KEY_SHIFT, KEY_9);
+        emulatekey(KEY_RETURN);
+    }
+
+    if(ftype == 0xF0) {
+        emulatekey(KEY_R);
+        emulatekey(KEY_U);
+        emulatekey(KEY_N);
+        emulatekey(KEY_RETURN);
+    }
 }
 
 async function save_vz(filename) {

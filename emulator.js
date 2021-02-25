@@ -1,5 +1,6 @@
 "use strict";
 
+// TODO use only .VZ files
 // TODO fix BASTXT, BASEND, CRSR_STATE
 // TODO fix cpuspeed & other
 // TODO check on the real HW port number return
