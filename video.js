@@ -20,7 +20,7 @@ calculateGeometry_mc();
 const MC_DOT_WIDTH = 320;
 const MC_DOT_HEIGHT = 243;
 const MC_OFFSET_X = -48;
-const MC_OFFSET_Y = -8;
+const MC_OFFSET_Y = -18;
 
 let mc6847_canvas = document.getElementById("canvas");
 let mc6847_context = mc6847_canvas.getContext('2d');
