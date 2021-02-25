@@ -1,5 +1,8 @@
 "use strict";
 
+// TODO investigate joystick range
+// TODO investigate why circus hangs
+// TODO memory model 16K, 32K
 // TODO use only .VZ files
 // TODO fix BASTXT, BASEND, CRSR_STATE
 // TODO fix cpuspeed & other
