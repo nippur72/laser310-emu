@@ -65,6 +65,8 @@ function oneFrame(timestamp) {
    if(msec > frameRate*2) cycles = cpuSpeed * (frameRate*2 / 1000);
 
    poll_keyboard();
+   updateGamePad();
+   sys_joystick(joy0, joy1);
 
    total_cycles += sys_ticks(cycles, cyclesPerLine);
 

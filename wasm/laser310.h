@@ -28,6 +28,9 @@ typedef struct {
    byte cassette_out_MSB; // bit 1 output latch
    byte speaker_A;        // bit 0 output latch
 
+   byte joy0;             // left joystick port 0
+   byte joy1;             // left joystick port 1
+
    int cpu_clock;
 
    // buzzer audio
@@ -109,6 +112,11 @@ byte laser310_io_read(laser310_t *sys, word ioport) {
    switch(port) {
 
       //case 0xFF: return led_read(port);
+
+      case 0x27: return sys->joy0; // joy1;  // joystick left, fire buttons
+      case 0x2b: return sys->joy0; // joy0;  // joystick left, 8 directions
+      case 0x2d: return sys->joy0; // joy1;  // joystick right, fire buttons (not emulated)
+      case 0x2e: return sys->joy0; // joy0;  // joystick right, 8 directions (not emulated)
 
       default:
          //console.warn(`read from unknown port ${hex(port)}h`);

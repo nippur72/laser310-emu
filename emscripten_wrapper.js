@@ -83,6 +83,8 @@ let sys_tape_init_load;
 let sys_tape_load_data;
 let sys_tape_playback;
 
+let sys_joystick;
+
 function load_wasm(ready_cb) {
 
    // emscripten_module.js exports "emscripten_module" globally
@@ -172,6 +174,8 @@ function load_wasm(ready_cb) {
       sys_tape_init_load = instance.cwrap("sys_tape_init_load", null, [ 'number', 'number'] );
       sys_tape_load_data = instance.cwrap("sys_tape_load_data", null, [ 'number', 'number'] );
       sys_tape_playback  = instance.cwrap("sys_tape_playback", null, [ 'number', 'number'] );
+
+      sys_joystick       = instance.cwrap("sys_joystick", null, [ 'number', 'number'] );
 
       // export instance globally (not strictly required)
       wasm_instance = instance;
