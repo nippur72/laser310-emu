@@ -1,5 +1,6 @@
 "use strict";
 
+// TODO investigate speaker_A and speaker_B
 // TODO investigate joystick range
 // TODO investigate why circus hangs
 // TODO memory model 16K, 32K
