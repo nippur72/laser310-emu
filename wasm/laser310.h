@@ -156,7 +156,9 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
    if(sys->vdc_mode      ) BITSET(vdc_pins,MC6847_AG);
    if(sys->vdc_background) BITSET(vdc_pins,MC6847_CSS);
    vdc_pins = mc6847_tick(&sys->vdp, vdc_pins);
+
    if(vdc_pins & MC6847_FS) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
+   //else BITRESET(pins,Z80_INT);
 
    // NMI connected to VCC on the Laser 310
    BITRESET(pins,Z80_NMI);
