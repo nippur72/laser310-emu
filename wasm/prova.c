@@ -8,13 +8,11 @@ uint32_t mc_display_buffer[MC6847_DISPLAY_WIDTH*MC6847_DISPLAY_HEIGHT];
 laser310_t l310;
 laser310_desc_t sysdesc;
 
-bool debug = false;
-
 void debugBefore() { byte unused = (byte) EM_ASM_INT({ if(debugBefore!== undefined) debugBefore(); }, 0); }
 void debugAfter()  { byte unused = (byte) EM_ASM_INT({ if(debugAfter !== undefined) debugAfter();  }, 0); }
 
 KEEP
-void sys_set_debug(bool v) { debug = v; }
+void sys_set_debug(bool v) { l310.debug = v; }
 
 // callback called when audio buffer is full with samples
 void audio_buffer_ready(float *samples, int size) {
