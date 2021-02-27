@@ -109,19 +109,20 @@ void laser310_mem_write(laser310_t *sys, word address, byte value) {
 byte laser310_io_read(laser310_t *sys, word ioport) {
    byte port = ioport & 0xFF;
 
-   switch(port) {
-
-      //case 0xFF: return led_read(port);
-
-      case 0x27: return sys->joy0; // joy1;  // joystick left, fire buttons
-      case 0x2b: return sys->joy0; // joy0;  // joystick left, 8 directions
-      case 0x2d: return sys->joy0; // joy1;  // joystick right, fire buttons (not emulated)
-      case 0x2e: return sys->joy0; // joy0;  // joystick right, 8 directions (not emulated)
-
-      default:
-         //console.warn(`read from unknown port ${hex(port)}h`);
-         return port; // TODO check on the real HW
+   if(port >= 0x20 && port <= 0x2f) {
+      return sys->joy0;
    }
+   else {
+      byte unused = (byte) EM_ASM_INT({ console.log("io read from unknown port", $0) }, port);
+      return 0xFF; // as in VZEM
+   }
+
+   /*
+   case 0x27: return sys->joy0; // joy1;  // joystick left, fire buttons
+   case 0x2b: return sys->joy0; // joy0;  // joystick left, 8 directions
+   case 0x2d: return sys->joy0; // joy1;  // joystick right, fire buttons (not emulated)
+   case 0x2e: return sys->joy0; // joy0;  // joystick right, 8 directions (not emulated)
+   */
 }
 
 void laser310_io_write(laser310_t *sys, word port, byte value) {
@@ -131,7 +132,8 @@ void laser310_io_write(laser310_t *sys, word port, byte value) {
 
       //case 0xFF: led_write(port, value); return;
 
-      //default:
+      default:
+         (byte) EM_ASM_INT({ console.log("io write to unknown port ", $0, $1) }, port & 0xFF, value);
          //console.warn(`write on unknown port ${hex(port)}h value ${hex(value)}h`);
    }
 }
