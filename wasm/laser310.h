@@ -133,8 +133,10 @@ void laser310_io_write(laser310_t *sys, word port, byte value) {
       //case 0xFF: led_write(port, value); return;
 
       default:
-         (byte) EM_ASM_INT({ console.log("io write to unknown port ", $0, $1) }, port & 0xFF, value);
+      {
+         byte unused = (byte) EM_ASM_INT({ console.log("io write to unknown port ", $0, $1) }, port & 0xFF, value);
          //console.warn(`write on unknown port ${hex(port)}h value ${hex(value)}h`);
+      }
    }
 }
 
@@ -157,7 +159,7 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
    if(sys->vdc_background) BITSET(vdc_pins,MC6847_CSS);
    vdc_pins = mc6847_tick(&sys->vdp, vdc_pins);
 
-   if(vdc_pins & MC6847_FS) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
+   if(IS_ONE(vdc_pins,MC6847_FS)) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
    //else BITRESET(pins,Z80_INT);
 
    // NMI connected to VCC on the Laser 310
