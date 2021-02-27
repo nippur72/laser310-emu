@@ -215,7 +215,8 @@ int laser310_tick(laser310_t *sys) {
    sys->cassette_in = sys->tape.load.bit == 0 ? 1 : 0;
 
    float sample_cassette = (sys->cassette_out + sys->cassette_out_MSB + sys->cassette_in) / 2.0;
-   float sample_buzzer   = (sys->speaker_A - sys->speaker_B) / 2.0;
+   float sample_buzzer   = sys->speaker_B / 2.0;
+   //float sample_buzzer   = (sys->speaker_A - sys->speaker_B) / 2.0;
    float sample = (sample_cassette + sample_buzzer) / 2.0;
    buzzer_ticks(&sys->buzzer, ticks, sample);
 
