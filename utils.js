@@ -126,9 +126,11 @@ function go() {
    console.log("emulation resumed");
 }
 
+let show_info = false;
 function info() {
+   show_info = true;
    const average = averageFrameTime;
-   console.log(`frame rate: average ${Math.round(average*10,2)/10} ms (${Math.round(1000/average)} Hz)`);
+   console.log(`frame rate: ${Math.round(average*10,2)/10} ms (${Math.round(1000/average)} Hz) CPU load: ${Math.round(averageLoad*10,2)/10}`);
 }
 
 function set_bit(value, bitn) {
