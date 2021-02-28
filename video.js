@@ -1,8 +1,18 @@
 function calculateGeometry_mc() {
+   /*
    const BORDER_V_TOP    = 16;
    const BORDER_V_BOTTOM = 16;
    const BORDER_H_LEFT   =  8;
    const BORDER_H_RIGHT  =  8;
+   const TEXT_W = 256;
+   const TEXT_H = 192;
+   */
+
+   // full screen
+   const BORDER_V_TOP    = 25;
+   const BORDER_V_BOTTOM = 25;
+   const BORDER_H_LEFT   =  32;
+   const BORDER_H_RIGHT  =  32;
    const TEXT_W = 256;
    const TEXT_H = 192;
 
@@ -19,8 +29,12 @@ calculateGeometry_mc();
 
 const MC_DOT_WIDTH = 320;
 const MC_DOT_HEIGHT = 243;
-const MC_OFFSET_X = -48;
-const MC_OFFSET_Y = -18;
+
+//const MC_OFFSET_X = -48;
+//const MC_OFFSET_Y = -18;
+
+const MC_OFFSET_X = 0;
+const MC_OFFSET_Y = 0;
 
 let mc6847_canvas = document.getElementById("canvas");
 let mc6847_context = mc6847_canvas.getContext('2d');
@@ -60,5 +74,11 @@ function vdp_screen_update_mc(ptr) {
    if(frames % 60 == 0) {
       // update LED
       document.getElementById("LED").style.visibility = LED>0 ? "visible" : "hidden";
+
+      if(show_info) {
+         let el = document.getElementById("framerate");
+         el.style.visibility = "visible";
+         el.innerHTML = `frame rate: ${Math.round(1000/averageFrameTime)} Hz CPU load: ${Math.round(averageLoad*10,2)/10}%`;
+      }
    }
 }
