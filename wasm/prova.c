@@ -39,7 +39,7 @@ int sys_ticks(int ncycles) {
 KEEP
 void sys_init() {
 
-   sysdesc.cpu_clock = 3580000;
+   sysdesc.cpu_clock = 3546900;
    sysdesc.sample_rate = 48000;
    sysdesc.audio_buf = buzzer_audio_buf;
    sysdesc.audio_buf_size = 4096;

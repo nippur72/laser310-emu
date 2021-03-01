@@ -190,6 +190,8 @@ uint64_t vdp_fetch_cb(uint64_t pins, void* user_data) {
    uint16_t address = MC6847_GET_ADDR(pins);
    uint8_t data = laser310_mem_read(sys, 0x7000+address);
 
+   //if(IS_ONE(sys->cpu.pins,Z80_MREQ)) data = 0;
+
    if (data & (1<<6)) BITSET(pins,MC6847_INV);
    else               BITRESET(pins,MC6847_INV);
    if (data & (1<<7)) BITSET(pins,MC6847_AS);
@@ -237,7 +239,8 @@ void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
 
    // mc6847
    mc6847_desc_t mc_desc;
-   mc_desc.tick_hz = sys->cpu_clock; // TODO why divided by 2 ?
+   mc_desc.MC6847_TICK_HZ = sys->cpu_clock;
+   mc_desc.tick_hz = sys->cpu_clock;
    mc_desc.rgba8_buffer = desc->display_buffer;
    mc_desc.rgba8_buffer_size = desc->display_buffer_size;
    mc_desc.fetch_cb = vdp_fetch_cb;

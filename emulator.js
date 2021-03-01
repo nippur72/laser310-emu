@@ -19,8 +19,8 @@ let cpu;
 
 /******************/
 
-let cpuSpeed = 3580000;
-let vdcSpeed = 3580000;
+let cpuSpeed = 3546900;  // 3546900 VZ300, 3579500 VZ200
+let vdcSpeed = 3546900;
 let frameRate = vdcSpeed/(320*262);     // ~60 Hz
 let frameDuration = 1000/frameRate;     // duration of 1 frame in msec
 let cyclesPerLine = cpuSpeed / vdcSpeed * 320;
