@@ -78,7 +78,7 @@ function vdp_screen_update_mc(ptr) {
       if(show_info) {
          let el = document.getElementById("framerate");
          el.style.visibility = "visible";
-         el.innerHTML = `frame rate: ${Math.round(1000/averageFrameTime)} Hz CPU load: ${Math.round(averageLoad*10,2)/10}%`;
+         el.innerHTML = `frame rate: ${Math.round(averageFrameTime)} ms (${Math.round(1000/averageFrameTime)}Hz) CPU load: ${Math.round(averageLoad)}%, drops: ${frame_skips}`;
       }
    }
 }
