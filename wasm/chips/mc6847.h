@@ -187,7 +187,7 @@ extern "C" {
 #define MC6847_BORDER_PIXELS ((MC6847_DISPLAY_WIDTH-MC6847_IMAGE_WIDTH)/2)
 
 /* the MC6847 is always clocked at 3.579 MHz */
-#define MC6847_TICK_HZ (3579545)
+//#define MC6847_TICK_HZ (3579545)
 
 /* fixed point precision for more precise error accumulation */
 #define MC6847_FIXEDPOINT_SCALE (16)
@@ -201,6 +201,7 @@ typedef void (*mc6847_screen_update_cb_t)(uint32_t *bmp);
 /* the mc6847 setup parameters */
 typedef struct {
     /* the CPU tick rate in hz */
+    int MC6847_TICK_HZ;
     int tick_hz;
     /* pointer to an RGBA8 framebuffer where video image is written to */
     uint32_t* rgba8_buffer;
@@ -288,13 +289,13 @@ void mc6847_init(mc6847_t* vdg, const mc6847_desc_t* desc) {
 
        one scanline is 228 3.5 MC6847 ticks
     */
-    int64_t tmp = (228LL * desc->tick_hz * MC6847_FIXEDPOINT_SCALE) / MC6847_TICK_HZ;
+    int64_t tmp = (228LL * desc->tick_hz * MC6847_FIXEDPOINT_SCALE) / desc->MC6847_TICK_HZ;
     vdg->h_period = (int) tmp;
     /* hsync starts at tick 10 of a scanline */
-    tmp = (10LL * desc->tick_hz * MC6847_FIXEDPOINT_SCALE) / MC6847_TICK_HZ;
+    tmp = (10LL * desc->tick_hz * MC6847_FIXEDPOINT_SCALE) / desc->MC6847_TICK_HZ;
     vdg->h_sync_start = (int) tmp;
     /* hsync is 16 ticks long */
-    tmp = (26LL * desc->tick_hz * MC6847_FIXEDPOINT_SCALE) / MC6847_TICK_HZ;
+    tmp = (26LL * desc->tick_hz * MC6847_FIXEDPOINT_SCALE) / desc->MC6847_TICK_HZ;
     vdg->h_sync_end = (int) tmp;
 
     /* the default graphics mode color palette
