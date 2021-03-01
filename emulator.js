@@ -1,8 +1,9 @@
 "use strict";
 
+// TODO numpad or cursor keys joystick
+// TODO fix clock speeds
 // TODO investigate speaker_A and speaker_B
 // TODO investigate joystick range
-// TODO investigate why circus hangs
 // TODO memory model 16K, 32K
 // TODO use only .VZ files
 // TODO fix BASTXT, BASEND, CRSR_STATE
@@ -28,6 +29,7 @@ let stopped = false; // allows to stop/resume the emulation
 
 let frames = 0;
 let averageFrameTime = 0;
+let averageLoad = 0;
 
 let cycle = 0;
 let total_cycles = 0;
@@ -60,21 +62,35 @@ function poll_keyboard() {
 let end_of_frame_hook = undefined;
 
 let last_timestamp = 0;
+let frame_skips = 0;
 function oneFrame(timestamp) {
-   let stamp = timestamp == undefined ? last_timestamp : timestamp;
-   let msec = stamp - last_timestamp;
+   const stamp = timestamp == undefined ? last_timestamp : timestamp;
+   const msec = stamp - last_timestamp;
    let cycles = cpuSpeed * msec / 1000;
    last_timestamp = stamp;
 
-   if(msec > frameRate*2) cycles = cpuSpeed * (frameRate*2 / 1000);
+   // put a limit on the maximum frame time
+   let skip = false;
+   if(msec > frameRate*2) {
+      cycles = cpuSpeed * (frameRate*2 / 1000);
+      skip = true;
+      frame_skips++;
+   }
 
    poll_keyboard();
    updateGamePad();
    sys_joystick(joy0, joy1);
 
+   let starttime = performance.now();
    total_cycles += sys_ticks(cycles, cyclesPerLine);
+   let endtime = performance.now();
+   let elapsed = endtime - starttime;
+   let load = (elapsed / msec) * 100;
 
-   averageFrameTime = averageFrameTime * 0.992 + msec * 0.008;
+   if(!skip && msec != 0) {
+      averageFrameTime = averageFrameTime * 0.992 + msec * 0.008;
+      averageLoad = averageLoad * 0.992 + load * 0.008;
+   }
 
    if(!stopped) requestAnimationFrame(oneFrame);
 }
