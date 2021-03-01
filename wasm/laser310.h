@@ -174,6 +174,17 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
       }
    }
 
+   /*
+   // attempt to simulate the "snow" effect
+   int add = Z80_GET_ADDR(pins);
+   int ma = (add >=0x7000 && add<0x7800) && ((pins & Z80_MREQ|Z80_RD)||(pins & Z80_MREQ|Z80_WR));
+   for(int t=0;t<num_ticks;t++) {
+      mem_access[mem_access_ptr] = ma;
+      mem_access_ptr++;
+      if(mem_access_ptr == MA_SIZE) mem_access_ptr = 0;
+   }
+   */
+
    // tick the VDC
    uint64_t vdc_pins = MC6847_GM1;
    if(sys->vdc_mode      ) BITSET(vdc_pins,MC6847_AG);
@@ -190,7 +201,8 @@ uint64_t vdp_fetch_cb(uint64_t pins, void* user_data) {
    uint16_t address = MC6847_GET_ADDR(pins);
    uint8_t data = laser310_mem_read(sys, 0x7000+address);
 
-   //if(IS_ONE(sys->cpu.pins,Z80_MREQ)) data = 0;
+   // attempt to simulate the "snow" effect
+   // if(mem_access[sys->vdp.l_count] > 0) data = 0;
 
    if (data & (1<<6)) BITSET(pins,MC6847_INV);
    else               BITRESET(pins,MC6847_INV);

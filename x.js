@@ -131,3 +131,31 @@ paste(`
 30 if sstat(7)<>191 then print sstat(7)
 40 goto 20
 `)
+
+debugBefore = function() {
+   let pc = get_z80_pc();
+   if(pc == 0x889c || pc == 0x88a4) {
+      console.log(hex(pc,4));
+   }
+}
+sys_set_debug(1);
+
+
+// interrupt rate
+(function() {
+   let ticks = 0;
+   let last_interrupt = 0;
+   let average = 16;
+   debugBefore = function() {
+      let pc = get_z80_pc();
+      if(pc == 0x0038) {
+         let now = performance.now();
+         let time = now - last_interrupt;
+         last_interrupt = now;
+         if(time > 1 && time < 50) average = average * 0.995 + time * 0.005;
+         ticks++;
+         if(ticks%50==0) console.log(Math.round(average*10)/10, Math.round((1000/average)*10)/10);
+      }
+   }
+   sys_set_debug(1);
+})();
