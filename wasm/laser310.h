@@ -28,8 +28,19 @@ typedef struct {
    byte cassette_out_MSB; // bit 1 output latch
    byte speaker_A;        // bit 0 output latch
 
-   byte joy0;             // left joystick port 0
-   byte joy1;             // left joystick port 1
+   bool joy0_up;
+   bool joy0_down;
+   bool joy0_left;
+   bool joy0_right;
+   bool joy0_fire;
+   bool joy0_arm;
+
+   bool joy1_up;
+   bool joy1_down;
+   bool joy1_left;
+   bool joy1_right;
+   bool joy1_fire;
+   bool joy1_arm;
 
    int cpu_clock;
 
@@ -72,6 +83,19 @@ void laser310_reset(laser310_t *sys) {
    sys->cassette_out_MSB  = 0;
    sys->speaker_A         = 0;
 
+   sys->joy0_up    = false;
+   sys->joy0_down  = false;
+   sys->joy0_left  = false;
+   sys->joy0_right = false;
+   sys->joy0_fire  = false;
+   sys->joy0_arm   = false;
+   sys->joy1_up    = false;
+   sys->joy1_down  = false;
+   sys->joy1_left  = false;
+   sys->joy1_right = false;
+   sys->joy1_fire  = false;
+   sys->joy1_arm   = false;
+
    sys->opdone = false;
 
    z80_reset(&sys->cpu);
@@ -109,8 +133,21 @@ void laser310_mem_write(laser310_t *sys, word address, byte value) {
 byte laser310_io_read(laser310_t *sys, word ioport) {
    byte port = ioport & 0xFF;
 
-   if(port >= 0x20 && port <= 0x2f) {
-      return sys->joy0;
+   if((port & 0xF0) == 0x20) {
+      byte data = 0xFF;
+      if(((port & 1) == 0) && sys->joy0_up   ) data &=  ~1;
+      if(((port & 1) == 0) && sys->joy0_down ) data &=  ~2;
+      if(((port & 1) == 0) && sys->joy0_left ) data &=  ~4;
+      if(((port & 1) == 0) && sys->joy0_right) data &=  ~8;
+      if(((port & 1) == 0) && sys->joy0_fire ) data &= ~16;
+      if(((port & 2) == 0) && sys->joy0_arm  ) data &= ~16;
+      if(((port & 4) == 0) && sys->joy1_up   ) data &=  ~1;
+      if(((port & 4) == 0) && sys->joy1_down ) data &=  ~2;
+      if(((port & 4) == 0) && sys->joy1_left ) data &=  ~4;
+      if(((port & 4) == 0) && sys->joy1_right) data &=  ~8;
+      if(((port & 4) == 0) && sys->joy1_fire ) data &= ~16;
+      if(((port & 8) == 0) && sys->joy1_arm  ) data &= ~16;
+      return data;
    }
    else {
       byte unused = (byte) EM_ASM_INT({ console.log("io read from unknown port", $0) }, port);
@@ -237,6 +274,23 @@ int laser310_tick(laser310_t *sys) {
    buzzer_ticks(&sys->buzzer, ticks, sample);
 
    return ticks;
+}
+
+void laser310_joystick(laser310_t *sys, byte joy0, byte joy1)
+{
+   sys->joy0_up    = joy0 & (1<<0);
+   sys->joy0_down  = joy0 & (1<<1);
+   sys->joy0_left  = joy0 & (1<<2);
+   sys->joy0_right = joy0 & (1<<3);
+   sys->joy0_fire  = joy0 & (1<<4);
+   sys->joy0_arm   = joy0 & (1<<5);
+
+   sys->joy1_up    = joy1 & (1<<0);
+   sys->joy1_down  = joy1 & (1<<1);
+   sys->joy1_left  = joy1 & (1<<2);
+   sys->joy1_right = joy1 & (1<<3);
+   sys->joy1_fire  = joy1 & (1<<4);
+   sys->joy1_arm   = joy1 & (1<<5);
 }
 
 void laser310_init(laser310_t *sys, laser310_desc_t *desc) {

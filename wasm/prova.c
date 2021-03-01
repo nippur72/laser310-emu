@@ -189,7 +189,6 @@ void sys_tape_playback() {
 
 KEEP
 void sys_joystick(byte joy0, byte joy1) {
-   l310.joy0 = joy0;
-   l310.joy1 = joy1;
+   laser310_joystick(&l310, joy0, joy1);
 }
 
