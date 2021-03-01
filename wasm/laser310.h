@@ -152,16 +152,6 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
 
    laser310_t *sys = (laser310_t *)user_data;
 
-   // tick the VDC
-   uint64_t vdc_pins = MC6847_GM1;
-
-   if(sys->vdc_mode      ) BITSET(vdc_pins,MC6847_AG);
-   if(sys->vdc_background) BITSET(vdc_pins,MC6847_CSS);
-   vdc_pins = mc6847_tick(&sys->vdp, vdc_pins);
-
-   if(IS_ONE(vdc_pins,MC6847_FS)) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
-   //else BITRESET(pins,Z80_INT);
-
    // NMI connected to VCC on the Laser 310
    BITRESET(pins,Z80_NMI);
 
@@ -183,6 +173,14 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
          laser310_io_write(sys, Z80_GET_ADDR(pins), Z80_GET_DATA(pins));
       }
    }
+
+   // tick the VDC
+   uint64_t vdc_pins = MC6847_GM1;
+   if(sys->vdc_mode      ) BITSET(vdc_pins,MC6847_AG);
+   if(sys->vdc_background) BITSET(vdc_pins,MC6847_CSS);
+   for(int t=0;t<num_ticks;t++) vdc_pins = mc6847_tick(&sys->vdp, vdc_pins);
+   if(IS_ONE(vdc_pins,MC6847_FS)) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
+   else BITRESET(pins,Z80_INT);
 
    return pins;
 }
@@ -239,7 +237,7 @@ void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
 
    // mc6847
    mc6847_desc_t mc_desc;
-   mc_desc.tick_hz = sys->cpu_clock / 2; // TODO why divided by 2 ?
+   mc_desc.tick_hz = sys->cpu_clock; // TODO why divided by 2 ?
    mc_desc.rgba8_buffer = desc->display_buffer;
    mc_desc.rgba8_buffer_size = desc->display_buffer_size;
    mc_desc.fetch_cb = vdp_fetch_cb;
