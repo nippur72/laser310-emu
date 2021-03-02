@@ -63,6 +63,14 @@ function hex(value, size) {
    return s.substr(s.length - size);
 }
 
+function hi(word) {
+   return (word >> 8) & 0xFF;
+}
+
+function lo(word) {
+   return word & 0xFF;
+}
+
 function bin(value, size) {
    if(size === undefined) size = 8;
    let s = "0000000000000000" + value.toString(2);
@@ -70,8 +78,8 @@ function bin(value, size) {
 }
 
 function mem_write_word(address, word) {
-   mem_write(address + 0, word & 0xFF);
-   mem_write(address + 1, (word & 0xFF00) >> 8);
+   mem_write(address + 0, lo(word));
+   mem_write(address + 1, hi(word));
 }
 
 function mem_read_word(address) {
@@ -149,4 +157,20 @@ function get_wasm_float32_array(ptr, size) {
    let start = ptr / wasm_instance.HEAPF32.BYTES_PER_ELEMENT;
    let buffer = wasm_instance.HEAPF32.subarray(start,start+size);
    return buffer;
+}
+
+function stringToUint8(s) {
+   let b = [];
+   for(let t=0;t<s.length;t++) {
+      b.push(s.charCodeAt(t));
+   }
+   return new Uint8Array(b);
+}
+
+function uint8ToString(b) {
+   let s = "";
+   for(let t=0;t<b.length;t++) {
+      s+=String.fromCharCode(b[t]);
+   }
+   return s;
 }

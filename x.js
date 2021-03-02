@@ -159,3 +159,6 @@ sys_set_debug(1);
    }
    sys_set_debug(1);
 })();
+
+// load a file demo file
+// file:///C:/Users/Nino1/Desktop/USB/GitHub/laser310-emu/index.html?load=http://www.vz200.org/bushy/software/games-binary/INVADERS_JS.VZ
