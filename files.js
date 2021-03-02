@@ -157,7 +157,7 @@ function unpackvz(vz) {
     const data   = vz.slice(24);
     const type   = vz[21];
 
-    console.assert(header == "VZF0", `unknown VZ header '${header}'`);
+    //console.assert(header == "VZF0", `unknown VZ header '${header}'`);
     console.assert(type == VZ_BASIC || type == VZ_BINARY, `unknown VZ data type ${hex(type)}`);
 
     let filename = "";
