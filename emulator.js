@@ -4,11 +4,9 @@
 // TODO numpad or cursor keys joystick
 // TODO investigate speaker_A and speaker_B
 // TODO memory model 16K, 32K
-// TODO use only .VZ files
-// TODO fix BASTXT, BASEND, CRSR_STATE
-// TODO fix cpuspeed & other
-// TODO check on the real HW port number return
-// TODO check if audio and cpu have the same speed
+// TODO fix CRSR_STATE
+// TODO timer and speed check program
+// TODO cassette save WAV
 
 let BASTXT;      // points to basic free area (start of program)
 let BASEND;      // points to end of the basic program

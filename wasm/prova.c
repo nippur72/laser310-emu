@@ -24,6 +24,15 @@ void screen_update(uint32_t *buffer) {
    byte unused = (byte) EM_ASM_INT({ vdp_screen_update_mc($0); }, buffer );
 }
 
+void printer_write(byte port, byte data) {
+   if(port == 0x0d) {
+      byte unused = (byte) EM_ASM_INT({ printerWrite($0); }, data );
+   }
+}
+
+byte printer_readst(byte port) {
+   return (byte) EM_ASM_INT({ return printerReady; });
+}
 
 KEEP
 int sys_ticks(int ncycles) {
@@ -47,6 +56,8 @@ void sys_init() {
    sysdesc.display_buffer = mc_display_buffer;
    sysdesc.display_buffer_size = sizeof(mc_display_buffer);
    sysdesc.screen_update_cb = screen_update;
+   sysdesc.printer_readst = printer_readst;
+   sysdesc.printer_write = printer_write;
    sysdesc.debug_before = debugBefore;
    sysdesc.debug_after = debugAfter;
    laser310_init(&l310, &sysdesc);

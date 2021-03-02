@@ -10,6 +10,9 @@
 
 typedef void (*debug_cb)();
 
+typedef void (*printer_write_cb)(byte port, byte data);
+typedef byte (*printer_readst_cb)(byte port);
+
 typedef struct {
    byte ram[65536];       // RAM
    byte rom[65536];       // ROM
@@ -49,6 +52,10 @@ typedef struct {
    int audio_buf_size;
    buzzer_t buzzer;
 
+   // printer
+   printer_write_cb printer_write;
+   printer_readst_cb printer_readst;
+
    // debug
    bool debug;
    bool opdone;
@@ -69,6 +76,8 @@ typedef struct {
    uint32_t *display_buffer;
    int display_buffer_size;
    mc6847_screen_update_cb_t screen_update_cb;
+   printer_write_cb printer_write;
+   printer_readst_cb printer_readst;
    debug_cb debug_before;
    debug_cb debug_after;
    void* user_data;
@@ -133,7 +142,13 @@ void laser310_mem_write(laser310_t *sys, word address, byte value) {
 byte laser310_io_read(laser310_t *sys, word ioport) {
    byte port = ioport & 0xFF;
 
-   if((port & 0xF0) == 0x20) {
+   if((port & 0xF0) == 0x00) {
+      // printer
+      if(sys->printer_readst != NULL) return sys->printer_readst(port & 0x0F);
+      else return 0xFF; // as in VZEM
+   }
+   else if((port & 0xF0) == 0x20) {
+      // joysticks
       byte data = 0xFF;
       if(((port & 1) == 0) && sys->joy0_up   ) data &=  ~1;
       if(((port & 1) == 0) && sys->joy0_down ) data &=  ~2;
@@ -162,18 +177,17 @@ byte laser310_io_read(laser310_t *sys, word ioport) {
    */
 }
 
-void laser310_io_write(laser310_t *sys, word port, byte value) {
+void laser310_io_write(laser310_t *sys, word ioport, byte value) {
+   byte port = ioport & 0xFF;
 
-   // console.log(`io write ${hex(port)} ${hex(value)}`)
-   switch(port & 0xFF) {
-
-      //case 0xFF: led_write(port, value); return;
-
-      default:
-      {
-         byte unused = (byte) EM_ASM_INT({ console.log("io write to unknown port ", $0, $1) }, port & 0xFF, value);
-         //console.warn(`write on unknown port ${hex(port)}h value ${hex(value)}h`);
-      }
+   if((port & 0xF0) == 0x00) {
+      // printer
+      if(sys->printer_write != NULL) return sys->printer_write(port & 0x0F, value);
+   }
+   else
+   {
+      byte unused = (byte) EM_ASM_INT({ console.log("io write to unknown port ", $0, $1) }, port & 0xFF, value);
+      //console.warn(`write on unknown port ${hex(port)}h value ${hex(value)}h`);
    }
 }
 
@@ -322,6 +336,10 @@ void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
    buzdesc.sample_rate = desc->sample_rate;
    buzdesc.buffer_ready_cb = desc->buffer_ready_cb;
    buzzer_init(&sys->buzzer, &buzdesc);
+
+   // printer
+   sys->printer_readst = desc->printer_readst;
+   sys->printer_write = desc->printer_write;
 
    // debug
    sys->debug_before = desc->debug_before;
