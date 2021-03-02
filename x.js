@@ -145,7 +145,7 @@ sys_set_debug(1);
 (function() {
    let ticks = 0;
    let last_interrupt = 0;
-   let average = 16;
+   let average = 20;
    debugBefore = function() {
       let pc = get_z80_pc();
       if(pc == 0x0038) {

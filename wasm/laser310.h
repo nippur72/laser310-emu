@@ -19,7 +19,14 @@ typedef struct {
 
    keyboard_t kbd;        // then keyboard matrix
    z80_t cpu;             // the Z80 CPU
-   mc6847_t vdp;          // the MC6847 VDP
+   mc6847_t vdc;          // the MC6847 VDP
+
+   bool videomem_access[MC6847_SCANLINE_TICKS+2];      // true if VPD was accessed at corresponding line tick
+   byte videomem_access_data[MC6847_SCANLINE_TICKS+2]; // the actual data on the bus at the corresponding tick
+   int videomem_access_ptr;                            // pointer to writing in videomem_access
+
+   int last_fs;           // value of FS at previous tick for PAL conversion
+   int PAL_counter;       // ticks to wait for adding PAL lines at the end of the frame
 
    tape_t tape;           // tape WAV adapter
 
@@ -105,10 +112,13 @@ void laser310_reset(laser310_t *sys) {
    sys->joy1_fire  = false;
    sys->joy1_arm   = false;
 
+   sys->last_fs     = 0;
+   sys->PAL_counter = 0;
+
    sys->opdone = false;
 
    z80_reset(&sys->cpu);
-   mc6847_reset(&sys->vdp);
+   mc6847_reset(&sys->vdc);
    keyboard_reset(&sys->kbd);
    tape_reset(&sys->tape);
 }
@@ -206,43 +216,60 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
    // NMI connected to VCC on the Laser 310
    BITRESET(pins,Z80_NMI);
 
+   // data on the bus for "snow" effect
+   byte video_access = false;
+   byte video_access_data;
+
+   int address = Z80_GET_ADDR(pins);
+
    if(pins & Z80_MREQ) {
+      byte data;
       if(pins & Z80_RD) {
-         uint8_t data = laser310_mem_read(sys, Z80_GET_ADDR(pins));
+         data = laser310_mem_read(sys, address);
          Z80_SET_DATA(pins, data);
       }
       else if(pins & Z80_WR) {
-         laser310_mem_write(sys, Z80_GET_ADDR(pins), Z80_GET_DATA(pins));
+         data = Z80_GET_DATA(pins);
+         laser310_mem_write(sys, address, data);
       }
+      video_access = (address >=0x7000 && address<0x7800);
+      video_access_data = data;
    }
    else if(pins & Z80_IORQ) {
       if(pins & Z80_RD) {
-         uint8_t data = laser310_io_read(sys, Z80_GET_ADDR(pins));
+         byte data = laser310_io_read(sys, address);
          Z80_SET_DATA(pins, data);
       }
       else if(pins & Z80_WR) {
-         laser310_io_write(sys, Z80_GET_ADDR(pins), Z80_GET_DATA(pins));
+         byte data = Z80_GET_DATA(pins);
+         laser310_io_write(sys, address, data);
       }
    }
 
-   /*
-   // attempt to simulate the "snow" effect
-   int add = Z80_GET_ADDR(pins);
-   int ma = (add >=0x7000 && add<0x7800) && ((pins & Z80_MREQ|Z80_RD)||(pins & Z80_MREQ|Z80_WR));
+   // save data byte on the bus for "snow" effect
    for(int t=0;t<num_ticks;t++) {
-      mem_access[mem_access_ptr] = ma;
-      mem_access_ptr++;
-      if(mem_access_ptr == MA_SIZE) mem_access_ptr = 0;
+      sys->videomem_access[sys->videomem_access_ptr] = video_access;
+      sys->videomem_access_data[sys->videomem_access_ptr] = video_access_data;
+      sys->videomem_access_ptr++;
+      if(sys->videomem_access_ptr == MC6847_SCANLINE_TICKS) sys->videomem_access_ptr = 0;
    }
-   */
 
-   // tick the VDC
-   uint64_t vdc_pins = MC6847_GM1;
-   if(sys->vdc_mode      ) BITSET(vdc_pins,MC6847_AG);
-   if(sys->vdc_background) BITSET(vdc_pins,MC6847_CSS);
-   for(int t=0;t<num_ticks;t++) vdc_pins = mc6847_tick(&sys->vdp, vdc_pins);
-   if(IS_ONE(vdc_pins,MC6847_FS)) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
-   else BITRESET(pins,Z80_INT);
+   if(sys->PAL_counter == 0) {
+      // tick the VDC
+      uint64_t vdc_pins = MC6847_GM1;
+      if(sys->vdc_mode      ) BITSET(vdc_pins,MC6847_AG);
+      if(sys->vdc_background) BITSET(vdc_pins,MC6847_CSS);
+      for(int t=0;t<num_ticks;t++) vdc_pins = mc6847_tick(&sys->vdc, vdc_pins);
+      if(IS_ONE(vdc_pins,MC6847_FS)) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
+      else BITRESET(pins,Z80_INT);
+      if(sys->vdc.fs != sys->last_fs) sys->PAL_counter = MC6847_SCANLINE_TICKS * 50; // adds 50 PAL lines
+   }
+   else {
+      // holds the VDC waiting for the additional PAL lines to complete
+      sys->PAL_counter--;
+   }
+
+   sys->last_fs = sys->vdc.fs;
 
    return pins;
 }
@@ -253,7 +280,8 @@ uint64_t vdp_fetch_cb(uint64_t pins, void* user_data) {
    uint8_t data = laser310_mem_read(sys, 0x7000+address);
 
    // attempt to simulate the "snow" effect
-   // if(mem_access[sys->vdp.l_count] > 0) data = 0;
+   int pos = sys->vdc.h_fetchpos*4;
+   if(sys->videomem_access[pos] && sys->videomem_access[pos+1] /*&& sys->videomem_access[pos+2]*/) data = sys->videomem_access_data[pos];
 
    if (data & (1<<6)) BITSET(pins,MC6847_INV);
    else               BITRESET(pins,MC6847_INV);
@@ -326,7 +354,7 @@ void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
    mc_desc.fetch_cb = vdp_fetch_cb;
    mc_desc.screen_update_cb = desc->screen_update_cb;
    mc_desc.user_data = sys; // self reference for fetch callback
-   mc6847_init(&sys->vdp, &mc_desc);
+   mc6847_init(&sys->vdc, &mc_desc);
 
    // buzzer
    buzzer_desc_t buzdesc;
