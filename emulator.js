@@ -1,9 +1,8 @@
 "use strict";
 
+// TODO implement disk and printer emulation
 // TODO numpad or cursor keys joystick
-// TODO fix clock speeds
 // TODO investigate speaker_A and speaker_B
-// TODO investigate joystick range
 // TODO memory model 16K, 32K
 // TODO use only .VZ files
 // TODO fix BASTXT, BASEND, CRSR_STATE
