@@ -1,6 +1,6 @@
 "use strict";
 
-// TODO implement disk and printer emulation
+// TODO implement disk
 // TODO numpad or cursor keys joystick
 // TODO investigate speaker_A and speaker_B
 // TODO memory model 16K, 32K
