@@ -200,10 +200,6 @@ typedef uint64_t (*mc6847_fetch_t)(uint64_t pins, void* user_data);
 // screen update callback
 typedef void (*mc6847_screen_update_cb_t)(uint32_t *bmp);
 
-// if turned on, the display is redered in interlaced mode (even/odd lines)
-// screen height is doubled and end_of_frame_cb is called every two fields
-#define MC6847_INTERLACED (0)
-
 /* the mc6847 setup parameters */
 typedef struct {
     /* the CPU tick rate in hz */
@@ -241,10 +237,6 @@ typedef struct {
     int h_period;
     int l_count;
     int h_fetchpos;
-
-    #if MC6847_INTERLACED
-    int interlace_offset;
-    #endif
 
     /* true during field-sync */
     bool fs;
@@ -352,9 +344,6 @@ void mc6847_reset(mc6847_t* vdg) {
     CHIPS_ASSERT(vdg);
     vdg->h_count = 0;
     vdg->l_count = 0;
-    #if MC6847_INTERLACED
-    vdg->interlace_offset = 0;
-    #endif
 }
 
 /*
@@ -441,11 +430,7 @@ static inline uint32_t _mc6847_border_color(mc6847_t* vdg, uint64_t pins) {
 }
 
 static void _mc6847_decode_border(mc6847_t* vdg, uint64_t pins, int y) {
-    #if MC6847_INTERLACED
-    uint32_t* dst = &(vdg->rgba8_buffer[((y*2)+vdg->interlace_offset) * MC6847_DISPLAY_WIDTH]);
-    #else
     uint32_t* dst = &(vdg->rgba8_buffer[y * MC6847_DISPLAY_WIDTH]);
-    #endif
     uint32_t c = _mc6847_border_color(vdg, pins);
     for (int x = 0; x < MC6847_DISPLAY_WIDTH; x++) {
         *dst++ = c;
@@ -453,11 +438,7 @@ static void _mc6847_decode_border(mc6847_t* vdg, uint64_t pins, int y) {
 }
 
 static uint64_t _mc6847_decode_scanline(mc6847_t* vdg, uint64_t pins, int y) {
-    #if MC6847_INTERLACED
-    uint32_t* dst = &(vdg->rgba8_buffer[((y+MC6847_TOP_BORDER_LINES)*2+vdg->interlace_offset) * MC6847_DISPLAY_WIDTH]);
-    #else
     uint32_t* dst = &(vdg->rgba8_buffer[(y+MC6847_TOP_BORDER_LINES) * MC6847_DISPLAY_WIDTH]);
-    #endif
     uint32_t bc = _mc6847_border_color(vdg, pins);
 
     void* ud = vdg->user_data;
@@ -635,16 +616,9 @@ uint64_t mc6847_tick(mc6847_t* vdg, uint64_t pins) {
             /* rewind line counter, field sync off */
             vdg->l_count = 0;
             vdg->fs = false;
-            #if MC6847_INTERLACED
-            if(vdg->interlace_offset == 1 && vdg->screen_update_cb != NULL) {
-                vdg->screen_update_cb(vdg->rgba8_buffer);
-            }
-            vdg->interlace_offset = vdg->interlace_offset ^ 1;
-            #else
             if(vdg->screen_update_cb != NULL) {
                 vdg->screen_update_cb(vdg->rgba8_buffer);
             }
-            #endif
         }
         if (vdg->l_count < MC6847_VBLANK_LINES) {
             /* inside vblank area, nothing to do */
