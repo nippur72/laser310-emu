@@ -1,5 +1,7 @@
 Z80.js-master/
 node_modules/
+software/test_snow/*.cas
+software/test_snow/*.wav
 # Windows thumbnail cache files
 Thumbs.db
 ehthumbs.db
