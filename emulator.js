@@ -7,6 +7,10 @@
 // TODO fix CRSR_STATE
 // TODO timer and speed check program
 // TODO cassette save WAV
+// TODO gamepad firefox
+// TODO interlaced snow
+// TODO tastiera XSnake / tastiera fisica
+// TODO MC6847 palette
 
 let BASTXT;      // points to basic free area (start of program)
 let BASEND;      // points to end of the basic program
