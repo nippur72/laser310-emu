@@ -3,7 +3,11 @@
 #include "laser310.h"
 
 float buzzer_audio_buf[4096];
+#ifdef MC6847_INTERLACED
+uint32_t mc_display_buffer[MC6847_DISPLAY_WIDTH*MC6847_DISPLAY_HEIGHT*2];
+#else
 uint32_t mc_display_buffer[MC6847_DISPLAY_WIDTH*MC6847_DISPLAY_HEIGHT];
+#endif
 
 laser310_t l310;
 laser310_desc_t sysdesc;
@@ -54,7 +58,7 @@ void sys_init() {
    sysdesc.audio_buf_size = 4096;
    sysdesc.buffer_ready_cb = audio_buffer_ready;
    sysdesc.display_buffer = mc_display_buffer;
-   sysdesc.display_buffer_size = sizeof(mc_display_buffer);
+   sysdesc.display_buffer_size = sizeof(mc_display_buffer); // *2 if interlaced
    sysdesc.screen_update_cb = screen_update;
    sysdesc.printer_readst = printer_readst;
    sysdesc.printer_write = printer_write;
