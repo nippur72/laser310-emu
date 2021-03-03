@@ -9,6 +9,7 @@ typedef struct {
    int audio_buf_size;
    int ptr;
    double tick_counter;
+   float last_sample;
    buzzer_audio_ready_cb buffer_ready_cb;
 } buzzer_t;
 
@@ -29,6 +30,7 @@ void buzzer_init(buzzer_t *buz, buzzer_desc_t *desc) {
    buz->ticks_per_sample = ((double)(buz->cpu_clock / buz->sample_rate));
    buz->ptr = 0;
    buz->tick_counter = 0;
+   buz->last_sample = 0;
 }
 
 void buzzer_ticks(buzzer_t *buz, int ticks, float sample) {
@@ -36,7 +38,12 @@ void buzzer_ticks(buzzer_t *buz, int ticks, float sample) {
       buz->tick_counter++;
       if(buz->tick_counter > buz->ticks_per_sample) {
          buz->tick_counter -= buz->ticks_per_sample;
-         buz->audio_buf[buz->ptr++] = sample;
+         // high pass filter
+
+         buz->last_sample = buz->last_sample * 0.8 + sample * 0.2;
+         buz->audio_buf[buz->ptr++] = sample - buz->last_sample;
+
+         //buz->audio_buf[buz->ptr++] = sample * buz->last_sample;
          if(buz->ptr == buz->audio_buf_size) {
             buz->ptr = 0;
             buz->buffer_ready_cb(buz->audio_buf, buz->audio_buf_size);
