@@ -21,7 +21,6 @@ let cpu;
 let cpuSpeed = 3575410;               // VZEM: 3546900 VZ300, 3579500 VZ200
 let vdcSpeed = 3575410;               // same clock as CPU
 let frameRate = 50.1812;              // ~50 Hz, 50.1812 measured on my Laser 310
-let frameDuration = 1000/frameRate;   // duration of 1 frame in msec
 let cyclesPerLine = 228;              // was: cpuSpeed / vdcSpeed * 320;
 
 let stopped = false; // allows to stop/resume the emulation

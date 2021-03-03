@@ -165,7 +165,7 @@ function load_wasm(ready_cb) {
       sys_set_debug    = instance.cwrap("sys_set_debug", null, ['bool']);
       sys_init         = instance.cwrap("sys_init", ['number']);
       sys_reset        = instance.cwrap("sys_reset", null);
-      sys_ticks        = instance.cwrap("sys_ticks", 'number', ['number', 'number']);
+      sys_ticks        = instance.cwrap("sys_ticks", 'number', ['number']);
 
       keyboard_reset     = instance.cwrap("sys_keyboard_reset"  , null);
       keyboard_press     = instance.cwrap("sys_keyboard_press"  , null, ['number', 'number'] );
