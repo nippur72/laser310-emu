@@ -11,6 +11,7 @@
 // TODO interlaced snow
 // TODO tastiera XSnake / tastiera fisica
 // TODO MC6847 palette
+// TODO buzzer high pas filter
 
 let BASTXT;      // points to basic free area (start of program)
 let BASEND;      // points to end of the basic program
