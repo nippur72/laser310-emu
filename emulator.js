@@ -7,8 +7,6 @@
 // TODO fix CRSR_STATE
 // TODO timer and speed check program
 // TODO cassette save WAV
-// TODO gamepad firefox
-// TODO interlaced snow
 // TODO tastiera XSnake / tastiera fisica
 // TODO MC6847 palette
 
@@ -20,11 +18,11 @@ let cpu;
 
 /******************/
 
-let cpuSpeed = 3546900;  // 3546900 VZ300, 3579500 VZ200
-let vdcSpeed = 3546900;
-let frameRate = vdcSpeed/(320*262);     // ~60 Hz
-let frameDuration = 1000/frameRate;     // duration of 1 frame in msec
-let cyclesPerLine = cpuSpeed / vdcSpeed * 320;
+let cpuSpeed = 3575410;               // VZEM: 3546900 VZ300, 3579500 VZ200
+let vdcSpeed = 3575410;               // same clock as CPU
+let frameRate = 50.1812;              // ~50 Hz, 50.1812 measured on my Laser 310
+let frameDuration = 1000/frameRate;   // duration of 1 frame in msec
+let cyclesPerLine = 228;              // was: cpuSpeed / vdcSpeed * 320;
 
 let stopped = false; // allows to stop/resume the emulation
 
@@ -45,7 +43,7 @@ let audio = new Audio(4096);
 let storage = new BrowserStorage("laser310");
 
 function renderFrame() {
-   total_cycles += sys_ticks(262 * 2 * cyclesPerLine);
+   total_cycles += sys_ticks(312 * 2 * cyclesPerLine);
 }
 
 function poll_keyboard() {
@@ -83,7 +81,7 @@ function oneFrame(timestamp) {
    sys_joystick(joy0, joy1);
 
    let starttime = performance.now();
-   total_cycles += sys_ticks(cycles, cyclesPerLine);
+   total_cycles += sys_ticks(cycles);
    let endtime = performance.now();
    let elapsed = endtime - starttime;
    let load = (elapsed / msec) * 100;
