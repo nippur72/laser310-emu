@@ -262,7 +262,7 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
       for(int t=0;t<num_ticks;t++) vdc_pins = mc6847_tick(&sys->vdc, vdc_pins);
       if(IS_ONE(vdc_pins,MC6847_FS)) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
       else BITRESET(pins,Z80_INT);
-      if(sys->vdc.fs != sys->last_fs) sys->PAL_counter = MC6847_SCANLINE_TICKS * 50; // adds 50 PAL lines
+      if(sys->vdc.fs != sys->last_fs) sys->PAL_counter = 11335; //MC6847_SCANLINE_TICKS * 50; // adds 50 PAL lines
    }
    else {
       // holds the VDC waiting for the additional PAL lines to complete
