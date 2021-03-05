@@ -1,14 +1,24 @@
 "use strict";
 
+// TODO selectable PAL NTSC
+// TODO selectable VZ200 VZ300
+// TODO selectrable RAM size
+// TODO switchable snow effect
 // TODO implement disk
 // TODO numpad or cursor keys joystick
 // TODO investigate speaker_A and speaker_B
-// TODO memory model 16K, 32K
 // TODO fix CRSR_STATE
-// TODO timer and speed check program
 // TODO cassette save WAV
-// TODO tastiera XSnake / tastiera fisica
-// TODO MC6847 palette
+// TODO fix tastiera XSnake / tastiera fisica
+// TODO test programs: exact CPU speed
+// TODO test programs: interrupt rate
+// TODO test programs: snow effect when program resides in vram
+// TODO find a good palette
+// TODO align MC6847 to upstream
+// *TODO renderer 1x1
+// *TODO MC6847 palette
+// *TODO test programs: snow effect in text and gr mode
+// *TODO test programs: frame duration in CPU ticks
 
 let BASTXT;      // points to basic free area (start of program)
 let BASEND;      // points to end of the basic program
