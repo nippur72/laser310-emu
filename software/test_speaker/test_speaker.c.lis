@@ -1,0 +1,776 @@
+1     0000              MODULE test_speaker_c
+2     0000              LINE 0, "test_speaker.c"
+0     0000              
+1     0000              ;* * * * *  Small-C/Plus z88dk * * * * *
+2     0000              ;  Version: 13913-9abd768-20190119
+3     0000              ;
+4     0000              ;	Reconstructed for z80 Module Assembler
+5     0000              ;
+6     0000              ;	Module compile time: Fri Mar 05 14:03:50 2021
+7     0000              
+8     0000              
+9     0000              
+10    0000              	MODULE	test_speaker_c
+11    0000              
+12    0000              
+13    0000              	INCLUDE "z80_crt0.hdr"
+1     0000              ;
+2     0000              ;	Header file which contains all required variables from the
+3     0000              ;	startup that need to be exposed to individual C files
+4     0000              ;
+5     0000              ;	Stick in this file any routines which are needed or implicitly
+6     0000              ;	implied by sccz80.
+7     0000              ;
+8     0000              ;       This file is included by every module
+9     0000              ;       To handle multi module programs which use floating point
+10    0000              ;       routines in different modules, we have got rid of
+11    0000              ;       the conditional assembly around the float routines
+12    0000              ;
+13    0000              ;	$Id: z80_crt0.hdr,v 1.12 2015-11-24 06:47:17 stefano Exp $
+14    0000              
+15    0000              	EXTERN    base_graphics	; Address of graphics screen
+16    0000              
+17    0000              	EXTERN	_cpfar2near	; Far->near conversion (z88)
+18    0000              	EXTERN	packintrout	; Process interrupt (z88 apps)
+19    0000              
+20    0000              	EXTERN    l_dcal		; jp(hl)
+21    0000              	EXTERN    cleanup		; cleanup before program exit
+22    0000              
+23    0000              
+24    0000              	EXTERN     l_jphl        ; another jp(hl)
+25    0000              	EXTERN     l_jpix        ; jp(ix)
+26    0000              	EXTERN     l_jpiy        ; jp(iy)
+27    0000              
+28    0000              	EXTERN     l_ldi
+29    0000              	EXTERN     l_ldi_128
+30    0000              	EXTERN     l_ldi_256
+31    0000              
+32    0000              	EXTERN     l_outi
+33    0000              	EXTERN     l_outi_128
+34    0000              	EXTERN     l_outi_256
+35    0000              
+36    0000              	EXTERN     l_ini
+37    0000              	EXTERN     l_ini_128
+38    0000              	EXTERN     l_ini_256
+39    0000              	EXTERN     l_ini_512
+40    0000              
+41    0000              
+42    0000              ;------------------------------------
+43    0000              ; Scopes for integer library routines
+44    0000              ;------------------------------------
+45    0000              
+46    0000              	EXTERN    l_getptr		;Get 3 byte pointer
+47    0000              	EXTERN    l_putptr		;Put 3 byte pointer
+48    0000              	EXTERN    l_gchar		;Get signed char
+49    0000              	EXTERN    l_gcharsp	;Get signed char  (peephole opt)
+50    0000              	EXTERN    l_gcharspsp	;Get signed char and push  (peephole opt)
+51    0000              	EXTERN    l_g2charspsp	;Get 2 signed char and push  (peephole opt)
+52    0000              	EXTERN    l_sxt		;Sign extend char
+53    0000              	EXTERN    l_gint		;Get int
+54    0000              	EXTERN    l_gintsp		;Get int (peephole opt)
+55    0000              	EXTERN    l_gintspchar	;Get int,char (peephole opt)
+56    0000              	EXTERN    l_gintspsp	;Get int and push (peephole opt)
+57    0000              	EXTERN    l_g2intspsp	;Get 2 int and push (peephole opt)
+58    0000              	EXTERN    l_gint7de	;Get int, multiply by 7 and add from SP by de
+59    0000              	EXTERN    l_gint_eq	;Get int and test == 0
+60    0000              	EXTERN    l_ghtonsint	;Get reverse order int
+61    0000              	EXTERN    l_pint		;Put int
+62    0000              	EXTERN    l_pint_eq	;Put int and test == 0
+63    0000              	EXTERN    l_pint_pop	;Put int and pop place address
+64    0000              	EXTERN    l_pint_ex	;Put int hl to addr de return addr in hl
+65    0000              	EXTERN    l_or		;Int logical or
+66    0000              	EXTERN    l_xor		;Int logical xor
+67    0000              	EXTERN    l_and		;Int logical and
+68    0000              	EXTERN    l_eq		;Int equality
+69    0000              	EXTERN    l_ne		;Int inequality
+70    0000              	EXTERN    l_gt		;Int signed >
+71    0000              	EXTERN    l_le		;Int signed <=
+72    0000              	EXTERN    l_ge		;Int signed >=
+73    0000              	EXTERN    l_lt		;Int signed <
+74    0000              	EXTERN    l_uge		;Int unsigned >=
+75    0000              	EXTERN    l_ult		;Int unsigned <
+76    0000              	EXTERN    l_ugt		;Int unsigned >
+77    0000              	EXTERN    l_ule		;Int unsigned <=
+78    0000              	EXTERN    l_cmp		;Int signed compare
+79    0000              	EXTERN    l_ucmp		;Int unsigned compare
+80    0000              	EXTERN    l_asr		;Int signed >>
+81    0000              	EXTERN    l_asr_hl_by_e		;Int signed >>
+82    0000              	EXTERN    l_asr_u		;Int unsigned >>
+83    0000              	EXTERN    l_asr_u_hl_by_e		;Int unsigned >>
+84    0000              	EXTERN    l_asl		;Int <<
+85    0000              	EXTERN    l_sub		;Int subtract
+86    0000              	EXTERN    l_neg		;Int negate
+87    0000              	EXTERN    l_com		;Int ~
+88    0000              	EXTERN    l_lneg		;Int logical negate
+89    0000              	EXTERN    l_bool		;Int boolean tetst
+90    0000              	EXTERN    l_cm_de		;
+91    0000              	EXTERN    l_cm_bc
+92    0000              	EXTERN    l_deneg
+93    0000              	EXTERN    l_bcneg
+94    0000              	EXTERN    l_case		;Integer case
+95    0000              	EXTERN    l_mult		;Integer *
+96    0000              	EXTERN    l_div		;Integer signed /
+97    0000              	EXTERN    l_div_u		;Integer unsigned /
+98    0000              
+99    0000              ;------------------
+100   0000              ;Long functions now
+101   0000              ;------------------
+102   0000              
+103   0000              	EXTERN     lpush2		;Push a long under the stack
+104   0000              	EXTERN     l_int2long_s	;Int->long signed conversion
+105   0000              	EXTERN     l_int2long_s_float	;Int->long->float signed conversion (optimizer: use -O3)
+106   0000              	EXTERN     l_long2int_s	;Long->int signed conversion
+107   0000              	EXTERN     l_glong		;Get long
+108   0000              	EXTERN     l_glonghlp		;Get pointer, then get long
+109   0000              	EXTERN     l_glong2sp	;Get long and copy on stack (peephole opt)
+110   0000              	EXTERN     l_glong2sp_hlp
+111   0000              	EXTERN     l_long_add
+112   0000              	EXTERN     l_long_and
+113   0000              	EXTERN     l_long_asl
+114   0000              	EXTERN     l_long_asr
+115   0000              	EXTERN     l_long_aslo	;Long << shift in c
+116   0000              	EXTERN     l_long_asro	;Long >> shift in c (signed)
+117   0000              	EXTERN     l_long_bool
+118   0000              	EXTERN     l_long_cmp
+119   0000              	EXTERN     l_long_com
+120   0000              	EXTERN     l_long_eq
+121   0000              	EXTERN     l_long_ge
+122   0000              	EXTERN     l_long_gt
+123   0000              	EXTERN     l_long_le
+124   0000              	EXTERN     l_long_lneg
+125   0000              	EXTERN     l_long_lt
+126   0000              	EXTERN     l_long_ne
+127   0000              	EXTERN     l_long_neg
+128   0000              	EXTERN     l_long_or
+129   0000              	EXTERN     l_long_sub
+130   0000              	EXTERN     l_long_ucmp
+131   0000              	EXTERN     l_long_uge
+132   0000              	EXTERN     l_long_ugt
+133   0000              	EXTERN     l_long_ule
+134   0000              	EXTERN     l_long_ult
+135   0000              	EXTERN     l_long_xor
+136   0000              	EXTERN     l_plong
+137   0000              	EXTERN     l_inclong	;Increment long
+138   0000              	EXTERN     l_declong	;Decrement long
+139   0000              	EXTERN     l_long_div
+140   0000              	EXTERN     l_long_div_u
+141   0000              	EXTERN     l_long_mult
+142   0000              	EXTERN     l_long_asr_u	;Long unsigned >>
+143   0000              	EXTERN     l_long_asr_uo	;Long unsigned >> shift in c
+144   0000              	EXTERN     l_long_case
+145   0000              
+146   0000              ;--------------------------------------------------------------
+147   0000              ; Floating point support routines, mostly in library
+148   0000              ;--------------------------------------------------------------
+149   0000              
+150   0000              	EXTERN	dadd
+151   0000              	EXTERN	ddiv
+152   0000              	EXTERN	dsub
+153   0000              	EXTERN	dmul
+154   0000              
+155   0000              	EXTERN	dge
+156   0000              	EXTERN	dgt
+157   0000              	EXTERN	dleq
+158   0000              	EXTERN	dlt
+159   0000              	EXTERN	deq
+160   0000              	EXTERN	dne
+161   0000              
+162   0000              	EXTERN	minusfa		;FA=-FA
+163   0000              
+164   0000              	EXTERN	dswap		;Exchange FA with top of stack
+165   0000              	EXTERN   	float		;Convert int to float
+166   0000              	EXTERN   	ufloat		;unsigned int to float
+167   0000              	EXTERN   	ifix		;Convert float to int
+168   0000              
+169   0000              	EXTERN	dstore		;FA->(de)
+170   0000              	EXTERN	dload		;FA<-(hl)
+171   0000              	EXTERN	dldpsh		;(hl)->(stack)
+172   0000              	EXTERN	dpush		;FA->(stack)
+173   0000              	EXTERN	dpush2		;FA->(stack under)
+174   0000              	EXTERN	dpush3		;FA->(stack under,long)
+175   0000              
+176   0000              	EXTERN	fa		;may not be needed in this file
+177   0000              	EXTERN	extra		;dittot
+178   0000              	EXTERN  	__atof2		;string->fa convsersion
+179   0000              
+180   0000              
+181   0000              ;--------------------------------------------------
+182   0000              ; Routines for picking up variables from far memory
+183   0000              ;--------------------------------------------------
+184   0000              
+185   0000              	EXTERN	lp_gchar
+186   0000              	EXTERN	lp_gdoub
+187   0000              	EXTERN	lp_gint
+188   0000              	EXTERN	lp_glong
+189   0000              	EXTERN	lp_gptr
+190   0000              	EXTERN	lp_pchar
+191   0000              	EXTERN	lp_pdoub
+192   0000              	EXTERN	lp_pint
+193   0000              	EXTERN	lp_plong
+194   0000              	EXTERN	lp_pptr
+195   0000              
+196   0000              	EXTERN  l_farcall	; Long call
+197   0000              
+198   0000              
+199   0000              ;-------------------
+200   0000              ; Routines for SDCC
+201   0000              ;-------------------
+202   0000              
+203   0000              	EXTERN     __divsint_rrx_s
+204   0000              	EXTERN     __divsint_rrx_hds
+205   0000              	EXTERN     __divuint_rrx_s
+206   0000              	EXTERN     __divuint_rrx_hds
+207   0000              	EXTERN     __divsuchar_rrx_s
+208   0000              	EXTERN     __divuschar_rrx_s
+209   0000              	EXTERN     __divuchar_rrx_s
+210   0000              	EXTERN     __divuchar_rrx_hds
+211   0000              	EXTERN     __moduchar_rrx_s
+212   0000              	EXTERN     __moduchar_rrx_hds
+213   0000              	EXTERN     __moduschar_rrx_s
+214   0000              	EXTERN     __modsuchar_rrx_s
+215   0000                  EXTERN     __modschar_rrx_s
+216   0000              	EXTERN     __modschar_rrx_hds
+217   0000              	EXTERN     __modsint_rrx_s
+218   0000              	EXTERN     __modsint_rrx_hds
+219   0000              	EXTERN     __moduint_rrx_s
+220   0000              	EXTERN     __moduint_rrx_hds
+221   0000              	EXTERN     __get_remainder
+222   0000              	EXTERN     __divunsigned
+223   0000                  EXTERN     __div_signexte
+224   0000              	EXTERN     __divu16
+225   0000              	EXTERN     __div16
+226   0000              	EXTERN     __div8
+227   0000              	EXTERN     __muluchar_rrx_s
+228   0000              	EXTERN     __muluchar_rrx_hds
+229   0000              	EXTERN     __mulsuchar_rrx_s
+230   0000              	EXTERN     __muluschar_rrx_s
+231   0000              	EXTERN     __mulschar_rrx_s
+232   0000              	EXTERN     __mulschar_rrx_hds
+233   0000              	EXTERN     __mulint_rrx_s
+234   0000              	EXTERN     __mulint_rrx_hds
+235   0000              	EXTERN     __mul16
+236   0000              	EXTERN    	__rrulong_rrx_s
+237   0000              	EXTERN    	__rrslong_rrx_s
+238   0000              	EXTERN    	__rlslong_rrx_s
+239   0000              	EXTERN    	__rlulong_rrx_s
+240   0000              
+241   0000              	EXTERN		l_push_di
+242   0000              	EXTERN		l_pop_ei
+243   0000              
+14    0000              
+15    0000              
+16    0000              	SECTION	code_compiler
+17    0000              
+18    0000              ; Function test_speaker flags 0x00000208 __smallc __z88dk_fastcall
+19    0000              ; int test_speaker(unsigned int HL)
+20    0000              ; parameter 'unsigned int HL' at 2 size(2)
+21    0000              ._test_speaker
+22    0000  E5          	push	hl
+23    0001  C5             push bc
+24    0002  D5             push de
+25    0003  F3             di
+26    0004  0E 80          ld c,  128
+27    0006                 loop:
+28    0006  06 FA             ld b,  250
+29    0008  7D                ld a, l
+30    0009  32 00 68          ld ($6800),a
+31    000C                 half_cycle_up:
+32    000C  00                nop
+33    000D  00                nop
+34    000E  00                nop
+35    000F  00                nop
+36    0010  00                nop
+37    0011  00                nop
+38    0012  00                nop
+39    0013  00                nop
+40    0014  10 F6             djnz half_cycle_up
+41    0016  06 FA             ld b,  250
+42    0018  7C                ld a, h
+43    0019  32 00 68          ld ($6800),a
+44    001C                 half_cycle_down:
+45    001C  00                nop
+46    001D  00                nop
+47    001E  00                nop
+48    001F  00                nop
+49    0020  00                nop
+50    0021  00                nop
+51    0022  00                nop
+52    0023  00                nop
+53    0024  10 F6             djnz half_cycle_down
+54    0026  79             ld a,c
+55    0027  3D             dec a
+56    0028  4F             ld c,a
+57    0029  FE 00          cp 0
+58    002B  20 D9          jr nz, loop
+59    002D  FB             ei
+60    002E  D1             pop de
+61    002F  C1             pop bc
+62    0030  C1          	pop	bc
+63    0031  C9          	ret
+64    0032              
+65    0032              
+66    0032              
+67    0032              ; Function main flags 0x00000000 __stdc
+68    0032              ; int main()
+69    0032              ._main
+70    0032  CD 00 00    	call	vz_clrscr
+71    0035  21 00 00    	ld	hl,i_1+0
+72    0038  E5          	push	hl
+73    0039  3E 01       	ld	a,1
+74    003B  CD 00 00    	call	printf
+75    003E  C1          	pop	bc
+76    003F  21 17 00    	ld	hl,i_1+23
+77    0042  E5          	push	hl
+78    0043  3E 01       	ld	a,1
+79    0045  CD 00 00    	call	printf
+80    0048  C1          	pop	bc
+81    0049  21 2E 00    	ld	hl,i_1+46
+82    004C  E5          	push	hl
+83    004D  3E 01       	ld	a,1
+84    004F  CD 00 00    	call	printf
+85    0052  C1          	pop	bc
+86    0053  21 40 00    	ld	hl,i_1+64
+87    0056  E5          	push	hl
+88    0057  3E 01       	ld	a,1
+89    0059  CD 00 00    	call	printf
+90    005C  C1          	pop	bc
+91    005D  21 57 00    	ld	hl,i_1+87
+92    0060  E5          	push	hl
+93    0061  3E 01       	ld	a,1
+94    0063  CD 00 00    	call	printf
+95    0066  C1          	pop	bc
+96    0067  21 68 00    	ld	hl,i_1+104
+97    006A  E5          	push	hl
+98    006B  3E 01       	ld	a,1
+99    006D  CD 00 00    	call	printf
+100   0070  C1          	pop	bc
+101   0071  21 7D 00    	ld	hl,i_1+125
+102   0074  E5          	push	hl
+103   0075  3E 01       	ld	a,1
+104   0077  CD 00 00    	call	printf
+105   007A  C1          	pop	bc
+106   007B  21 96 00    	ld	hl,i_1+150
+107   007E  E5          	push	hl
+108   007F  3E 01       	ld	a,1
+109   0081  CD 00 00    	call	printf
+110   0084  C1          	pop	bc
+111   0085  21 17 00    	ld	hl,i_1+23
+112   0088  E5          	push	hl
+113   0089  3E 01       	ld	a,1
+114   008B  CD 00 00    	call	printf
+115   008E  C1          	pop	bc
+116   008F  21 A8 00    	ld	hl,i_1+168
+117   0092  E5          	push	hl
+118   0093  3E 01       	ld	a,1
+119   0095  CD 00 00    	call	printf
+120   0098  C1          	pop	bc
+121   0099  21 B7 00    	ld	hl,i_1+183
+122   009C  E5          	push	hl
+123   009D  3E 01       	ld	a,1
+124   009F  CD 00 00    	call	printf
+125   00A2  C1          	pop	bc
+126   00A3  21 CD 00    	ld	hl,i_1+205
+127   00A6  E5          	push	hl
+128   00A7  3E 01       	ld	a,1
+129   00A9  CD 00 00    	call	printf
+130   00AC  C1          	pop	bc
+131   00AD  21 E6 00    	ld	hl,i_1+230
+132   00B0  E5          	push	hl
+133   00B1  3E 01       	ld	a,1
+134   00B3  CD 00 00    	call	printf
+135   00B6  C1          	pop	bc
+136   00B7  21 03 01    	ld	hl,i_1+259
+137   00BA  E5          	push	hl
+138   00BB  3E 01       	ld	a,1
+139   00BD  CD 00 00    	call	printf
+140   00C0  C1          	pop	bc
+141   00C1  21 1F 01    	ld	hl,i_1+287
+142   00C4  E5          	push	hl
+143   00C5  3E 01       	ld	a,1
+144   00C7  CD 00 00    	call	printf
+145   00CA  C1          	pop	bc
+146   00CB  21 3C 01    	ld	hl,i_1+316
+147   00CE  E5          	push	hl
+148   00CF  3E 01       	ld	a,1
+149   00D1  CD 00 00    	call	printf
+150   00D4  C1          	pop	bc
+151   00D5              .i_2
+152   00D5  CD 00 00    	call	in_Inkey
+153   00D8  26 00       	ld	h,0
+154   00DA  7D          	ld	a,l
+155   00DB  32 00 00    	ld	(_ch),a
+156   00DE  2A 00 00    	ld	hl,(_ch)
+157   00E1  26 00       	ld	h,0
+158   00E3  11 30 00    	ld	de,48
+159   00E6  A7          	and	a
+160   00E7  ED 52       	sbc	hl,de
+161   00E9  C2 0B 01    	jp	nz,i_4
+162   00EC  3E 21       	ld	a,#(33 % 256 % 256)
+163   00EE  32 01 00    	ld	(_hi),a
+164   00F1  3E 00       	ld	a,#(0 % 256 % 256)
+165   00F3  32 02 00    	ld	(_lo),a
+166   00F6  21 01 00    	ld	hl,_hi
+167   00F9  66          	ld	h,(hl)
+168   00FA  2E 00       	ld	l,0
+169   00FC  EB          	ex	de,hl
+170   00FD  2A 02 00    	ld	hl,(_lo)
+171   0100  26 00       	ld	h,0
+172   0102  CD 00 00    	call	l_or
+173   0105  CD 00 00    	call	_test_speaker
+174   0108  C3 E9 01    	jp	i_5
+175   010B              .i_4
+176   010B  2A 00 00    	ld	hl,(_ch)
+177   010E  26 00       	ld	h,0
+178   0110  11 31 00    	ld	de,49
+179   0113  A7          	and	a
+180   0114  ED 52       	sbc	hl,de
+181   0116  C2 38 01    	jp	nz,i_6
+182   0119  3E 20       	ld	a,#(32 % 256 % 256)
+183   011B  32 01 00    	ld	(_hi),a
+184   011E  3E 01       	ld	a,#(1 % 256 % 256)
+185   0120  32 02 00    	ld	(_lo),a
+186   0123  21 01 00    	ld	hl,_hi
+187   0126  66          	ld	h,(hl)
+188   0127  2E 00       	ld	l,0
+189   0129  EB          	ex	de,hl
+190   012A  2A 02 00    	ld	hl,(_lo)
+191   012D  26 00       	ld	h,0
+192   012F  CD 00 00    	call	l_or
+193   0132  CD 00 00    	call	_test_speaker
+194   0135  C3 E9 01    	jp	i_7
+195   0138              .i_6
+196   0138  2A 00 00    	ld	hl,(_ch)
+197   013B  26 00       	ld	h,0
+198   013D  11 32 00    	ld	de,50
+199   0140  A7          	and	a
+200   0141  ED 52       	sbc	hl,de
+201   0143  C2 65 01    	jp	nz,i_8
+202   0146  3E 20       	ld	a,#(32 % 256 % 256)
+203   0148  32 01 00    	ld	(_hi),a
+204   014B  3E 00       	ld	a,#(0 % 256 % 256)
+205   014D  32 02 00    	ld	(_lo),a
+206   0150  21 01 00    	ld	hl,_hi
+207   0153  66          	ld	h,(hl)
+208   0154  2E 00       	ld	l,0
+209   0156  EB          	ex	de,hl
+210   0157  2A 02 00    	ld	hl,(_lo)
+211   015A  26 00       	ld	h,0
+212   015C  CD 00 00    	call	l_or
+213   015F  CD 00 00    	call	_test_speaker
+214   0162  C3 E9 01    	jp	i_9
+215   0165              .i_8
+216   0165  2A 00 00    	ld	hl,(_ch)
+217   0168  26 00       	ld	h,0
+218   016A  11 33 00    	ld	de,51
+219   016D  A7          	and	a
+220   016E  ED 52       	sbc	hl,de
+221   0170  C2 92 01    	jp	nz,i_10
+222   0173  3E 21       	ld	a,#(33 % 256 % 256)
+223   0175  32 01 00    	ld	(_hi),a
+224   0178  3E 01       	ld	a,#(1 % 256 % 256)
+225   017A  32 02 00    	ld	(_lo),a
+226   017D  21 01 00    	ld	hl,_hi
+227   0180  66          	ld	h,(hl)
+228   0181  2E 00       	ld	l,0
+229   0183  EB          	ex	de,hl
+230   0184  2A 02 00    	ld	hl,(_lo)
+231   0187  26 00       	ld	h,0
+232   0189  CD 00 00    	call	l_or
+233   018C  CD 00 00    	call	_test_speaker
+234   018F  C3 E9 01    	jp	i_11
+235   0192              .i_10
+236   0192  2A 00 00    	ld	hl,(_ch)
+237   0195  26 00       	ld	h,0
+238   0197  11 34 00    	ld	de,52
+239   019A  A7          	and	a
+240   019B  ED 52       	sbc	hl,de
+241   019D  C2 BF 01    	jp	nz,i_12
+242   01A0  3E 01       	ld	a,#(1 % 256 % 256)
+243   01A2  32 01 00    	ld	(_hi),a
+244   01A5  3E 00       	ld	a,#(0 % 256 % 256)
+245   01A7  32 02 00    	ld	(_lo),a
+246   01AA  21 01 00    	ld	hl,_hi
+247   01AD  66          	ld	h,(hl)
+248   01AE  2E 00       	ld	l,0
+249   01B0  EB          	ex	de,hl
+250   01B1  2A 02 00    	ld	hl,(_lo)
+251   01B4  26 00       	ld	h,0
+252   01B6  CD 00 00    	call	l_or
+253   01B9  CD 00 00    	call	_test_speaker
+254   01BC  C3 E9 01    	jp	i_13
+255   01BF              .i_12
+256   01BF  2A 00 00    	ld	hl,(_ch)
+257   01C2  26 00       	ld	h,0
+258   01C4  11 35 00    	ld	de,53
+259   01C7  A7          	and	a
+260   01C8  ED 52       	sbc	hl,de
+261   01CA  C2 E9 01    	jp	nz,i_14
+262   01CD  3E 21       	ld	a,#(33 % 256 % 256)
+263   01CF  32 01 00    	ld	(_hi),a
+264   01D2  3E 20       	ld	a,#(32 % 256 % 256)
+265   01D4  32 02 00    	ld	(_lo),a
+266   01D7  21 01 00    	ld	hl,_hi
+267   01DA  66          	ld	h,(hl)
+268   01DB  2E 00       	ld	l,0
+269   01DD  EB          	ex	de,hl
+270   01DE  2A 02 00    	ld	hl,(_lo)
+271   01E1  26 00       	ld	h,0
+272   01E3  CD 00 00    	call	l_or
+273   01E6  CD 00 00    	call	_test_speaker
+274   01E9              .i_14
+275   01E9              .i_13
+276   01E9              .i_11
+277   01E9              .i_9
+278   01E9              .i_7
+279   01E9              .i_5
+280   01E9  C3 D5 00    	jp	i_2
+281   01EC              .i_3
+282   01EC  C9          	ret
+283   01ED              
+284   01ED              
+285   01ED              	SECTION	rodata_compiler
+286   0000              .i_1
+287   0000  54 45 53 54 20 53 50 45 41 4B 45 52 20 41 54 20 24 36 38 30 30 
+                        	defm	"TEST SPEAKER AT $6800"
+288   0015  0A          	defb	10
+289   0016              
+290   0016              	defm	""
+291   0016  00          	defb	0
+292   0017              
+293   0017  2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 
+                        	defm	"---------------------"
+294   002C  0A          	defb	10
+295   002D              
+296   002D              	defm	""
+297   002D  00          	defb	0
+298   002E              
+299   002E  20 62 69 74 20 35 20 73 70 65 61 6B 65 72 20 42 
+                        	defm	" bit 5 speaker B"
+300   003E  0A          	defb	10
+301   003F              
+302   003F              	defm	""
+303   003F  00          	defb	0
+304   0040              
+305   0040  20 62 69 74 20 34 20 76 64 63 20 62 61 63 6B 67 72 6F 75 6E 64 
+                        	defm	" bit 4 vdc background"
+306   0055  0A          	defb	10
+307   0056              
+308   0056              	defm	""
+309   0056  00          	defb	0
+310   0057              
+311   0057  20 62 69 74 20 33 20 76 64 63 20 6D 6F 64 65 
+                        	defm	" bit 3 vdc mode"
+312   0066  0A          	defb	10
+313   0067              
+314   0067              	defm	""
+315   0067  00          	defb	0
+316   0068              
+317   0068  20 62 69 74 20 32 20 63 61 73 73 65 74 74 65 20 6F 75 74 
+                        	defm	" bit 2 cassette out"
+318   007B  0A          	defb	10
+319   007C              
+320   007C              	defm	""
+321   007C  00          	defb	0
+322   007D              
+323   007D  20 62 69 74 20 31 20 63 61 73 73 65 74 74 65 20 6F 75 74 20 6D 73 62 
+                        	defm	" bit 1 cassette out msb"
+324   0094  0A          	defb	10
+325   0095              
+326   0095              	defm	""
+327   0095  00          	defb	0
+328   0096              
+329   0096  20 62 69 74 20 30 20 73 70 65 61 6B 65 72 20 41 
+                        	defm	" bit 0 speaker A"
+330   00A6  0A          	defb	10
+331   00A7              
+332   00A7              	defm	""
+333   00A7  00          	defb	0
+334   00A8              
+335   00A8  20 20 20 20 20 42 41 20 20 20 20 42 41 
+                        	defm	"     BA    BA"
+336   00B5  0A          	defb	10
+337   00B6              
+338   00B6              	defm	""
+339   00B6  00          	defb	0
+340   00B7              
+341   00B7  20 30 20 3D 20 31 31 20 2D 3E 20 30 30 20 75 6E 69 73 6F 6E 
+                        	defm	" 0 = 11 -> 00 unison"
+342   00CB  0A          	defb	10
+343   00CC              
+344   00CC              	defm	""
+345   00CC  00          	defb	0
+346   00CD              
+347   00CD  20 31 20 3D 20 31 30 20 2D 3E 20 30 31 20 61 6C 74 65 72 6E 61 74 65 
+                        	defm	" 1 = 10 -> 01 alternate"
+348   00E4  0A          	defb	10
+349   00E5              
+350   00E5              	defm	""
+351   00E5  00          	defb	0
+352   00E6              
+353   00E6  20 32 20 3D 20 31 30 20 2D 3E 20 30 30 20 42 20 6F 6E 6C 79 2C 20 41 20 6F 66 66 
+                        	defm	" 2 = 10 -> 00 B only, A off"
+354   0101  0A          	defb	10
+355   0102              
+356   0102              	defm	""
+357   0102  00          	defb	0
+358   0103              
+359   0103  20 33 20 3D 20 31 31 20 2D 3E 20 30 31 20 42 20 6F 6E 6C 79 2C 20 41 20 6F 6E 
+                        	defm	" 3 = 11 -> 01 B only, A on"
+360   011D  0A          	defb	10
+361   011E              
+362   011E              	defm	""
+363   011E  00          	defb	0
+364   011F              
+365   011F  20 34 20 3D 20 30 31 20 2D 3E 20 30 30 20 41 20 6F 6E 6C 79 2C 20 42 20 6F 66 66 
+                        	defm	" 4 = 01 -> 00 A only, B off"
+366   013A  0A          	defb	10
+367   013B              
+368   013B              	defm	""
+369   013B  00          	defb	0
+370   013C              
+371   013C  20 35 20 3D 20 31 31 20 2D 3E 20 31 30 20 41 20 6F 6E 6C 79 2C 20 42 20 6F 6E 
+                        	defm	" 5 = 11 -> 10 A only, B on"
+372   0156  00          	defb	0
+373   0157              
+374   0157              
+375   0157              ; --- Start of Static Variables ---
+376   0157              
+377   0157              	SECTION	bss_compiler
+378   0000  00          ._ch	defs	1
+379   0001  00          ._hi	defs	1
+380   0002  00          ._lo	defs	1
+381   0003              	SECTION	code_compiler
+382   01ED              
+383   01ED              
+384   01ED              ; --- Start of Scope Defns ---
+385   01ED              
+386   01ED              	GLOBAL	open
+387   01ED              	GLOBAL	creat
+388   01ED              	GLOBAL	close
+389   01ED              	GLOBAL	read
+390   01ED              	GLOBAL	write
+391   01ED              	GLOBAL	lseek
+392   01ED              	GLOBAL	readbyte
+393   01ED              	GLOBAL	writebyte
+394   01ED              	GLOBAL	getcwd
+395   01ED              	GLOBAL	chdir
+396   01ED              	GLOBAL	getwd
+397   01ED              	GLOBAL	rmdir
+398   01ED              	GLOBAL	_RND_BLOCKSIZE
+399   01ED              	GLOBAL	rnd_loadblock
+400   01ED              	GLOBAL	rnd_saveblock
+401   01ED              	GLOBAL	rnd_erase
+402   01ED              	GLOBAL	__FOPEN_MAX
+403   01ED              	GLOBAL	__sgoioblk
+404   01ED              	GLOBAL	__sgoioblk_end
+405   01ED              	GLOBAL	fopen_zsock
+406   01ED              	GLOBAL	fopen
+407   01ED              	GLOBAL	freopen
+408   01ED              	GLOBAL	fdopen
+409   01ED              	GLOBAL	_freopen1
+410   01ED              	GLOBAL	fmemopen
+411   01ED              	GLOBAL	funopen
+412   01ED              	GLOBAL	fclose
+413   01ED              	GLOBAL	fflush
+414   01ED              	GLOBAL	closeall
+415   01ED              	GLOBAL	fgets
+416   01ED              	GLOBAL	fputs
+417   01ED              	GLOBAL	fputc
+418   01ED              	GLOBAL	fputs_callee
+419   01ED              	GLOBAL	fputc_callee
+420   01ED              	GLOBAL	fgetc
+421   01ED              	GLOBAL	ungetc
+422   01ED              	GLOBAL	feof
+423   01ED              	GLOBAL	puts
+424   01ED              	GLOBAL	ftell
+425   01ED              	GLOBAL	fgetpos
+426   01ED              	GLOBAL	fseek
+427   01ED              	GLOBAL	fread
+428   01ED              	GLOBAL	fwrite
+429   01ED              	GLOBAL	gets
+430   01ED              	GLOBAL	printf
+431   01ED              	GLOBAL	fprintf
+432   01ED              	GLOBAL	sprintf
+433   01ED              	GLOBAL	snprintf
+434   01ED              	GLOBAL	vfprintf
+435   01ED              	GLOBAL	vsnprintf
+436   01ED              	GLOBAL	printn
+437   01ED              	GLOBAL	scanf
+438   01ED              	GLOBAL	fscanf
+439   01ED              	GLOBAL	sscanf
+440   01ED              	GLOBAL	vfscanf
+441   01ED              	GLOBAL	vsscanf
+442   01ED              	GLOBAL	getarg
+443   01ED              	GLOBAL	fchkstd
+444   01ED              	GLOBAL	fgetc_cons
+445   01ED              	GLOBAL	fgetc_cons_inkey
+446   01ED              	GLOBAL	fputc_cons
+447   01ED              	GLOBAL	fgets_cons
+448   01ED              	GLOBAL	puts_cons
+449   01ED              	GLOBAL	fabandon
+450   01ED              	GLOBAL	fdtell
+451   01ED              	GLOBAL	fdgetpos
+452   01ED              	GLOBAL	rename
+453   01ED              	GLOBAL	remove
+454   01ED              	GLOBAL	getk
+455   01ED              	GLOBAL	getk_inkey
+456   01ED              	GLOBAL	printk
+457   01ED              	GLOBAL	vz_bgrd
+458   01ED              	GLOBAL	vz_brick
+459   01ED              	GLOBAL	vz_char_draw
+460   01ED              	GLOBAL	vz_clrscr
+461   01ED              	GLOBAL	vz_color
+462   01ED              	GLOBAL	vz_getch
+463   01ED              	GLOBAL	vz_gotoxy
+464   01ED              	GLOBAL	vz_inch
+465   01ED              	GLOBAL	vz_line
+466   01ED              	GLOBAL	vz_midstr
+467   01ED              	GLOBAL	vz_mode
+468   01ED              	GLOBAL	vz_plot
+469   01ED              	GLOBAL	vz_point
+470   01ED              	GLOBAL	vz_score
+471   01ED              	GLOBAL	vz_setbase
+472   01ED              	GLOBAL	vz_shape
+473   01ED              	GLOBAL	vz_sound
+474   01ED              	GLOBAL	vz_soundcopy
+475   01ED              	GLOBAL	vz_brick_callee
+476   01ED              	GLOBAL	vz_gotoxy_callee
+477   01ED              	GLOBAL	vz_line_callee
+478   01ED              	GLOBAL	vz_midstr_callee
+479   01ED              	GLOBAL	vz_plot_callee
+480   01ED              	GLOBAL	vz_point_callee
+481   01ED              	GLOBAL	vz_score_callee
+482   01ED              	GLOBAL	vz_sound_callee
+483   01ED              	GLOBAL	vz_soundcopy_callee
+484   01ED              	GLOBAL	_in_KeyDebounce
+485   01ED              	GLOBAL	_in_KeyStartRepeat
+486   01ED              	GLOBAL	_in_KeyRepeatPeriod
+487   01ED              	GLOBAL	_in_KbdState
+488   01ED              	GLOBAL	in_GetKey
+489   01ED              	GLOBAL	in_GetKeyReset
+490   01ED              	GLOBAL	in_Inkey
+491   01ED              	GLOBAL	in_KeyPressed
+492   01ED              	GLOBAL	in_LookupKey
+493   01ED              	GLOBAL	in_Pause
+494   01ED              	GLOBAL	in_Wait
+495   01ED              	GLOBAL	in_WaitForKey
+496   01ED              	GLOBAL	in_WaitForNoKey
+497   01ED              	GLOBAL	in_JoyKeyboard
+498   01ED              	GLOBAL	in_MouseSimInit
+499   01ED              	GLOBAL	in_MouseSim
+500   01ED              	GLOBAL	in_MouseSimSetPos
+501   01ED              	GLOBAL	in_MouseSimInit_fastcall
+502   01ED              	GLOBAL	in_MouseSim_callee
+503   01ED              	GLOBAL	in_MouseSimSetPos_callee
+504   01ED              	GLOBAL	_test_speaker
+505   01ED              	GLOBAL	_ch
+506   01ED              	GLOBAL	_hi
+507   01ED              	GLOBAL	_lo
+508   01ED              	GLOBAL	_main
+509   01ED              
+510   01ED              
+511   01ED              ; --- End of Scope Defns ---
+512   01ED              
+513   01ED              
+514   01ED              ; --- End of Compilation ---
+515   01ED              

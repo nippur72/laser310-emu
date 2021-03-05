@@ -1,0 +1,498 @@
+1     0000              MODULE test_frame_c
+2     0000              LINE 0, "test_frame.c"
+0     0000              
+1     0000              ;* * * * *  Small-C/Plus z88dk * * * * *
+2     0000              ;  Version: 13913-9abd768-20190119
+3     0000              ;
+4     0000              ;	Reconstructed for z80 Module Assembler
+5     0000              ;
+6     0000              ;	Module compile time: Fri Mar 05 12:40:30 2021
+7     0000              
+8     0000              
+9     0000              
+10    0000              	MODULE	test_frame_c
+11    0000              
+12    0000              
+13    0000              	INCLUDE "z80_crt0.hdr"
+1     0000              ;
+2     0000              ;	Header file which contains all required variables from the
+3     0000              ;	startup that need to be exposed to individual C files
+4     0000              ;
+5     0000              ;	Stick in this file any routines which are needed or implicitly
+6     0000              ;	implied by sccz80.
+7     0000              ;
+8     0000              ;       This file is included by every module
+9     0000              ;       To handle multi module programs which use floating point
+10    0000              ;       routines in different modules, we have got rid of
+11    0000              ;       the conditional assembly around the float routines
+12    0000              ;
+13    0000              ;	$Id: z80_crt0.hdr,v 1.12 2015-11-24 06:47:17 stefano Exp $
+14    0000              
+15    0000              	EXTERN    base_graphics	; Address of graphics screen
+16    0000              
+17    0000              	EXTERN	_cpfar2near	; Far->near conversion (z88)
+18    0000              	EXTERN	packintrout	; Process interrupt (z88 apps)
+19    0000              
+20    0000              	EXTERN    l_dcal		; jp(hl)
+21    0000              	EXTERN    cleanup		; cleanup before program exit
+22    0000              
+23    0000              
+24    0000              	EXTERN     l_jphl        ; another jp(hl)
+25    0000              	EXTERN     l_jpix        ; jp(ix)
+26    0000              	EXTERN     l_jpiy        ; jp(iy)
+27    0000              
+28    0000              	EXTERN     l_ldi
+29    0000              	EXTERN     l_ldi_128
+30    0000              	EXTERN     l_ldi_256
+31    0000              
+32    0000              	EXTERN     l_outi
+33    0000              	EXTERN     l_outi_128
+34    0000              	EXTERN     l_outi_256
+35    0000              
+36    0000              	EXTERN     l_ini
+37    0000              	EXTERN     l_ini_128
+38    0000              	EXTERN     l_ini_256
+39    0000              	EXTERN     l_ini_512
+40    0000              
+41    0000              
+42    0000              ;------------------------------------
+43    0000              ; Scopes for integer library routines
+44    0000              ;------------------------------------
+45    0000              
+46    0000              	EXTERN    l_getptr		;Get 3 byte pointer
+47    0000              	EXTERN    l_putptr		;Put 3 byte pointer
+48    0000              	EXTERN    l_gchar		;Get signed char
+49    0000              	EXTERN    l_gcharsp	;Get signed char  (peephole opt)
+50    0000              	EXTERN    l_gcharspsp	;Get signed char and push  (peephole opt)
+51    0000              	EXTERN    l_g2charspsp	;Get 2 signed char and push  (peephole opt)
+52    0000              	EXTERN    l_sxt		;Sign extend char
+53    0000              	EXTERN    l_gint		;Get int
+54    0000              	EXTERN    l_gintsp		;Get int (peephole opt)
+55    0000              	EXTERN    l_gintspchar	;Get int,char (peephole opt)
+56    0000              	EXTERN    l_gintspsp	;Get int and push (peephole opt)
+57    0000              	EXTERN    l_g2intspsp	;Get 2 int and push (peephole opt)
+58    0000              	EXTERN    l_gint7de	;Get int, multiply by 7 and add from SP by de
+59    0000              	EXTERN    l_gint_eq	;Get int and test == 0
+60    0000              	EXTERN    l_ghtonsint	;Get reverse order int
+61    0000              	EXTERN    l_pint		;Put int
+62    0000              	EXTERN    l_pint_eq	;Put int and test == 0
+63    0000              	EXTERN    l_pint_pop	;Put int and pop place address
+64    0000              	EXTERN    l_pint_ex	;Put int hl to addr de return addr in hl
+65    0000              	EXTERN    l_or		;Int logical or
+66    0000              	EXTERN    l_xor		;Int logical xor
+67    0000              	EXTERN    l_and		;Int logical and
+68    0000              	EXTERN    l_eq		;Int equality
+69    0000              	EXTERN    l_ne		;Int inequality
+70    0000              	EXTERN    l_gt		;Int signed >
+71    0000              	EXTERN    l_le		;Int signed <=
+72    0000              	EXTERN    l_ge		;Int signed >=
+73    0000              	EXTERN    l_lt		;Int signed <
+74    0000              	EXTERN    l_uge		;Int unsigned >=
+75    0000              	EXTERN    l_ult		;Int unsigned <
+76    0000              	EXTERN    l_ugt		;Int unsigned >
+77    0000              	EXTERN    l_ule		;Int unsigned <=
+78    0000              	EXTERN    l_cmp		;Int signed compare
+79    0000              	EXTERN    l_ucmp		;Int unsigned compare
+80    0000              	EXTERN    l_asr		;Int signed >>
+81    0000              	EXTERN    l_asr_hl_by_e		;Int signed >>
+82    0000              	EXTERN    l_asr_u		;Int unsigned >>
+83    0000              	EXTERN    l_asr_u_hl_by_e		;Int unsigned >>
+84    0000              	EXTERN    l_asl		;Int <<
+85    0000              	EXTERN    l_sub		;Int subtract
+86    0000              	EXTERN    l_neg		;Int negate
+87    0000              	EXTERN    l_com		;Int ~
+88    0000              	EXTERN    l_lneg		;Int logical negate
+89    0000              	EXTERN    l_bool		;Int boolean tetst
+90    0000              	EXTERN    l_cm_de		;
+91    0000              	EXTERN    l_cm_bc
+92    0000              	EXTERN    l_deneg
+93    0000              	EXTERN    l_bcneg
+94    0000              	EXTERN    l_case		;Integer case
+95    0000              	EXTERN    l_mult		;Integer *
+96    0000              	EXTERN    l_div		;Integer signed /
+97    0000              	EXTERN    l_div_u		;Integer unsigned /
+98    0000              
+99    0000              ;------------------
+100   0000              ;Long functions now
+101   0000              ;------------------
+102   0000              
+103   0000              	EXTERN     lpush2		;Push a long under the stack
+104   0000              	EXTERN     l_int2long_s	;Int->long signed conversion
+105   0000              	EXTERN     l_int2long_s_float	;Int->long->float signed conversion (optimizer: use -O3)
+106   0000              	EXTERN     l_long2int_s	;Long->int signed conversion
+107   0000              	EXTERN     l_glong		;Get long
+108   0000              	EXTERN     l_glonghlp		;Get pointer, then get long
+109   0000              	EXTERN     l_glong2sp	;Get long and copy on stack (peephole opt)
+110   0000              	EXTERN     l_glong2sp_hlp
+111   0000              	EXTERN     l_long_add
+112   0000              	EXTERN     l_long_and
+113   0000              	EXTERN     l_long_asl
+114   0000              	EXTERN     l_long_asr
+115   0000              	EXTERN     l_long_aslo	;Long << shift in c
+116   0000              	EXTERN     l_long_asro	;Long >> shift in c (signed)
+117   0000              	EXTERN     l_long_bool
+118   0000              	EXTERN     l_long_cmp
+119   0000              	EXTERN     l_long_com
+120   0000              	EXTERN     l_long_eq
+121   0000              	EXTERN     l_long_ge
+122   0000              	EXTERN     l_long_gt
+123   0000              	EXTERN     l_long_le
+124   0000              	EXTERN     l_long_lneg
+125   0000              	EXTERN     l_long_lt
+126   0000              	EXTERN     l_long_ne
+127   0000              	EXTERN     l_long_neg
+128   0000              	EXTERN     l_long_or
+129   0000              	EXTERN     l_long_sub
+130   0000              	EXTERN     l_long_ucmp
+131   0000              	EXTERN     l_long_uge
+132   0000              	EXTERN     l_long_ugt
+133   0000              	EXTERN     l_long_ule
+134   0000              	EXTERN     l_long_ult
+135   0000              	EXTERN     l_long_xor
+136   0000              	EXTERN     l_plong
+137   0000              	EXTERN     l_inclong	;Increment long
+138   0000              	EXTERN     l_declong	;Decrement long
+139   0000              	EXTERN     l_long_div
+140   0000              	EXTERN     l_long_div_u
+141   0000              	EXTERN     l_long_mult
+142   0000              	EXTERN     l_long_asr_u	;Long unsigned >>
+143   0000              	EXTERN     l_long_asr_uo	;Long unsigned >> shift in c
+144   0000              	EXTERN     l_long_case
+145   0000              
+146   0000              ;--------------------------------------------------------------
+147   0000              ; Floating point support routines, mostly in library
+148   0000              ;--------------------------------------------------------------
+149   0000              
+150   0000              	EXTERN	dadd
+151   0000              	EXTERN	ddiv
+152   0000              	EXTERN	dsub
+153   0000              	EXTERN	dmul
+154   0000              
+155   0000              	EXTERN	dge
+156   0000              	EXTERN	dgt
+157   0000              	EXTERN	dleq
+158   0000              	EXTERN	dlt
+159   0000              	EXTERN	deq
+160   0000              	EXTERN	dne
+161   0000              
+162   0000              	EXTERN	minusfa		;FA=-FA
+163   0000              
+164   0000              	EXTERN	dswap		;Exchange FA with top of stack
+165   0000              	EXTERN   	float		;Convert int to float
+166   0000              	EXTERN   	ufloat		;unsigned int to float
+167   0000              	EXTERN   	ifix		;Convert float to int
+168   0000              
+169   0000              	EXTERN	dstore		;FA->(de)
+170   0000              	EXTERN	dload		;FA<-(hl)
+171   0000              	EXTERN	dldpsh		;(hl)->(stack)
+172   0000              	EXTERN	dpush		;FA->(stack)
+173   0000              	EXTERN	dpush2		;FA->(stack under)
+174   0000              	EXTERN	dpush3		;FA->(stack under,long)
+175   0000              
+176   0000              	EXTERN	fa		;may not be needed in this file
+177   0000              	EXTERN	extra		;dittot
+178   0000              	EXTERN  	__atof2		;string->fa convsersion
+179   0000              
+180   0000              
+181   0000              ;--------------------------------------------------
+182   0000              ; Routines for picking up variables from far memory
+183   0000              ;--------------------------------------------------
+184   0000              
+185   0000              	EXTERN	lp_gchar
+186   0000              	EXTERN	lp_gdoub
+187   0000              	EXTERN	lp_gint
+188   0000              	EXTERN	lp_glong
+189   0000              	EXTERN	lp_gptr
+190   0000              	EXTERN	lp_pchar
+191   0000              	EXTERN	lp_pdoub
+192   0000              	EXTERN	lp_pint
+193   0000              	EXTERN	lp_plong
+194   0000              	EXTERN	lp_pptr
+195   0000              
+196   0000              	EXTERN  l_farcall	; Long call
+197   0000              
+198   0000              
+199   0000              ;-------------------
+200   0000              ; Routines for SDCC
+201   0000              ;-------------------
+202   0000              
+203   0000              	EXTERN     __divsint_rrx_s
+204   0000              	EXTERN     __divsint_rrx_hds
+205   0000              	EXTERN     __divuint_rrx_s
+206   0000              	EXTERN     __divuint_rrx_hds
+207   0000              	EXTERN     __divsuchar_rrx_s
+208   0000              	EXTERN     __divuschar_rrx_s
+209   0000              	EXTERN     __divuchar_rrx_s
+210   0000              	EXTERN     __divuchar_rrx_hds
+211   0000              	EXTERN     __moduchar_rrx_s
+212   0000              	EXTERN     __moduchar_rrx_hds
+213   0000              	EXTERN     __moduschar_rrx_s
+214   0000              	EXTERN     __modsuchar_rrx_s
+215   0000                  EXTERN     __modschar_rrx_s
+216   0000              	EXTERN     __modschar_rrx_hds
+217   0000              	EXTERN     __modsint_rrx_s
+218   0000              	EXTERN     __modsint_rrx_hds
+219   0000              	EXTERN     __moduint_rrx_s
+220   0000              	EXTERN     __moduint_rrx_hds
+221   0000              	EXTERN     __get_remainder
+222   0000              	EXTERN     __divunsigned
+223   0000                  EXTERN     __div_signexte
+224   0000              	EXTERN     __divu16
+225   0000              	EXTERN     __div16
+226   0000              	EXTERN     __div8
+227   0000              	EXTERN     __muluchar_rrx_s
+228   0000              	EXTERN     __muluchar_rrx_hds
+229   0000              	EXTERN     __mulsuchar_rrx_s
+230   0000              	EXTERN     __muluschar_rrx_s
+231   0000              	EXTERN     __mulschar_rrx_s
+232   0000              	EXTERN     __mulschar_rrx_hds
+233   0000              	EXTERN     __mulint_rrx_s
+234   0000              	EXTERN     __mulint_rrx_hds
+235   0000              	EXTERN     __mul16
+236   0000              	EXTERN    	__rrulong_rrx_s
+237   0000              	EXTERN    	__rrslong_rrx_s
+238   0000              	EXTERN    	__rlslong_rrx_s
+239   0000              	EXTERN    	__rlulong_rrx_s
+240   0000              
+241   0000              	EXTERN		l_push_di
+242   0000              	EXTERN		l_pop_ei
+243   0000              
+14    0000              
+15    0000              
+16    0000              	SECTION	code_compiler
+17    0000              
+18    0000              ; Function test_frame flags 0x00000200 __smallc
+19    0000              ; int test_frame()
+20    0000              ._test_frame
+21    0000  F3             di
+22    0001  21 00 70       ld hl, $7000
+23    0004  16 9F          ld d,159
+24    0006              start:
+25    0006  0E 0B          ld c, $0B
+26    0008              loop:
+27    0008  06 FF          ld b, $ff
+28    000A              loop_inner:
+29    000A                 ;xor a
+30    000A  7A             ld a,d
+31    000B  77             ld (hl),a
+32    000C  10 FC          djnz loop_inner
+33    000E  79             ld a,c
+34    000F  3D             dec a
+35    0010  FE 00          cp 0
+36    0012  4F             ld c,a
+37    0013  20 F3          jr nz,loop
+38    0015  06 DE          ld b,$DE
+39    0017              loop2:
+40    0017  10 FE          djnz loop2
+41    0019  00             nop
+42    001A  00             nop
+43    001B  00             nop
+44    001C  00             nop
+45    001D  00             nop
+46    001E  00             nop
+47    001F  00             nop
+48    0020  00             nop
+49    0021  00             nop
+50    0022  00             nop
+51    0023  00             nop
+52    0024  00             nop
+53    0025  00             nop
+54    0026  00             nop
+55    0027  00             nop
+56    0028  00             nop
+57    0029  00             nop
+58    002A  00             nop
+59    002B  DD CB 00 C6    set 0, (ix+0)
+60    002F  18 D5          jr start
+61    0031  C9          	ret
+62    0032              
+63    0032              
+64    0032              
+65    0032              ; Function main flags 0x00000000 __stdc
+66    0032              ; int main()
+67    0032              ._main
+68    0032  21 00 00    	ld	hl,i_1+0
+69    0035  E5          	push	hl
+70    0036  3E 01       	ld	a,1
+71    0038  CD 00 00    	call	printf
+72    003B  C1          	pop	bc
+73    003C  21 17 00    	ld	hl,i_1+23
+74    003F  E5          	push	hl
+75    0040  3E 01       	ld	a,1
+76    0042  CD 00 00    	call	printf
+77    0045  C1          	pop	bc
+78    0046  21 26 00    	ld	hl,i_1+38
+79    0049  E5          	push	hl
+80    004A  3E 01       	ld	a,1
+81    004C  CD 00 00    	call	printf
+82    004F  C1          	pop	bc
+83    0050  CD 00 00    	call	_getch
+84    0053  7D          	ld	a,l
+85    0054  CD 00 00    	call	l_sxt
+86    0057  3B          	dec	sp
+87    0058  7D          	ld	a,l
+88    0059  E1          	pop	hl
+89    005A  6F          	ld	l,a
+90    005B  E5          	push	hl
+91    005C  21 00 00    	ld	hl,0	;const
+92    005F  39          	add	hl,sp
+93    0060  7E          	ld	a,(hl)
+94    0061  FE 47       	cp	71
+95    0063  C2 6C 00    	jp	nz,i_2
+96    0066  21 01 00    	ld	hl,1	;const
+97    0069  CD 00 00    	call	vz_mode
+98    006C              .i_2
+99    006C  CD 00 00    	call	_test_frame
+100   006F  33          	inc	sp
+101   0070  C9          	ret
+102   0071              
+103   0071              
+104   0071              	SECTION	rodata_compiler
+105   0000              .i_1
+106   0000              	defm	""
+107   0000  0A          	defb	10
+108   0001              
+109   0001              	defm	""
+110   0001  0A          	defb	10
+111   0002              
+112   0002  54 45 53 54 20 46 52 41 4D 45 20 50 41 54 54 45 52 4E 
+                        	defm	"TEST FRAME PATTERN"
+113   0014  0A          	defb	10
+114   0015              
+115   0015              	defm	""
+116   0015  0A          	defb	10
+117   0016              
+118   0016              	defm	""
+119   0016  00          	defb	0
+120   0017              
+121   0017  74 20 3D 20 74 65 78 74 20 6D 6F 64 65 
+                        	defm	"t = text mode"
+122   0024  0A          	defb	10
+123   0025              
+124   0025              	defm	""
+125   0025  00          	defb	0
+126   0026              
+127   0026  67 20 3D 20 67 72 61 70 68 69 63 20 6D 6F 64 65 
+                        	defm	"g = graphic mode"
+128   0036  0A          	defb	10
+129   0037              
+130   0037              	defm	""
+131   0037  00          	defb	0
+132   0038              
+133   0038              
+134   0038              ; --- Start of Static Variables ---
+135   0038              
+136   0038              	SECTION	bss_compiler
+137   0000              	SECTION	code_compiler
+138   0071              
+139   0071              
+140   0071              ; --- Start of Scope Defns ---
+141   0071              
+142   0071              	GLOBAL	open
+143   0071              	GLOBAL	creat
+144   0071              	GLOBAL	close
+145   0071              	GLOBAL	read
+146   0071              	GLOBAL	write
+147   0071              	GLOBAL	lseek
+148   0071              	GLOBAL	readbyte
+149   0071              	GLOBAL	writebyte
+150   0071              	GLOBAL	getcwd
+151   0071              	GLOBAL	chdir
+152   0071              	GLOBAL	getwd
+153   0071              	GLOBAL	rmdir
+154   0071              	GLOBAL	_RND_BLOCKSIZE
+155   0071              	GLOBAL	rnd_loadblock
+156   0071              	GLOBAL	rnd_saveblock
+157   0071              	GLOBAL	rnd_erase
+158   0071              	GLOBAL	__FOPEN_MAX
+159   0071              	GLOBAL	__sgoioblk
+160   0071              	GLOBAL	__sgoioblk_end
+161   0071              	GLOBAL	fopen_zsock
+162   0071              	GLOBAL	fopen
+163   0071              	GLOBAL	freopen
+164   0071              	GLOBAL	fdopen
+165   0071              	GLOBAL	_freopen1
+166   0071              	GLOBAL	fmemopen
+167   0071              	GLOBAL	funopen
+168   0071              	GLOBAL	fclose
+169   0071              	GLOBAL	fflush
+170   0071              	GLOBAL	closeall
+171   0071              	GLOBAL	fgets
+172   0071              	GLOBAL	fputs
+173   0071              	GLOBAL	fputc
+174   0071              	GLOBAL	fputs_callee
+175   0071              	GLOBAL	fputc_callee
+176   0071              	GLOBAL	fgetc
+177   0071              	GLOBAL	ungetc
+178   0071              	GLOBAL	feof
+179   0071              	GLOBAL	puts
+180   0071              	GLOBAL	ftell
+181   0071              	GLOBAL	fgetpos
+182   0071              	GLOBAL	fseek
+183   0071              	GLOBAL	fread
+184   0071              	GLOBAL	fwrite
+185   0071              	GLOBAL	gets
+186   0071              	GLOBAL	printf
+187   0071              	GLOBAL	fprintf
+188   0071              	GLOBAL	sprintf
+189   0071              	GLOBAL	snprintf
+190   0071              	GLOBAL	vfprintf
+191   0071              	GLOBAL	vsnprintf
+192   0071              	GLOBAL	printn
+193   0071              	GLOBAL	scanf
+194   0071              	GLOBAL	fscanf
+195   0071              	GLOBAL	sscanf
+196   0071              	GLOBAL	vfscanf
+197   0071              	GLOBAL	vsscanf
+198   0071              	GLOBAL	getarg
+199   0071              	GLOBAL	fchkstd
+200   0071              	GLOBAL	fgetc_cons
+201   0071              	GLOBAL	fgetc_cons_inkey
+202   0071              	GLOBAL	fputc_cons
+203   0071              	GLOBAL	fgets_cons
+204   0071              	GLOBAL	puts_cons
+205   0071              	GLOBAL	fabandon
+206   0071              	GLOBAL	fdtell
+207   0071              	GLOBAL	fdgetpos
+208   0071              	GLOBAL	rename
+209   0071              	GLOBAL	remove
+210   0071              	GLOBAL	getk
+211   0071              	GLOBAL	getk_inkey
+212   0071              	GLOBAL	printk
+213   0071              	GLOBAL	vz_bgrd
+214   0071              	GLOBAL	vz_brick
+215   0071              	GLOBAL	vz_char_draw
+216   0071              	GLOBAL	vz_clrscr
+217   0071              	GLOBAL	vz_color
+218   0071              	GLOBAL	vz_getch
+219   0071              	GLOBAL	vz_gotoxy
+220   0071              	GLOBAL	vz_inch
+221   0071              	GLOBAL	vz_line
+222   0071              	GLOBAL	vz_midstr
+223   0071              	GLOBAL	vz_mode
+224   0071              	GLOBAL	vz_plot
+225   0071              	GLOBAL	vz_point
+226   0071              	GLOBAL	vz_score
+227   0071              	GLOBAL	vz_setbase
+228   0071              	GLOBAL	vz_shape
+229   0071              	GLOBAL	vz_sound
+230   0071              	GLOBAL	vz_soundcopy
+231   0071              	GLOBAL	vz_brick_callee
+232   0071              	GLOBAL	vz_gotoxy_callee
+233   0071              	GLOBAL	vz_line_callee
+234   0071              	GLOBAL	vz_midstr_callee
+235   0071              	GLOBAL	vz_plot_callee
+236   0071              	GLOBAL	vz_point_callee
+237   0071              	GLOBAL	vz_score_callee
+238   0071              	GLOBAL	vz_sound_callee
+239   0071              	GLOBAL	vz_soundcopy_callee
+240   0071              	GLOBAL	_test_frame
+241   0071              	GLOBAL	_main
+242   0071              	GLOBAL	_getch
+243   0071              
+244   0071              
+245   0071              ; --- End of Scope Defns ---
+246   0071              
+247   0071              
+248   0071              ; --- End of Compilation ---
+249   0071              

@@ -9,6 +9,7 @@ int test_snow() {
 
 loop:
    ld (hl),a
+   nop
    jr loop
 
    #endasm 
