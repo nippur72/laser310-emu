@@ -162,3 +162,22 @@ sys_set_debug(1);
 
 // load a file demo file
 // file:///C:/Users/Nino1/Desktop/USB/GitHub/laser310-emu/index.html?load=http://www.vz200.org/bushy/software/games-binary/INVADERS_JS.VZ
+
+
+// debugs out (0x0d),a 
+function printerWrite(byte) {
+   console.log(hex(get_z80_pc(),4));
+}
+
+
+// counts ticks elapsed
+let last_tick = 0;
+debugBefore = function() {
+   let pc = get_z80_pc();
+   if(pc == 0x7b49) {
+      let nticks = sys_total_cycles() - last_tick;
+      last_tick = sys_total_cycles();
+      console.log(nticks);
+   }
+}
+sys_set_debug(1);
