@@ -3,11 +3,7 @@
 #include "laser310.h"
 
 float buzzer_audio_buf[4096];
-#ifdef MC6847_INTERLACED
-uint32_t mc_display_buffer[MC6847_DISPLAY_WIDTH*MC6847_DISPLAY_HEIGHT*2];
-#else
 uint32_t mc_display_buffer[MC6847_DISPLAY_WIDTH*MC6847_DISPLAY_HEIGHT];
-#endif
 
 laser310_t l310;
 laser310_desc_t sysdesc;
@@ -51,7 +47,6 @@ int sys_ticks(int ncycles) {
 
 KEEP
 void sys_init() {
-
    sysdesc.cpu_clock = 3546900;
    sysdesc.sample_rate = 48000;
    sysdesc.audio_buf = buzzer_audio_buf;
