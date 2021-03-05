@@ -15,6 +15,7 @@
 // TODO test programs: snow effect when program resides in vram
 // TODO find a good palette
 // TODO align MC6847 to upstream
+// TODO continue UI
 // *TODO renderer 1x1
 // *TODO MC6847 palette
 // *TODO test programs: snow effect in text and gr mode

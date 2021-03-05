@@ -1,4 +1,4 @@
-let RENDER_MULTIPLIER = 1;
+let RENDER_MULTIPLIER = 2;
 
 function calculateGeometry_mc() {
    /*
