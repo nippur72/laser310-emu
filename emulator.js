@@ -28,8 +28,11 @@ let cpu;
 
 /******************/
 
-let cpuSpeed = 3575410;               // VZEM: 3546900 VZ300, 3579500 VZ200
-let vdcSpeed = 3575410;               // same clock as CPU
+// framerate * 310 * linerate * 228 = cpu
+// 50.18125 * 310 * 15625
+
+let cpuSpeed = 3546900;               // VZEM: 3546900 VZ300, 3579500 VZ200
+let vdcSpeed = 3546900;               // same clock as CPU
 let frameRate = 50.1812;              // ~50 Hz, 50.1812 measured on my Laser 310
 let cyclesPerLine = 228;              // was: cpuSpeed / vdcSpeed * 320;
 
@@ -40,7 +43,6 @@ let averageFrameTime = 0;
 let averageLoad = 0;
 
 let cycle = 0;
-let total_cycles = 0;
 
 let options = {
    load: undefined,
@@ -52,7 +54,7 @@ let audio = new Audio(4096);
 let storage = new BrowserStorage("laser310");
 
 function renderFrame() {
-   total_cycles += sys_ticks(312 * 2 * cyclesPerLine);
+   sys_ticks(310 * 2 * cyclesPerLine);
 }
 
 function poll_keyboard() {
@@ -90,7 +92,7 @@ function oneFrame(timestamp) {
    sys_joystick(joy0, joy1);
 
    let starttime = performance.now();
-   total_cycles += sys_ticks(cycles);
+   sys_ticks(cycles);
    let endtime = performance.now();
    let elapsed = endtime - starttime;
    let load = (elapsed / msec) * 100;

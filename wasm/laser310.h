@@ -53,6 +53,7 @@ typedef struct {
    bool joy1_arm;
 
    int cpu_clock;
+   int total_ticks;
 
    // buzzer audio
    float *audio_buf;
@@ -115,8 +116,10 @@ void laser310_reset(laser310_t *sys) {
    sys->last_fs     = 0;
    sys->PAL_counter = 0;
 
+   sys->total_ticks = 0;
    sys->opdone = false;
 
+   
    z80_reset(&sys->cpu);
    mc6847_reset(&sys->vdc);
    keyboard_reset(&sys->kbd);
