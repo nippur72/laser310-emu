@@ -85,6 +85,8 @@ let sys_tape_playback;
 
 let sys_joystick;
 
+let sys_total_cycles;
+
 function load_wasm(ready_cb) {
 
    // emscripten_module.js exports "emscripten_module" globally
@@ -166,6 +168,8 @@ function load_wasm(ready_cb) {
       sys_init         = instance.cwrap("sys_init", ['number']);
       sys_reset        = instance.cwrap("sys_reset", null);
       sys_ticks        = instance.cwrap("sys_ticks", 'number', ['number']);
+
+      sys_total_cycles = instance.cwrap("sys_total_cycles", ['number']);
 
       keyboard_reset     = instance.cwrap("sys_keyboard_reset"  , null);
       keyboard_press     = instance.cwrap("sys_keyboard_press"  , null, ['number', 'number'] );

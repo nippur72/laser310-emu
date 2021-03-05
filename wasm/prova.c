@@ -207,3 +207,7 @@ void sys_joystick(byte joy0, byte joy1) {
    laser310_joystick(&l310, joy0, joy1);
 }
 
+KEEP
+int sys_total_cycles() {
+   return l310.total_ticks;
+}
