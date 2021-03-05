@@ -21,9 +21,11 @@ typedef struct {
    z80_t cpu;             // the Z80 CPU
    mc6847_t vdc;          // the MC6847 VDP
 
-   bool videomem_access[MC6847_SCANLINE_TICKS+2];      // true if VPD was accessed at corresponding line tick
-   byte videomem_access_data[MC6847_SCANLINE_TICKS+2]; // the actual data on the bus at the corresponding tick
-   int videomem_access_ptr;                            // pointer to writing in videomem_access
+   uint32_t palette[8+5];
+
+   bool videomem_access[MC6847_TICKS_PER_SCANLINE+2];      // true if VPD was accessed at corresponding line tick
+   byte videomem_access_data[MC6847_TICKS_PER_SCANLINE+2]; // the actual data on the bus at the corresponding tick
+   int videomem_access_ptr;                                // pointer to writing in videomem_access
 
    int last_fs;           // value of FS at previous tick for PAL conversion
    int PAL_counter;       // ticks to wait for adding PAL lines at the end of the frame
@@ -118,7 +120,6 @@ void laser310_reset(laser310_t *sys) {
 
    sys->total_ticks = 0;
    sys->opdone = false;
-
    
    z80_reset(&sys->cpu);
    mc6847_reset(&sys->vdc);
@@ -254,10 +255,10 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
       sys->videomem_access[sys->videomem_access_ptr] = video_access;
       sys->videomem_access_data[sys->videomem_access_ptr] = video_access_data;
       sys->videomem_access_ptr++;
-      if(sys->videomem_access_ptr == MC6847_SCANLINE_TICKS) sys->videomem_access_ptr = 0;
+      if(sys->videomem_access_ptr == MC6847_TICKS_PER_SCANLINE) sys->videomem_access_ptr = 0;
    }
 
-   if(sys->PAL_counter == 0) {
+   if(sys->PAL_counter < 0) {
       // tick the VDC
       uint64_t vdc_pins = MC6847_GM1;
       if(sys->vdc_mode      ) BITSET(vdc_pins,MC6847_AG);
@@ -265,11 +266,14 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
       for(int t=0;t<num_ticks;t++) vdc_pins = mc6847_tick(&sys->vdc, vdc_pins);
       if(IS_ONE(vdc_pins,MC6847_FS)) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
       else BITRESET(pins,Z80_INT);
-      if(sys->vdc.fs != sys->last_fs) sys->PAL_counter = 11335; //MC6847_SCANLINE_TICKS * 50; // adds 50 PAL lines
+      if(sys->vdc.fs == 0 && sys->vdc.fs != sys->last_fs) {
+         sys->PAL_counter += MC6847_TICKS_PER_SCANLINE * 48; // adds 48 PAL lines         
+         //byte unused = (byte) EM_ASM_INT({ console.log(sys_total_cycles()-window.ls); window.ls = sys_total_cycles(); }, 0);
+      }
    }
    else {
       // holds the VDC waiting for the additional PAL lines to complete
-      sys->PAL_counter--;
+      sys->PAL_counter-=num_ticks;
    }
 
    sys->last_fs = sys->vdc.fs;
@@ -303,6 +307,7 @@ int laser310_tick(laser310_t *sys) {
    }
 
    int ticks = z80_exec(&sys->cpu, 1);
+   sys->total_ticks += ticks;
 
    if(sys->debug && z80_opdone(&sys->cpu)) {
       sys->debug_after();
@@ -338,9 +343,52 @@ void laser310_joystick(laser310_t *sys, byte joy0, byte joy1)
    sys->joy1_arm   = joy1 & (1<<5);
 }
 
+uint32_t applySaturation(float r, float g, float b, float s, float c, float l) {      
+
+   // apply saturation
+   float L = 0.3*r + 0.6*g + 0.1*b;
+   float new_r = (r + (1.0 - s) * (L - r));
+   float new_g = (g + (1.0 - s) * (L - g));
+   float new_b = (b + (1.0 - s) * (L - b));
+
+   // apply contrast
+   new_r = (new_r-128.0)*c + 128.0;
+   new_g = (new_g-128.0)*c + 128.0;
+   new_b = (new_b-128.0)*c + 128.0;
+
+   // apply luminosity
+   new_r += 128.0 * (l-1.0);
+   new_g += 128.0 * (l-1.0);
+   new_b += 128.0 * (l-1.0);
+
+   if(new_r < 0) new_r = 0; if(new_r > 255 ) new_r = 255; 
+   if(new_g < 0) new_g = 0; if(new_g > 255 ) new_g = 255; 
+   if(new_b < 0) new_b = 0; if(new_b > 255 ) new_b = 255; 
+
+   return 0xFF000000 | (int)new_r | (int)new_g << 8 | (int)new_b << 16;    
+}
+
 void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
    sys->cpu_clock = desc->cpu_clock;
    sys->user_data = desc->user_data;
+
+   float sat = 1.0;        // 1.0 normal saturation
+   float contrast = 1.0;   // 1.0 normal contrast
+   float lum = 1.0;        // 1.0 normal luminosity  
+
+   sys->palette[ 0] = applySaturation(  19, 146,  11, sat, contrast, lum);     /* green */
+   sys->palette[ 1] = applySaturation( 155, 150,  10, sat, contrast, lum);     /* yellow */
+   sys->palette[ 2] = applySaturation(   2,  22, 175, sat, contrast, lum);     /* blue */
+   sys->palette[ 3] = applySaturation( 155,  22,   7, sat, contrast, lum);     /* red */
+   sys->palette[ 4] = applySaturation( 141, 150, 154, sat, contrast, lum);     /* buff */
+   sys->palette[ 5] = applySaturation(  15, 143, 155, sat, contrast, lum);     /* cyan */
+   sys->palette[ 6] = applySaturation( 139,  39, 155, sat, contrast, lum);     /* cyan */
+   sys->palette[ 7] = applySaturation( 140,  31,  11, sat, contrast, lum);     /* orange */
+   sys->palette[ 8] = applySaturation(  17,  17,  17, sat, contrast, lum);     // black
+   sys->palette[ 9] = applySaturation(  19, 146,  11, sat, contrast, lum);     // alnum_green
+   sys->palette[10] = applySaturation(   0,  36,   0, sat, contrast, lum);     // alnum_dark_green
+   sys->palette[11] = applySaturation( 140,  31,  11, sat, contrast, lum);     // alnum_orange 
+   sys->palette[12] = applySaturation(   0,   15, 34, sat, contrast, lum);     // alnum_dark_orange
 
    // cpu
    z80_desc_t z80desc;
@@ -350,10 +398,11 @@ void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
 
    // mc6847
    mc6847_desc_t mc_desc;
-   mc_desc.MC6847_TICK_HZ = sys->cpu_clock;
+   mc_desc.mc6847_tick_hz = sys->cpu_clock;
    mc_desc.tick_hz = sys->cpu_clock;
    mc_desc.rgba8_buffer = desc->display_buffer;
    mc_desc.rgba8_buffer_size = desc->display_buffer_size;
+   mc_desc.palette = sys->palette;
    mc_desc.fetch_cb = vdp_fetch_cb;
    mc_desc.screen_update_cb = desc->screen_update_cb;
    mc_desc.user_data = sys; // self reference for fetch callback

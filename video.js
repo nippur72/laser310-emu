@@ -1,3 +1,5 @@
+let RENDER_MULTIPLIER = 1;
+
 function calculateGeometry_mc() {
    /*
    const BORDER_V_TOP    = 16;
@@ -21,8 +23,8 @@ function calculateGeometry_mc() {
 
    // canvas is the outer canvas where the aspect ratio is corrected
    let canvas = document.getElementById("canvas");
-   canvas.width  = SCREEN_W * 2;
-   canvas.height = SCREEN_H * 2;
+   canvas.width  = SCREEN_W * RENDER_MULTIPLIER;
+   canvas.height = SCREEN_H * RENDER_MULTIPLIER;
 }
 
 calculateGeometry_mc();
@@ -38,7 +40,7 @@ const MC_OFFSET_Y = 0;
 
 let mc6847_canvas = document.getElementById("canvas");
 let mc6847_context = mc6847_canvas.getContext('2d');
-let mc6847_imagedata = mc6847_context.getImageData(0, 0, MC_DOT_WIDTH*2, MC_DOT_HEIGHT*2);
+let mc6847_imagedata = mc6847_context.getImageData(0, 0, MC_DOT_WIDTH*RENDER_MULTIPLIER, MC_DOT_HEIGHT*RENDER_MULTIPLIER);
 let mc6847_imagedata_buffer = new ArrayBuffer(mc6847_imagedata.data.length);
 let mc6847_imagedata_buf8 = new Uint8ClampedArray(mc6847_imagedata_buffer);
 let mc6847_imagedata_data = new Uint32Array(mc6847_imagedata_buffer);
@@ -49,21 +51,36 @@ function vdp_screen_update_mc(ptr) {
    let size = MC_DOT_WIDTH*MC_DOT_HEIGHT;
    let buffer = wasm_instance.HEAPU32.subarray(start,start+size);
 
-   let ptr0 = 0;
-   let ptr1 = 0;
-   let ptr2 = MC_DOT_WIDTH*2;
+   if(RENDER_MULTIPLIER === 2) {
+      let ptr0 = 0;
+      let ptr1 = 0;
+      let ptr2 = MC_DOT_WIDTH*2;
 
-   for(let y=0;y<MC_DOT_HEIGHT;y++) {
-      for(let x=0;x<MC_DOT_WIDTH;x++) {
-         let pixel = buffer[ptr0];
-         mc6847_imagedata_data[ptr1++] = pixel;
-         mc6847_imagedata_data[ptr1++] = pixel;
-         mc6847_imagedata_data[ptr2++] = pixel;
-         mc6847_imagedata_data[ptr2++] = pixel;
-         ptr0++;
+      for(let y=0;y<MC_DOT_HEIGHT;y++) {
+         for(let x=0;x<MC_DOT_WIDTH;x++) {
+            let pixel = buffer[ptr0];
+            mc6847_imagedata_data[ptr1++] = pixel;
+            mc6847_imagedata_data[ptr1++] = pixel;
+            mc6847_imagedata_data[ptr2++] = pixel;
+            mc6847_imagedata_data[ptr2++] = pixel;
+            ptr0++;
+         }
+         ptr1 += MC_DOT_WIDTH*2;
+         ptr2 += MC_DOT_WIDTH*2;
       }
-      ptr1 += MC_DOT_WIDTH*2;
-      ptr2 += MC_DOT_WIDTH*2;
+   }
+   else {
+      let ptr0 = 0;
+      let ptr1 = 0;
+      let ptr2 = MC_DOT_WIDTH;
+
+      for(let y=0;y<MC_DOT_HEIGHT;y++) {
+         for(let x=0;x<MC_DOT_WIDTH;x++) {
+            let pixel = buffer[ptr0];
+            mc6847_imagedata_data[ptr1++] = pixel;
+            ptr0++;
+         }         
+      }
    }
 
    mc6847_imagedata.data.set(mc6847_imagedata_buf8);
