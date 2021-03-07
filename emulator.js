@@ -1,25 +1,27 @@
 "use strict";
 
+
 // TODO selectable PAL NTSC
 // TODO selectable VZ200 VZ300
 // TODO selectrable RAM size
-// TODO switchable snow effect
 // TODO implement disk
 // TODO numpad or cursor keys joystick
-// TODO investigate speaker_A and speaker_B
 // TODO fix CRSR_STATE
-// TODO cassette save WAV
 // TODO fix tastiera XSnake / tastiera fisica
 // TODO test programs: exact CPU speed
 // TODO test programs: interrupt rate
 // TODO test programs: snow effect when program resides in vram
 // TODO find a good palette
-// TODO align MC6847 to upstream
 // TODO continue UI
+// --
+// *TODO cassette save WAV / save audio
+// *TODO align MC6847 to upstream
 // *TODO renderer 1x1
 // *TODO MC6847 palette
 // *TODO test programs: snow effect in text and gr mode
 // *TODO test programs: frame duration in CPU ticks
+// *TODO switchable snow effect
+// *TODO investigate speaker_A and speaker_B
 
 let BASTXT;      // points to basic free area (start of program)
 let BASEND;      // points to end of the basic program
@@ -168,3 +170,28 @@ function ay38910_audio_buf_ready(ptr, size) {
    audio.playBuffer(buffer);
 }
 
+// called from WASM after tape has finished recording
+function csave_cb(ptr, size, samplerate) {
+
+   let audio = get_wasm_float32_array(ptr, size);
+   const length = Math.round(audio.length / samplerate);
+
+   const wavData = {
+      sampleRate: samplerate,
+      channelData: [ audio ]
+   };
+
+   const buffer = encodeSync(wavData, { bitDepth: 16, float: false });
+   let fileName = "csaved.wav"
+   downloadBytes(fileName, buffer);
+}
+
+// cassette save
+function csave() {
+   sys_tape_record();
+}
+
+// cassette stop
+function cstop() {
+   sys_tape_stop();
+}

@@ -182,20 +182,40 @@ void sys_keyboard_release(byte row, byte col) {
    keyboard_release(&l310.kbd, row, col);
 }
 
+// === TAPE ===
+
 KEEP
 void sys_tape_init_load(int size, int sample_rate) {
    tape_init_load(&l310.tape, size, l310.cpu_clock, sample_rate);
 }
 
 KEEP
-void sys_tape_load_data(int index, byte sample) {
+void sys_tape_load_data(int index, float sample) {
    tape_load_data(&l310.tape, index, sample);
 }
 
 KEEP
-void sys_tape_playback() {
-   tape_playback(&l310.tape);
+void sys_tape_play() {
+   tape_play(&l310.tape);
 }
+
+void csave_cb(float *samples, int size, int samplerate) {
+   byte unused = (byte) EM_ASM_INT({ csave_cb($0, $1, $2); }, samples, size, samplerate );
+}
+
+KEEP
+void sys_tape_record() {
+   int samplerate = 44100;
+   int size = 15 * 60 * samplerate; // 15 min max
+   tape_record(&l310.tape, size, l310.cpu_clock, samplerate, csave_cb);
+}
+
+KEEP
+void sys_tape_stop(int index, byte sample) {
+   tape_stop(&l310.tape);
+}
+
+// ===
 
 KEEP
 void sys_joystick(byte joy0, byte joy1) {
@@ -211,3 +231,4 @@ KEEP
 void sys_snow_effect(bool snow) {
    l310.snow_effect = snow;
 }
+

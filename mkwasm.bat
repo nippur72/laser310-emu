@@ -8,6 +8,7 @@ call emcc wasm\prova.c -O3 ^
    -s ENVIRONMENT=web ^
    -s MODULARIZE=1 ^
    -s EXPORT_NAME="emscripten_module" ^
+   -s ALLOW_MEMORY_GROWTH=1 ^
    -o emscripten_module.js
     
 echo emcc finished, putting wasm binary into UInt8Array

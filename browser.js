@@ -92,12 +92,12 @@ async function droppedFile(outName, bytes) {
    else if(ext == ".wav") {
       console.log("WAV file dropped");
       const { sampleRate, channelData } = decodeSync(bytes.buffer);
-      let byte_samples = channelData[0].map(e=>e>0?1:0); // turn samples 0,1
+      let samples = channelData[0];
 
       // allocates the playback buffer on the WASM side
-      sys_tape_init_load(byte_samples.length, sampleRate);
-      byte_samples.forEach((e,i) => sys_tape_load_data(i,e));
-      sys_tape_playback();
+      sys_tape_init_load(samples.length, sampleRate);
+      samples.forEach((e,i) => sys_tape_load_data(i,e));
+      sys_tape_play();
 
       return;
    }

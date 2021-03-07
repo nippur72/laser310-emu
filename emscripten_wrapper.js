@@ -81,7 +81,9 @@ let keyboard_release;
 
 let sys_tape_init_load;
 let sys_tape_load_data;
-let sys_tape_playback;
+let sys_tape_play;
+let sys_tape_record;
+let sys_tape_stop;
 
 let sys_joystick;
 
@@ -179,7 +181,9 @@ function load_wasm(ready_cb) {
 
       sys_tape_init_load = instance.cwrap("sys_tape_init_load", null, [ 'number', 'number'] );
       sys_tape_load_data = instance.cwrap("sys_tape_load_data", null, [ 'number', 'number'] );
-      sys_tape_playback  = instance.cwrap("sys_tape_playback", null, [ 'number', 'number'] );
+      sys_tape_play      = instance.cwrap("sys_tape_play", null, [ 'number', 'number'] );
+      sys_tape_record    = instance.cwrap("sys_tape_record", null );
+      sys_tape_stop      = instance.cwrap("sys_tape_stop", null );
 
       sys_joystick       = instance.cwrap("sys_joystick", null, [ 'number', 'number'] );
 

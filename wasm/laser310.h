@@ -321,12 +321,15 @@ int laser310_tick(laser310_t *sys) {
       sys->opdone = true;
    }
 
-   tape_load_tick(&sys->tape, ticks);
-   sys->cassette_in = sys->tape.load.bit == 0 ? 1 : 0;
+   float sample_cassette_out = (sys->cassette_out + sys->cassette_out_MSB) / 2.0 - 0.5;
+   float sample_buzzer       = (((float) sys->speaker_A) - ((float)sys->speaker_B)) / 2.0;
 
-   float sample_cassette = (sys->cassette_out + sys->cassette_out_MSB + sys->cassette_in) / 2.0;
-   float sample_buzzer   = (sys->speaker_A - sys->speaker_B) / 2.0;
-   float sample = (sample_cassette + sample_buzzer) / 2.0;
+   sys->tape.save.sample = sample_buzzer + sample_cassette_out + 0.5;
+   tape_load_tick(&sys->tape, ticks);
+   sys->cassette_in = sys->tape.load.sample < 0 ? 1 : 0;
+
+   float sample_cassette_in = sys->cassette_in - 0.5;
+   float sample = sample_cassette_in + sample_cassette_out + sample_buzzer;
    buzzer_ticks(&sys->buzzer, ticks, sample);
 
    return ticks;
