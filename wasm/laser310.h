@@ -23,11 +23,12 @@ typedef struct {
 
    uint32_t palette[8+5];
 
+   bool snow_effect;                                       // if turned on, emulate the CPU vs VDC memory contention glitches
    bool videomem_access[MC6847_TICKS_PER_SCANLINE+2];      // true if VPD was accessed at corresponding line tick
    byte videomem_access_data[MC6847_TICKS_PER_SCANLINE+2]; // the actual data on the bus at the corresponding tick
    int videomem_access_ptr;                                // pointer to writing in videomem_access
 
-   int last_fs;           // value of FS at previous tick for PAL conversion
+   int last_fs;           // value of FS at previous tick for NTSC to PAL conversion
    int PAL_counter;       // ticks to wait for adding PAL lines at the end of the frame
 
    tape_t tape;           // tape WAV adapter
@@ -250,12 +251,14 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
       }
    }
 
-   // save data byte on the bus for "snow" effect
-   for(int t=0;t<num_ticks;t++) {
-      sys->videomem_access[sys->videomem_access_ptr] = video_access;
-      sys->videomem_access_data[sys->videomem_access_ptr] = video_access_data;
-      sys->videomem_access_ptr++;
-      if(sys->videomem_access_ptr == MC6847_TICKS_PER_SCANLINE) sys->videomem_access_ptr = 0;
+   // save data byte on the bus for the "snow" effect
+   if(sys->snow_effect) {
+      for(int t=0;t<num_ticks;t++) {
+         sys->videomem_access[sys->videomem_access_ptr] = video_access;
+         sys->videomem_access_data[sys->videomem_access_ptr] = video_access_data;
+         sys->videomem_access_ptr++;
+         if(sys->videomem_access_ptr == MC6847_TICKS_PER_SCANLINE) sys->videomem_access_ptr = 0;
+      }
    }
 
    if(sys->PAL_counter < 0) {
@@ -287,8 +290,12 @@ uint64_t vdp_fetch_cb(uint64_t pins, void* user_data) {
    uint8_t data = laser310_mem_read(sys, 0x7000+address);
 
    // attempt to simulate the "snow" effect
-   int pos = sys->vdc.h_fetchpos*4;
-   if(sys->videomem_access[pos] && sys->videomem_access[pos+1] /*&& sys->videomem_access[pos+2]*/) data = sys->videomem_access_data[pos];
+   if(sys->snow_effect) {
+      int pos = sys->vdc.h_fetchpos*4;
+      if(sys->videomem_access[pos] && sys->videomem_access[pos+1]) {
+         data = sys->videomem_access_data[pos];
+      }
+   }
 
    if (data & (1<<6)) BITSET(pins,MC6847_INV);
    else               BITRESET(pins,MC6847_INV);
@@ -388,6 +395,8 @@ void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
    sys->palette[10] = applySaturation(   0,  36,   0, sat, contrast, lum);     // alnum_dark_green
    sys->palette[11] = applySaturation( 140,  31,  11, sat, contrast, lum);     // alnum_orange 
    sys->palette[12] = applySaturation(   0,   15, 34, sat, contrast, lum);     // alnum_dark_orange
+
+   sys->snow_effect = true;
 
    // cpu
    z80_desc_t z80desc;

@@ -86,6 +86,7 @@ let sys_tape_playback;
 let sys_joystick;
 
 let sys_total_cycles;
+let sys_snow_effect;
 
 function load_wasm(ready_cb) {
 
@@ -170,6 +171,7 @@ function load_wasm(ready_cb) {
       sys_ticks        = instance.cwrap("sys_ticks", 'number', ['number']);
 
       sys_total_cycles = instance.cwrap("sys_total_cycles", ['number']);
+      sys_snow_effect  = instance.cwrap("sys_snow_effect", null, ['bool']);
 
       keyboard_reset     = instance.cwrap("sys_keyboard_reset"  , null);
       keyboard_press     = instance.cwrap("sys_keyboard_press"  , null, ['number', 'number'] );

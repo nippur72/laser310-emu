@@ -206,3 +206,8 @@ KEEP
 int sys_total_cycles() {
    return l310.total_ticks;
 }
+
+KEEP
+void sys_snow_effect(bool snow) {
+   l310.snow_effect = snow;
+}
