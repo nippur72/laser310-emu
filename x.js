@@ -181,3 +181,13 @@ debugBefore = function() {
    }
 }
 sys_set_debug(1);
+
+
+// pack generic binary into VZ file
+(async function () {
+   let name = "_fancy-asm-DEMO.BIN";
+   let bytes = await storage.readFile(name);
+   let VZ = packvz(name, VZ_BINARY, 16384, bytes);
+   downloadBytes(`${name}.VZ`, VZ);
+})();
+
