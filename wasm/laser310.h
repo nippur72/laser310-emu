@@ -378,26 +378,34 @@ uint32_t applySaturation(float r, float g, float b, float s, float c, float l) {
 }
 
 void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
-   sys->cpu_clock = desc->cpu_clock;
+   sys->model = desc->model;
+   sys->PAL = desc->PAL;
+
+   CHIPS_ASSERT(sys->model == LASER310_MODEL_VZ200 || sys->model == LASER310_MODEL_VZ300);
+   
+        if(sys->model == LASER310_MODEL_VZ300) sys->cpu_clock = 3546900;
+   else if(sys->model == LASER310_MODEL_VZ200) sys->cpu_clock = 3579500;               
+
    sys->user_data = desc->user_data;
 
-   float sat = 1.0;        // 1.0 normal saturation
+   float sat = 0.9;        // 1.0 normal saturation
    float contrast = 1.0;   // 1.0 normal contrast
    float lum = 1.0;        // 1.0 normal luminosity  
 
-   sys->palette[ 0] = applySaturation(  19, 146,  11, sat, contrast, lum);     /* green */
-   sys->palette[ 1] = applySaturation( 155, 150,  10, sat, contrast, lum);     /* yellow */
-   sys->palette[ 2] = applySaturation(   2,  22, 175, sat, contrast, lum);     /* blue */
-   sys->palette[ 3] = applySaturation( 155,  22,   7, sat, contrast, lum);     /* red */
-   sys->palette[ 4] = applySaturation( 141, 150, 154, sat, contrast, lum);     /* buff */
-   sys->palette[ 5] = applySaturation(  15, 143, 155, sat, contrast, lum);     /* cyan */
-   sys->palette[ 6] = applySaturation( 139,  39, 155, sat, contrast, lum);     /* cyan */
-   sys->palette[ 7] = applySaturation( 140,  31,  11, sat, contrast, lum);     /* orange */
-   sys->palette[ 8] = applySaturation(  17,  17,  17, sat, contrast, lum);     // black
-   sys->palette[ 9] = applySaturation(  19, 146,  11, sat, contrast, lum);     // alnum_green
-   sys->palette[10] = applySaturation(   0,  36,   0, sat, contrast, lum);     // alnum_dark_green
-   sys->palette[11] = applySaturation( 140,  31,  11, sat, contrast, lum);     // alnum_orange 
-   sys->palette[12] = applySaturation(   0,   15, 34, sat, contrast, lum);     // alnum_dark_orange
+   // MAME palette, slightly modified
+   sys->palette[ 0] = applySaturation(0x30, 0xd2, 0x00, sat, contrast, lum);  /* GREEN */
+   sys->palette[ 1] = applySaturation(0xc1, 0xe5, 0x00, sat, contrast, lum);  /* YELLOW */
+   sys->palette[ 2] = applySaturation(0x4c, 0x3a, 0xb4, sat, contrast, lum);  /* BLUE */
+   sys->palette[ 3] = applySaturation(0x9a, 0x32, 0x36, sat, contrast, lum);  /* RED */
+   sys->palette[ 4] = applySaturation(0xbf, 0xc8, 0xad, sat, contrast, lum);  /* BUFF */
+   sys->palette[ 5] = applySaturation(0x41, 0xaf, 0x71, sat, contrast, lum);  /* CYAN */
+   sys->palette[ 6] = applySaturation(0xc8, 0x4e, 0xf0, sat, contrast, lum);  /* MAGENTA */
+   sys->palette[ 7] = applySaturation(0xd4, 0x7f, 0x00, sat, contrast, lum);  /* ORANGE */
+   sys->palette[ 8] = applySaturation(  17,   17,   17, sat, contrast, lum);  /* BLACK */
+   sys->palette[ 9] = applySaturation(0x30, 0xd2, 0x00, sat, contrast, lum);  /* ALPHANUMERIC BRIGHT GREEN */
+   sys->palette[10] = applySaturation(0x00,   46, 0x00, sat, contrast, lum);  /* ALPHANUMERIC DARK GREEN */
+   sys->palette[11] = applySaturation(0xff, 0xb7, 0x00, sat, contrast, lum);  /* ALPHANUMERIC BRIGHT ORANGE */
+   sys->palette[12] = applySaturation(0x6b, 0x27, 0x00, sat, contrast, lum);  /* ALPHANUMERIC DARK ORANGE */
 
    sys->snow_effect = true;
 

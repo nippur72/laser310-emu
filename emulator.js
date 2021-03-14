@@ -1,6 +1,7 @@
 "use strict";
 
-
+// TODO find a good palette
+// TODO load cart
 // TODO selectable PAL NTSC
 // TODO selectable VZ200 VZ300
 // TODO selectrable RAM size
@@ -11,7 +12,6 @@
 // TODO test programs: exact CPU speed
 // TODO test programs: interrupt rate
 // TODO test programs: snow effect when program resides in vram
-// TODO find a good palette
 // TODO continue UI
 // --
 // *TODO cassette save WAV / save audio
