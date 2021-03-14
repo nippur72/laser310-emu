@@ -118,7 +118,7 @@ function main() {
       if(options.rom == undefined) options.rom = "v21";
       if(options.rom == "v20") { firmware = vzrom20; BASTXT=0x78A4; BASEND=0x78F9; CRSR_STATE=0x52C7; }
       if(options.rom == "v21") { firmware = vzrom21; BASTXT=0x78A4; BASEND=0x78F9; CRSR_STATE=0x52F7; }
-      firmware.forEach((v,i)=>rom_load(i,v));
+      resetROM(firmware);
    }
 
    cpu =

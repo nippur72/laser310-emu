@@ -54,9 +54,14 @@ async function load_vz(filename, runAfterLoad) {
     const vz_bytes = await storage.readFile(filename);
     const VZ = unpackvz(vz_bytes);
 
-    // write data into memory
+    const isROM = VZ.start === 0 || VZ.start === 16384;
+
+    // write data into memory (also writes in ROM for cartdriges and ROMs)
     for(let i=0; i<VZ.data.length; i++) {
-        mem_write(i+VZ.start, VZ.data[i]);
+        let addr = i+VZ.start;
+        let data = VZ.data[i];
+        if(isROM) rom_load(addr, data);
+        else      mem_write(addr, data);
     }
 
     if(VZ.type == VZ_BASIC) {
@@ -69,16 +74,23 @@ async function load_vz(filename, runAfterLoad) {
     // binary program
     if(VZ.type == VZ_BINARY) {
         if(runAfterLoad) {
-            USR(VZ.start); // set USR(0) address;
-            emulatekey(KEY_X);
-            emulatekey(KEY_SHIFT, KEY_MINUS);
-            emulatekey(KEY_U);
-            emulatekey(KEY_S);
-            emulatekey(KEY_R);
-            emulatekey(KEY_SHIFT, KEY_8);
-            emulatekey(KEY_X);
-            emulatekey(KEY_SHIFT, KEY_9);
-            emulatekey(KEY_RETURN);
+            if(!isROM) {
+                // normal binary file
+                USR(VZ.start); // set USR(0) address;
+                emulatekey(KEY_X);
+                emulatekey(KEY_SHIFT, KEY_MINUS);
+                emulatekey(KEY_U);
+                emulatekey(KEY_S);
+                emulatekey(KEY_R);
+                emulatekey(KEY_SHIFT, KEY_8);
+                emulatekey(KEY_X);
+                emulatekey(KEY_SHIFT, KEY_9);
+                emulatekey(KEY_RETURN);
+            }
+            else {
+                // ROM or cartdrige
+                cpu.reset();
+            }
         }
     }
 
