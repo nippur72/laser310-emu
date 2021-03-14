@@ -155,15 +155,21 @@
    // main();
 </script>
 
-<!--
+
+<!-- experimental ui -->
+
 <script>
-	function sendkey(key)
-	{
-      pasteLine(String.fromCharCode(key));
-      /*
-		applyKey(key,false);
-      setTimeout(function() { applyKey(key,true) },100);
-      */
-	}
+   let process = { env: { NODE_ENV: "debug" }};
+
+   /*
+   function showPreferences() {
+      const event = new CustomEvent('emu-f10', {detail: 3});
+      document.dispatchEvent(event);
+   }
+   */
 </script>
--->
+
+<div id="mountnode"></div>
+
+<script src="./ui/dist/bundle.js"></script>
+

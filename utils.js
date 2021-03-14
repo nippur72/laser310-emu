@@ -35,6 +35,10 @@ function pasteChar(c) {
    // TODO
 }
 
+function resetROM(firmware) {
+   firmware.forEach((v,i)=>rom_load(i,v));
+}
+
 function zap() {
    ram.forEach((e,i)=>ram[i]=0x00);
    let state = cpu.getState();
@@ -79,6 +83,10 @@ function dumpPointers() {
    |    System variables    |
    +------------------------+ 0x8000
 `);
+}
+
+function topMem() {
+   return mem_read_word(0x78b1);
 }
 
 let debugBefore = undefined;

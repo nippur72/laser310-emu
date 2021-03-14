@@ -125,6 +125,14 @@ function keyDown(e) {
       return;
    }
 
+   /*
+   if(e.code === "F10") {
+      showPreferences();
+      e.preventDefault();
+      return;
+   }
+   */
+
    // const hardware_key = pckey_to_hwkey(e.code);
 
    // if keyboard ITA

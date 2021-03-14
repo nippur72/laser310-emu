@@ -195,3 +195,17 @@ function csave() {
 function cstop() {
    sys_tape_stop();
 }
+
+// emulator for the UI
+
+let emulator = {
+   reset: function() {
+      cpu.reset();
+   },
+   droppedFiles: function(files) {
+      droppedFiles(files);
+   },
+   setMachineType(machineType) {
+
+   }
+};

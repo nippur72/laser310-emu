@@ -47,7 +47,8 @@ int sys_ticks(int ncycles) {
 
 KEEP
 void sys_init() {
-   sysdesc.cpu_clock = 3546900;
+   sysdesc.model = LASER310_MODEL_VZ300;
+   sysdesc.PAL = true;   
    sysdesc.sample_rate = 48000;
    sysdesc.audio_buf = buzzer_audio_buf;
    sysdesc.audio_buf_size = 4096;
@@ -232,3 +233,7 @@ void sys_snow_effect(bool snow) {
    l310.snow_effect = snow;
 }
 
+KEEP
+void sys_set_machine_type(int machineType) {
+   l310.PAL = (machineType == 0 || machineType == 2);
+}
