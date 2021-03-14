@@ -74,13 +74,16 @@ dropZone.addEventListener('drop', e => {
    e.stopPropagation();
    e.preventDefault();
    const files = e.dataTransfer.files; // Array of all files
+   droppedFiles(files);
+});
 
+function droppedFiles(files) {
    for(let i=0, file; file=files[i]; i++) {
       const reader = new FileReader();
       reader.onload = e2 => droppedFile(file.name, new Uint8Array(e2.target.result));
       reader.readAsArrayBuffer(file);
    }
-});
+}
 
 async function droppedFile(outName, bytes) {
    const ext = getFileExtension(outName);
@@ -100,6 +103,11 @@ async function droppedFile(outName, bytes) {
       sys_tape_play();
 
       return;
+   }
+   else {
+      // unknown extensions are saved as is
+      await storage.writeFile(outName, bytes);
+      console.log(`"${outName}" saved in local storage (${bytes.length} bytes)`);
    }
 }
 
