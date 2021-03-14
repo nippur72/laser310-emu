@@ -8,12 +8,20 @@
 #include "chips/z80.h"
 #include "chips/mc6847.h"
 
-typedef void (*debug_cb)();
+typedef void (*debug_cb)();                               // debug callback  
+typedef void (*printer_write_cb)(byte port, byte data);   // printer write callback
+typedef byte (*printer_readst_cb)(byte port);             // printer read status callback
 
-typedef void (*printer_write_cb)(byte port, byte data);
-typedef byte (*printer_readst_cb)(byte port);
+#define LASER310_MODEL_VZ200 (1)
+#define LASER310_MODEL_VZ300 (2)
+#define LASER310_PAL         (true)
+#define LASER310_NTSC        (false)
 
 typedef struct {
+   int model;
+   int PAL;
+   int ramsize;
+
    byte ram[65536];       // RAM
    byte rom[65536];       // ROM
 
@@ -79,7 +87,8 @@ typedef struct {
 extern laser310_t *sys;
 
 typedef struct {
-   int cpu_clock;
+   int model;
+   bool PAL;   
    int sample_rate;
    float *audio_buf;
    int audio_buf_size;
@@ -183,13 +192,6 @@ byte laser310_io_read(laser310_t *sys, word ioport) {
       byte unused = (byte) EM_ASM_INT({ console.log("io read from unknown port", $0) }, port);
       return 0xFF; // as in VZEM
    }
-
-   /*
-   case 0x27: return sys->joy0; // joy1;  // joystick left, fire buttons
-   case 0x2b: return sys->joy0; // joy0;  // joystick left, 8 directions
-   case 0x2d: return sys->joy0; // joy1;  // joystick right, fire buttons (not emulated)
-   case 0x2e: return sys->joy0; // joy0;  // joystick right, 8 directions (not emulated)
-   */
 }
 
 void laser310_io_write(laser310_t *sys, word ioport, byte value) {
@@ -269,9 +271,9 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
       for(int t=0;t<num_ticks;t++) vdc_pins = mc6847_tick(&sys->vdc, vdc_pins);
       if(IS_ONE(vdc_pins,MC6847_FS)) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
       else BITRESET(pins,Z80_INT);
-      if(sys->vdc.fs == 0 && sys->vdc.fs != sys->last_fs) {
-         sys->PAL_counter += MC6847_TICKS_PER_SCANLINE * 48; // adds 48 PAL lines         
-         //byte unused = (byte) EM_ASM_INT({ console.log(sys_total_cycles()-window.ls); window.ls = sys_total_cycles(); }, 0);
+      if(sys->PAL && sys->vdc.fs == 0 && sys->vdc.fs != sys->last_fs) {
+              if(sys->model == LASER310_MODEL_VZ200) sys->PAL_counter += MC6847_TICKS_PER_SCANLINE * 50; // adds 50 PAL lines         
+         else if(sys->model == LASER310_MODEL_VZ300) sys->PAL_counter += MC6847_TICKS_PER_SCANLINE * 48; // adds 48 PAL lines
       }
    }
    else {
