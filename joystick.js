@@ -66,27 +66,27 @@ function updateGamePad() {
    if(gamepads.length < 1) return;
 
    // joy 0
-   let gamepad0 = gamepads[0];
-   if(gamepad0)
+   let g0 = gamepads[0];
+   if(g0)
    {
-      if(gamepad0.axes[0] < -0.5)     joy0 = set(joy0, JOY_LEFT);   else joy0 = reset(joy0, JOY_LEFT);
-      if(gamepad0.axes[0] >  0.5)     joy0 = set(joy0, JOY_RIGHT);  else joy0 = reset(joy0, JOY_RIGHT);
-      if(gamepad0.axes[1] < -0.5)     joy0 = set(joy0, JOY_UP);     else joy0 = reset(joy0, JOY_UP);
-      if(gamepad0.axes[1] >  0.5)     joy0 = set(joy0, JOY_DOWN);   else joy0 = reset(joy0, JOY_DOWN);
-      if(gamepad0.buttons[0].pressed) joy0 = set(joy0, JOY_FIRE);   else joy0 = reset(joy0, JOY_FIRE);
-      if(gamepad0.buttons[1].pressed) joy0 = set(joy0, JOY_ARM);    else joy0 = reset(joy0, JOY_ARM);
+      if(g0.axes[0] < -0.5)                              joy0 = set(joy0, JOY_LEFT);   else joy0 = reset(joy0, JOY_LEFT);
+      if(g0.axes[0] >  0.5)                              joy0 = set(joy0, JOY_RIGHT);  else joy0 = reset(joy0, JOY_RIGHT);
+      if(g0.axes[1] < -0.5)                              joy0 = set(joy0, JOY_UP);     else joy0 = reset(joy0, JOY_UP);
+      if(g0.axes[1] >  0.5)                              joy0 = set(joy0, JOY_DOWN);   else joy0 = reset(joy0, JOY_DOWN);
+      if(g0.buttons[0].pressed || g0.buttons[3].pressed) joy0 = set(joy0, JOY_FIRE);   else joy0 = reset(joy0, JOY_FIRE);
+      if(g0.buttons[1].pressed || g0.buttons[2].pressed) joy0 = set(joy0, JOY_ARM);    else joy0 = reset(joy0, JOY_ARM);
    }
 
    // joy 1
    if(gamepads.length < 2) return;
-   let gamepad1 = gamepads[1];
-   if(gamepad1)
+   let g1 = gamepads[1];
+   if(g1)
    {
-      if(gamepad1.axes[0] < -0.5)     joy1 = set(joy1, JOY_LEFT);   else joy1 = reset(joy1, JOY_LEFT);
-      if(gamepad1.axes[0] >  0.5)     joy1 = set(joy1, JOY_RIGHT);  else joy1 = reset(joy1, JOY_RIGHT);
-      if(gamepad1.axes[1] < -0.5)     joy1 = set(joy1, JOY_UP);     else joy1 = reset(joy1, JOY_UP);
-      if(gamepad1.axes[1] >  0.5)     joy1 = set(joy1, JOY_DOWN);   else joy1 = reset(joy1, JOY_DOWN);
-      if(gamepad1.buttons[0].pressed) joy1 = set(joy1, JOY_FIRE);   else joy1 = reset(joy1, JOY_FIRE);
-      if(gamepad1.buttons[1].pressed) joy1 = set(joy1, JOY_ARM);    else joy1 = reset(joy1, JOY_ARM);
+      if(g1.axes[0] < -0.5)                              joy1 = set(joy1, JOY_LEFT);   else joy1 = reset(joy1, JOY_LEFT);
+      if(g1.axes[0] >  0.5)                              joy1 = set(joy1, JOY_RIGHT);  else joy1 = reset(joy1, JOY_RIGHT);
+      if(g1.axes[1] < -0.5)                              joy1 = set(joy1, JOY_UP);     else joy1 = reset(joy1, JOY_UP);
+      if(g1.axes[1] >  0.5)                              joy1 = set(joy1, JOY_DOWN);   else joy1 = reset(joy1, JOY_DOWN);
+      if(g1.buttons[0].pressed || g1.buttons[3].pressed) joy1 = set(joy1, JOY_FIRE);   else joy1 = reset(joy1, JOY_FIRE);
+      if(g1.buttons[1].pressed || g1.buttons[2].pressed) joy1 = set(joy1, JOY_ARM);    else joy1 = reset(joy1, JOY_ARM);
    }
 }
