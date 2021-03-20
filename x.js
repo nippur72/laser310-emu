@@ -191,3 +191,71 @@ sys_set_debug(1);
    downloadBytes(`${name}.VZ`, VZ);
 })();
 
+(function() {
+   let text = [
+ // 0123456789012345678901234567890123456789012345678901234567890123
+
+   "                                                                ",
+   "  AAAAAAAAA  CCCCCCCCC  BBBBBBBBB  DDDDDDDDD   EEE   XXXXXXXXX  ",
+   "  AAAAAAAAA  CCCCCCCCC  BBBBBBBBB  DDDDDDDDD   EEE   XXXXXXXXX  ",
+   "  AAAAAAAAA  CCCCCCCCC  BBBBBBBBB  DDDDDDDDD   EEE   XXXXXXXXX  ",
+   "     AAA           CCC     BBB     DDD   DDD         XXX        ",
+   "     AAA        CCCCCC     BBB     DDDDDDDDD   EEE   XXXXXXXXX  ",
+   "     AAA        CCCCCC     BBB     DDDDDDDDD   EEE   XXXXXXXXX  ",
+   "     AAA        CCCCCC     BBB     DDDDDDDD    EEE   XXXXXXXXX  ",
+   "     AAA           CCC     BBB     DDD   DDD   EEE         XXX  ",
+   "     AAA     CCCCCCCCC     BBB     DDD   DDD   EEE   XXXXXXXXX  ",
+   "     AAA     CCCCCCCCC     BBB     DDD   DDD   EEE   XXXXXXXXX  ",
+   "     AAA     CCCCCCCCC     BBB     DDD   DDD   EEE   XXXXXXXXX  ",
+   "                                                                ",
+   "                                                                ",
+
+   ];
+
+   function point(x,y) {
+      if(y>=text.length) return false;
+      if(x>=text[y].length) return false;
+      let ch = text[y].charAt(x);
+      return ch;
+   }
+
+   function pset(x,y,ch) {
+      let xx = x >> 1;
+      let yy = y >> 1;
+      let addr = 0x7000 + yy * 32 + xx;
+
+      let byte = mem_read(addr);
+      let range;
+
+      if(ch == 'A') range = 128+16*0;
+      if(ch == 'B') range = 128+16*1;
+      if(ch == 'C') range = 128+16*2;
+      if(ch == 'D') range = 128+16*3;
+      if(ch == 'E') range = 128+16*4;
+      if(ch == 'X') range = 128+16*5;
+
+      if(byte < range || byte >= range+16) byte = range;
+
+      if((x % 2 == 1) && (y % 2 == 1)) byte |= 1;
+      if((x % 2 == 0) && (y % 2 == 1)) byte |= 2;
+      if((x % 2 == 1) && (y % 2 == 0)) byte |= 4;
+      if((x % 2 == 0) && (y % 2 == 0)) byte |= 8;
+
+      mem_write(addr, byte);
+   }
+
+   for(let t=0x7000;t<0x7000+512;t++) mem_write(t,128);
+
+   for(let y=0;y<32;y++) {
+      for(let x=0;x<64;x++) {
+         let ch = point(x,y)
+         if(ch != " ") pset(x,y,ch);
+      }
+   }
+
+})();
+
+
+
+
+
