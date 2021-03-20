@@ -90,7 +90,7 @@ function oneFrame(timestamp) {
       frame_skips++;
    }
 
-   poll_keyboard();
+   if(use_keyboard_buffer) poll_keyboard();
    updateGamePad();
    sys_joystick(joy0, joy1);
 
