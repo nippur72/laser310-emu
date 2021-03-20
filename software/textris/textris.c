@@ -1,35 +1,35 @@
-// TODO joysticks
 // TODO music
-// TODO out of screen pieces
-// TODO randomize
+// TODO out of screen pieces?
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <vz.h>
+#include <sound.h>
 
 typedef unsigned char byte;
 typedef unsigned int word;
 
+#define BACKGROUND_ORANGE 1      /* sets MC6847 dark red on orange backround */
 #define VIDEO 0x7000             /* video memory */
 #define NCOLS 32                 /* number of screen columns */
 #define NROWS 16                 /* number of screen rows, also board height */
-#define BACKGROUND_ORANGE 1
 #define NUMPIECES 7              /* number of tetrominos */
 #define STARTBOARD 15            /* start position of the board on the screen */
 #define ENDBOARD 24              /* end position of the board on the screen */
 
 /* coloured full block characters */
 #define BLOCK_LIGHT_ORANGE 32
-#define BLOCK_BLACK   (32+128)
-#define BLOCK_GREEN   (143+16*0)
-#define BLOCK_YELLOW  (143+16*1)
-#define BLOCK_BLUE    (143+16*2)
-#define BLOCK_RED     (143+16*3)
-#define BLOCK_WHITE   (143+16*4)
-#define BLOCK_CYAN    (143+16*5)
-#define BLOCK_MAGENTA (143+16*6)
-#define BLOCK_ORANGE  (143+16*7)
+#define BLOCK_BLACK        (32+128)
+#define BLOCK_GREEN        (143+16*0)
+#define BLOCK_YELLOW       (143+16*1)
+#define BLOCK_BLUE         (143+16*2)
+#define BLOCK_RED          (143+16*3)
+#define BLOCK_WHITE        (143+16*4)
+#define BLOCK_CYAN         (143+16*5)
+#define BLOCK_MAGENTA      (143+16*6)
+#define BLOCK_ORANGE       (143+16*7)
 
 #define BLANK_CHAR        BLOCK_BLACK   /* character used to fill the board */
 #define BOARD_CHAR_LEFT   245           /* character for left side of the board */
@@ -48,9 +48,8 @@ typedef unsigned int word;
 #define KEY_DROP   ' '
 #define KEY_ROTATE 'I'
 
-#define COUNTER_MAX   512     /* the speed counter at level 0 */
-#define COUNTER_MIN   128     /* the speed counter at fastest level */
-#define COUNTER_RANGE 14      /* number of levels before speed counter reaches min */
+#define COUNTER_MAX    512     /* the speed counter at level 0 */
+#define COUNTER_FACTOR 10      /* speed decrease factor: speed -= speed / factor */
 
 /* a piece drawn on the screen */
 typedef struct {
@@ -65,7 +64,7 @@ byte generate_new_piece();
 void drawpiece(sprite *pl);
 byte collides(sprite *pl);
 byte check_crunched_lines();
-byte keyboard_read();
+byte player_input();
 void updateScore();
 void levelLoop();
 
@@ -133,7 +132,7 @@ word drop_counter_max;
 byte screen_buffer[NROWS*NCOLS];   /* screen double buffer, all drawings are done in it */
 byte screen_buffer_ready = 0;      /* when 1 the screen_buffer is displayed on the screen by the interrupt routine */
 
-int score;                /* player's score */
+long int score;           /* player's score */
 int level;                /* level */
 int lines_remaining;      /* lines to complete the level */
 int total_lines;          /* total number of lines */
@@ -255,7 +254,7 @@ void gameLoop() {
          screen_buffer_ready = 1;   /* forces display of the screen buffer */
       }
       else {
-         byte key = keyboard_read();
+         byte key = player_input();
          if(key != 0) {
             erasepiece(player);
             if(key == KEY_LEFT) {
@@ -267,8 +266,7 @@ void gameLoop() {
                if(collides(player)) player.screen_pos--;
             }
             else if(key == KEY_DOWN) {
-               player.screen_pos+=NCOLS;
-               if(collides(player)) player.screen_pos-=NCOLS;
+               drop_counter = drop_counter_max;
             }
             else if(key == KEY_DROP) {
                // animate the falling piece
@@ -352,6 +350,11 @@ void scroll_down(endline) {
       byte *below = screen_buffer + (line  ) * NCOLS + STARTBOARD;
       memcpy(below, above, 10);
    }
+   // clears the top line
+   memset(screen_buffer+STARTBOARD, BLANK_CHAR, 10);
+
+   // sound effect
+   bit_fx3(0);
 }
 
 // fills the specified line with an empty character ("crunch")
@@ -391,8 +394,9 @@ byte check_crunched_lines() {
    // advance level
    if(lines_remaining <= 0) {
       level = level + 1;
-      lines_remaining = 10;
-      drop_counter_max -= (COUNTER_MAX-COUNTER_MIN)/COUNTER_RANGE;
+      lines_remaining += 10;
+      drop_counter_max -= drop_counter_max/COUNTER_FACTOR;
+      vz_bgrd((level+1)&1); // flips between green and orange on each level
    }
 
    // update score
@@ -427,7 +431,7 @@ byte check_crunched_lines() {
 char tmp[32];
 void updateScore() {
    printat(0,0,"SCORE");
-   sprintf(tmp," %d ",score);
+   sprintf(tmp," %ld ",score);
    printat(0,2,tmp);
 
    printat(0,5,"LINES    ");
@@ -486,6 +490,7 @@ void initGame() {
 #define SCANCODE_L    0x7F02
 #define SCANCODE_SPC  0xEF10
 #define SCANCODE_RETN 0xBF04
+#define SCANCODE_Z    0xFB10
 
 // test a specific scancode on the memory mapped I/O
 byte test_key(word scancode) {
@@ -494,23 +499,49 @@ byte test_key(word scancode) {
    else return 0;
 }
 
-// read the keyboard and return the key pressed
-// implements a key autorepeat for all keys except "rotate" and "drop"
+// reads the joystick and simulating keyboard keys
+
+byte port_joy;
+byte port_fire;
+byte read_joystick() {
+   __asm
+   in a,(0x2e)
+   ld (_port_joy),a
+   in a,(0x2d)
+   ld (_port_fire),a
+   __endasm;
+        if(!(port_joy  &  1)) return 'I'; // up
+   else if(!(port_joy  &  2)) return 'K'; // down
+   else if(!(port_joy  &  4)) return 'J'; // left
+   else if(!(port_joy  &  8)) return 'L'; // right
+   else if(!(port_joy  & 16)) return 'I'; // arm
+   else if(!(port_fire & 16)) return ' '; // fire
+   else return 0;
+}
+
+// reads the keyboard and return the key pressed
+byte read_keyboard() {
+        if(test_key(SCANCODE_I  )) return 'I';
+   else if(test_key(SCANCODE_J  )) return 'J';
+   else if(test_key(SCANCODE_K  )) return 'K';
+   else if(test_key(SCANCODE_L  )) return 'L';
+   else if(test_key(SCANCODE_SPC)) return ' ';
+   else if(test_key(SCANCODE_Z  )) return ' ';   // alternate drop key for VZ200 (which has a small rightside space key)
+   else return 0;
+}
+
+// handle player input, implementing key autorepeat
+// for all keys except "rotate" and "drop"
 
 byte last_key = 0;
 int repeat_counter = 0;
 
-byte keyboard_read() {
-   byte key = 0;
-        if(test_key(SCANCODE_I  )) key = 'I';
-   else if(test_key(SCANCODE_J  )) key = 'J';
-   else if(test_key(SCANCODE_K  )) key = 'K';
-   else if(test_key(SCANCODE_L  )) key = 'L';
-   else if(test_key(SCANCODE_SPC)) key = ' ';
+byte player_input() {
+   byte key = read_keyboard() | read_joystick();
 
    if(key == 'J' || key == 'L' || key == 'K') {
       repeat_counter++;
-      if(repeat_counter == 200) {
+      if(repeat_counter == 128) {
          repeat_counter = 0;
          last_key = 0;
       }
@@ -552,12 +583,19 @@ void introScreen() {
    printat(7,15,"PRESS RETURN TO START");
    screen_buffer_ready = 1;
 
-   while(test_key(SCANCODE_RETN));    // wait for key released
-   while(!test_key(SCANCODE_RETN));   // wait for key press
+   // wait for key released
+   while(test_key(SCANCODE_RETN));
+
+   // wait for key press
+   while(!test_key(SCANCODE_RETN)) {
+      rand();  // extract random numbers, making rand() more "random"
+   }
 }
 
 // displays "game over" and waits for return key
 void gameOver() {
+   bit_fx2(7);  // sound effect
+
    reverse = 1;
    printat(STARTBOARD-2,NROWS/2-1,"              ");
    printat(STARTBOARD-2,NROWS/2-0,"   GAME OVER  ");
@@ -569,7 +607,53 @@ void gameOver() {
    while(!test_key(SCANCODE_RETN));
 }
 
+void test_sounds() {
+   int d;
+   while(1) {
+      scanf("%d",&d);
+      switch(d) {
+         case 0: bit_fx(0); break;
+         case 1: bit_fx(1); break;
+         case 2: bit_fx(2); break;
+         case 3: bit_fx(3); break;
+         case 4: bit_fx(4); break;
+         case 5: bit_fx(5); break;
+         case 6: bit_fx(6); break;
+         case 7: bit_fx(7); break;
+
+         case 20: bit_fx2(0); break;
+         case 21: bit_fx2(1); break;
+         case 22: bit_fx2(2); break;
+         case 23: bit_fx2(3); break;
+         case 24: bit_fx2(4); break;
+         case 25: bit_fx2(5); break;
+         case 26: bit_fx2(6); break;
+         case 27: bit_fx2(7); break;
+
+         case 30: bit_fx3(0); break;
+         case 31: bit_fx3(1); break;
+         case 32: bit_fx3(2); break;
+         case 33: bit_fx3(3); break;
+         case 34: bit_fx3(4); break;
+         case 35: bit_fx3(5); break;
+         case 36: bit_fx3(6); break;
+         case 37: bit_fx3(7); break;
+
+         case 40: bit_fx4(0); break;
+         case 41: bit_fx4(1); break;
+         case 42: bit_fx4(2); break;
+         case 43: bit_fx4(3); break;
+         case 44: bit_fx4(4); break;
+         case 45: bit_fx4(5); break;
+         case 46: bit_fx4(6); break;
+         case 47: bit_fx4(7); break;
+      }
+   }
+}
+
 int main() {
+   //test_sounds();
+
    screen_buffer_ready = 0;
    install_interrupt(0);
    while(1) {
@@ -579,3 +663,5 @@ int main() {
       gameOver();
    }
 }
+
+
