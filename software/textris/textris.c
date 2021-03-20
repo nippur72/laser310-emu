@@ -1,5 +1,6 @@
 // TODO music
 // TODO out of screen pieces?
+// TODO check levels speed
 
 #include <stdio.h>
 #include <stdlib.h>
