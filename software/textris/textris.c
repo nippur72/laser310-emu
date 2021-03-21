@@ -1,6 +1,7 @@
 // TODO music
 // TODO out of screen pieces?
 // TODO check levels speed
+// TODO sdcc ? 65536_411
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,7 +55,7 @@ typedef unsigned int word;
 
 /* a piece drawn on the screen */
 typedef struct {
-   word screen_pos;
+   byte *screen_pos;
    byte piece;
    byte angle;
 } sprite;
@@ -64,65 +65,61 @@ void erasepiece(sprite *pl);
 byte generate_new_piece();
 void drawpiece(sprite *pl);
 byte collides(sprite *pl);
-byte check_crunched_lines();
+void check_crunched_lines();
 byte player_input();
 void updateScore();
 void levelLoop();
 
 /* all the tetrominos (L,J,T,I,O,S,Z) in the 4 possible rotations */
 
-byte pieceL[4][4] = {
-   { NCOLS+1,NCOLS+2,NCOLS+3,NCOLS+NCOLS+1 },
-   { 2,NCOLS+2,NCOLS+NCOLS+2,NCOLS+NCOLS+3 },
-   { 3,NCOLS+1,NCOLS+2,NCOLS+3 },
-   { 1,2,NCOLS+2,NCOLS+NCOLS+2 }
+byte pieces_data[7*4*4] = {
+   // L
+   NCOLS+1,NCOLS+2,NCOLS+3,NCOLS+NCOLS+1,
+   2,NCOLS+2,NCOLS+NCOLS+2,NCOLS+NCOLS+3,
+   3,NCOLS+1,NCOLS+2,NCOLS+3,
+   1,2,NCOLS+2,NCOLS+NCOLS+2,
+   // J
+   NCOLS+1,NCOLS+2,NCOLS+3,NCOLS+NCOLS+3,
+   1+ 1,1+ 2,1+NCOLS+1,1+NCOLS+NCOLS+1,
+   1+ 0,1+NCOLS,1+NCOLS+1,1+NCOLS+2,
+   1+ 1,1+NCOLS+1,1+NCOLS+NCOLS,1+NCOLS+NCOLS+1,
+   // T
+   1,NCOLS,NCOLS+1,NCOLS+2,
+   1,NCOLS,NCOLS+1,NCOLS+NCOLS+1,
+   NCOLS,NCOLS+1,NCOLS+2,NCOLS+NCOLS+1,
+   1,NCOLS+1,NCOLS+2,NCOLS+NCOLS+1,
+   // I
+   NCOLS,NCOLS+1,NCOLS+2,NCOLS+3,
+   1,NCOLS+1,NCOLS+NCOLS+1,NCOLS+NCOLS+NCOLS+1,
+   NCOLS,NCOLS+1,NCOLS+2,NCOLS+3,
+   1,NCOLS+1,NCOLS+NCOLS+1,NCOLS+NCOLS+NCOLS+1,
+   // O
+   1,2,1+NCOLS,2+NCOLS,
+   1,2,1+NCOLS,2+NCOLS,
+   1,2,1+NCOLS,2+NCOLS,
+   1,2,1+NCOLS,2+NCOLS,
+   // S
+   1+1,1+ 2,1+NCOLS,1+NCOLS+1,
+   1+0,1+NCOLS,1+NCOLS+1,1+NCOLS+NCOLS+1,
+   1+1,1+ 2,1+NCOLS,1+NCOLS+1,
+   1+0,1+NCOLS,1+NCOLS+1,1+NCOLS+NCOLS+1,
+   // Z
+   1+0,1+ 1,1+NCOLS+1,1+NCOLS+2,
+   1+1,1+NCOLS,1+NCOLS+1,1+NCOLS+NCOLS,
+   1+0,1+ 1,1+NCOLS+1,1+NCOLS+2,
+   1+1,1+NCOLS,1+NCOLS+1,1+NCOLS+NCOLS
 };
 
-byte pieceJ[4][4] = {
-   { NCOLS+1,NCOLS+2,NCOLS+3,NCOLS+NCOLS+3 },
-   { 1+ 1,1+ 2,1+NCOLS+1,1+NCOLS+NCOLS+1 },
-   { 1+ 0,1+NCOLS,1+NCOLS+1,1+NCOLS+2 },
-   { 1+ 1,1+NCOLS+1,1+NCOLS+NCOLS,1+NCOLS+NCOLS+1 }
+// tetrominos colors L,J,T,I,O,S,Z
+byte fill_char[7] = {
+   BLOCK_WHITE,    // L is orange in the original tetris, but here is white
+   BLOCK_BLUE,
+   BLOCK_MAGENTA,
+   BLOCK_CYAN,
+   BLOCK_YELLOW,
+   BLOCK_GREEN,
+   BLOCK_RED
 };
-
-byte pieceT[4][4] = {
-   { 1,NCOLS,NCOLS+1,NCOLS+2 },
-   { 1,NCOLS,NCOLS+1,NCOLS+NCOLS+1 },
-   { NCOLS,NCOLS+1,NCOLS+2,NCOLS+NCOLS+1 },
-   { 1,NCOLS+1,NCOLS+2,NCOLS+NCOLS+1 }
-};
-
-byte pieceI[4][4] = {
-   { NCOLS,NCOLS+1,NCOLS+2,NCOLS+3 },
-   { 1,NCOLS+1,NCOLS+NCOLS+1,NCOLS+NCOLS+NCOLS+1 },
-   { NCOLS,NCOLS+1,NCOLS+2,NCOLS+3 },
-   { 1,NCOLS+1,NCOLS+NCOLS+1,NCOLS+NCOLS+NCOLS+1 }
-};
-
-byte pieceO[4][4] = {
-   { 1,2,1+NCOLS,2+NCOLS },
-   { 1,2,1+NCOLS,2+NCOLS },
-   { 1,2,1+NCOLS,2+NCOLS },
-   { 1,2,1+NCOLS,2+NCOLS }
-};
-
-byte pieceS[4][4] = {
-   { 1+1,1+ 2,1+NCOLS,1+NCOLS+1 },
-   { 1+0,1+NCOLS,1+NCOLS+1,1+NCOLS+NCOLS+1 },
-   { 1+1,1+ 2,1+NCOLS,1+NCOLS+1 },
-   { 1+0,1+NCOLS,1+NCOLS+1,1+NCOLS+NCOLS+1 }
-};
-
-byte pieceZ[4][4] = {
-   { 1+0,1+ 1,1+NCOLS+1,1+NCOLS+2 },
-   { 1+1,1+NCOLS,1+NCOLS+1,1+NCOLS+NCOLS },
-   { 1+0,1+ 1,1+NCOLS+1,1+NCOLS+2 },
-   { 1+1,1+NCOLS,1+NCOLS+1,1+NCOLS+NCOLS }
-};
-
-// tetrominos colors (note: pieceL is orange in the original tetris, here is white)
-byte fill_char[7] = { BLOCK_WHITE,  BLOCK_BLUE, BLOCK_MAGENTA, BLOCK_CYAN, BLOCK_YELLOW, BLOCK_GREEN, BLOCK_RED };
-byte *pieces[7] =   { pieceL,       pieceJ,     pieceT,        pieceI,     pieceO,       pieceS,      pieceZ    };
 
 sprite piece_preview;    /* the "next" piece */
 sprite player;           /* the piece moved by the player */
@@ -158,14 +155,10 @@ void printat(byte x, byte y, char *s) {
 
 void interrupt_handler() __naked {
    __asm
-   push hl
-   push de
-   push bc
-
    ; check if the screen has to be painted
    ld   a, (_screen_buffer_ready)
    or   a
-   jr   z, interrupt_exit
+   ret  z
 
    ; copy screen buffer to video
    ld   de, VIDEO
@@ -177,25 +170,30 @@ void interrupt_handler() __naked {
    xor  a
    ld   (_screen_buffer_ready), a
 
-interrupt_exit:
-   pop bc
-   pop de
-   pop hl
    ret
    __endasm;
 }
 
+/*
+// C version of the interrupt handler
+void interrupt_handler() {
+   if(!screen_buffer_ready) return;
+   memcpy(VIDEO, screen_buffer, NROWS*NCOLS);
+   screen_buffer_ready = 0;
+}
+*/
+
 // installs or deinstalls the interrupt handler
 void install_interrupt(byte disable) {
-   byte *ptr = 0x787d;   /* address in RAM where the CPU jumps at every interrupt */
+   byte *ptr = (byte *) 0x787d;   /* address in RAM where the CPU jumps at every interrupt */
    if(disable) {
       // write a RET instruction
       *ptr = 0xC9;
    }
    else {
       // write a JP interrupt_handler instruction
-      *(ptr+1) = interrupt_handler & 0xFF;
-      *(ptr+2) = interrupt_handler >> 8;
+      *(ptr+1) = ((word) interrupt_handler) & 0xFF;
+      *(ptr+2) = ((word) interrupt_handler) >> 8;
       *ptr = 0xC3;
    }
 }
@@ -215,21 +213,21 @@ void xputc(byte x, byte y, byte ch) {
 // returns "COLLIDES" if a new piece can't be generated (the board is full)
 
 byte generate_new_piece() {
-   erasepiece(piece_preview);
+   erasepiece(&piece_preview);
 
    player.piece = piece_preview.piece;
    player.angle = piece_preview.angle;
-   player.screen_pos = screen_buffer + STARTBOARD + 3;
+   player.screen_pos = (byte *) screen_buffer + STARTBOARD + 3;
 
    piece_preview.piece = rand() % NUMPIECES;
    piece_preview.angle = rand() % 4;
 
-   drawpiece(piece_preview);
+   drawpiece(&piece_preview);
 
-   if(collides(player)) {
+   if(collides(&player)) {
       return COLLIDES;
    } else {
-      drawpiece(player);
+      drawpiece(&player);
       return NOT_COLLIDES;
    }
 }
@@ -241,30 +239,30 @@ void gameLoop() {
    while(1) {
       if(drop_counter++==drop_counter_max) {
          drop_counter = 0;
-         erasepiece(player);
+         erasepiece(&player);
          player.screen_pos+=NCOLS;
-         if(collides(player)) {
+         if(collides(&player)) {
             player.screen_pos-=NCOLS;
-            drawpiece(player);
+            drawpiece(&player);
             check_crunched_lines();
             if(generate_new_piece()==COLLIDES) return;
          }
          else {
-            drawpiece(player);
+            drawpiece(&player);
          }
          screen_buffer_ready = 1;   /* forces display of the screen buffer */
       }
       else {
          byte key = player_input();
          if(key != 0) {
-            erasepiece(player);
+            erasepiece(&player);
             if(key == KEY_LEFT) {
                player.screen_pos--;
-               if(collides(player)) player.screen_pos++;
+               if(collides(&player)) player.screen_pos++;
             }
             else if(key == KEY_RIGHT) {
                player.screen_pos++;
-               if(collides(player)) player.screen_pos--;
+               if(collides(&player)) player.screen_pos--;
             }
             else if(key == KEY_DOWN) {
                drop_counter = drop_counter_max;
@@ -273,13 +271,13 @@ void gameLoop() {
                // animate the falling piece
                while(1)
                {
-                  erasepiece(player);
+                  erasepiece(&player);
                   player.screen_pos+=NCOLS;
-                  if(collides(player)) {
+                  if(collides(&player)) {
                      player.screen_pos-=NCOLS;
                      break;
                   }
-                  drawpiece(player);
+                  drawpiece(&player);
                   screen_buffer_ready = 1;
                   wait_interrupt();
                }
@@ -288,9 +286,9 @@ void gameLoop() {
             else if(key == KEY_ROTATE) {
                byte oldangle = player.angle;
                player.angle = (player.angle + 1) & 3;
-               if(collides(player)) player.angle = oldangle;
+               if(collides(&player)) player.angle = oldangle;
             }
-            drawpiece(player);
+            drawpiece(&player);
             screen_buffer_ready = 1;     /* forces display of the screen buffer */
          }
       }
@@ -298,10 +296,8 @@ void gameLoop() {
 }
 
 // given a piece number and an angle returns the 4 byte "offsets" of the piece
-byte *get_piece_offsets(piece, angle) {
-   byte *piece_base = pieces[piece];
-   byte *rotated_piece = piece_base + angle * 4;
-   return rotated_piece;
+inline byte *get_piece_offsets(byte piece, byte angle) {
+   return &pieces_data[piece*16+angle*4];
 }
 
 // draw a piece on the screen buffer
@@ -345,7 +341,7 @@ byte is_line_filled(byte line) {
 }
 
 // scroll down the board by 1 position from top to specified line
-void scroll_down(endline) {
+void scroll_down(byte endline) {
    for(byte line=endline;line>0;line--) {
       byte *above = screen_buffer + (line-1) * NCOLS + STARTBOARD;
       byte *below = screen_buffer + (line  ) * NCOLS + STARTBOARD;
@@ -369,7 +365,7 @@ byte lines_cruched[NROWS];   /* stores which lines have been crunched */
 int scores[5] = {0, 40, 100, 300, 1200};   /* variable score on number of lines crunched */
 
 // checks if player has made complete lines and "crunches" them
-byte check_crunched_lines() {
+void check_crunched_lines() {
    byte num_lines_crunched = 0;
 
    // mark complete lines
@@ -478,9 +474,9 @@ void initGame() {
 
    // generate pieces twice: one for "next" and one for player
    generate_new_piece();
-   erasepiece(player);
+   erasepiece(&player);
    generate_new_piece();
-   drawpiece(player);
+   drawpiece(&player);
    screen_buffer_ready = 1;   // force display of screen buffer
 }
 
@@ -494,29 +490,26 @@ void initGame() {
 #define SCANCODE_Z    0xFB10
 
 // test a specific scancode on the memory mapped I/O
-byte test_key(word scancode) {
+inline byte test_key(word scancode) {
    byte *addr = (byte *)(0x6800+(scancode >> 8));
    if((*addr & (scancode & 0xFF))==0) return 1;
    else return 0;
 }
 
-// reads the joystick and simulating keyboard keys
-
-byte port_joy;
-byte port_fire;
+// reads the joystick simulating keyboard keys
 byte read_joystick() {
-   __asm
-   in a,(0x2e)
-   ld (_port_joy),a
-   in a,(0x2d)
-   ld (_port_fire),a
-   __endasm;
-        if(!(port_joy  &  1)) return 'I'; // up
-   else if(!(port_joy  &  2)) return 'K'; // down
-   else if(!(port_joy  &  4)) return 'J'; // left
-   else if(!(port_joy  &  8)) return 'L'; // right
-   else if(!(port_joy  & 16)) return 'I'; // arm
-   else if(!(port_fire & 16)) return ' '; // fire
+   static __sfr __at 0x20 joy_present;  // I/O port for checking if joy is present
+   static __sfr __at 0x2e joystick;     // I/O joystick port, 4 directions + fire
+   static __sfr __at 0x2d arm_button;   // I/O joystick port, alternate fire button ("arm")
+
+   if(joy_present == 0x20) return 0;    // check if joystick is present
+
+        if(!(joystick   &  1)) return 'I'; // up
+   else if(!(joystick   &  2)) return 'K'; // down
+   else if(!(joystick   &  4)) return 'J'; // left
+   else if(!(joystick   &  8)) return 'L'; // right
+   else if(!(joystick   & 16)) return 'I'; // fire
+   else if(!(arm_button & 16)) return ' '; // arm
    else return 0;
 }
 
