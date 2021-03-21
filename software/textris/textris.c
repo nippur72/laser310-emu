@@ -1,8 +1,3 @@
-// TODO music
-// TODO out of screen pieces?
-// TODO check levels speed
-// TODO sdcc ? 65536_411
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,16 +17,16 @@ typedef unsigned int word;
 #define ENDBOARD 24              /* end position of the board on the screen */
 
 /* coloured full block characters */
-#define BLOCK_LIGHT_ORANGE 32
-#define BLOCK_BLACK        (32+128)
-#define BLOCK_GREEN        (143+16*0)
-#define BLOCK_YELLOW       (143+16*1)
-#define BLOCK_BLUE         (143+16*2)
-#define BLOCK_RED          (143+16*3)
-#define BLOCK_WHITE        (143+16*4)
-#define BLOCK_CYAN         (143+16*5)
-#define BLOCK_MAGENTA      (143+16*6)
-#define BLOCK_ORANGE       (143+16*7)
+#define BLOCK_LIGHT_ORANGE ((byte)32)
+#define BLOCK_BLACK        ((byte)(32+128))
+#define BLOCK_GREEN        ((byte)(143+16*0))
+#define BLOCK_YELLOW       ((byte)(143+16*1))
+#define BLOCK_BLUE         ((byte)(143+16*2))
+#define BLOCK_RED          ((byte)(143+16*3))
+#define BLOCK_WHITE        ((byte)(143+16*4))
+#define BLOCK_CYAN         ((byte)(143+16*5))
+#define BLOCK_MAGENTA      ((byte)(143+16*6))
+#define BLOCK_ORANGE       ((byte)(143+16*7))
 
 #define BLANK_CHAR        BLOCK_BLACK   /* character used to fill the board */
 #define BOARD_CHAR_LEFT   245           /* character for left side of the board */
@@ -50,8 +45,9 @@ typedef unsigned int word;
 #define KEY_DROP   ' '
 #define KEY_ROTATE 'I'
 
-#define COUNTER_MAX    512     /* the speed counter at level 0 */
-#define COUNTER_FACTOR 10      /* speed decrease factor: speed -= speed / factor */
+#define COUNTER_MAX            2000    /* the speed counter at level 0 */
+#define COUNTER_FACTOR         10      /* speed decrease factor: speed -= speed / factor */
+#define KEY_REPEAT_COUNTER_MAX 400     /* key autorepeat timer value */
 
 /* a piece drawn on the screen */
 typedef struct {
@@ -153,35 +149,11 @@ void printat(byte x, byte y, char *s) {
 // on the actual screen; it does that when the raster is drawing the borders,
 // so the annoying "snow" effect is avoided.
 
-void interrupt_handler() __naked {
-   __asm
-   ; check if the screen has to be painted
-   ld   a, (_screen_buffer_ready)
-   or   a
-   ret  z
-
-   ; copy screen buffer to video
-   ld   de, VIDEO
-   ld   hl, _screen_buffer
-   ld   bc, NROWS*NCOLS
-   ldir
-
-   ; reset screen buffer ready flag
-   xor  a
-   ld   (_screen_buffer_ready), a
-
-   ret
-   __endasm;
-}
-
-/*
-// C version of the interrupt handler
 void interrupt_handler() {
    if(!screen_buffer_ready) return;
-   memcpy(VIDEO, screen_buffer, NROWS*NCOLS);
+   memcpy((byte *)VIDEO, screen_buffer, NROWS*NCOLS);
    screen_buffer_ready = 0;
 }
-*/
 
 // installs or deinstalls the interrupt handler
 void install_interrupt(byte disable) {
@@ -527,15 +499,15 @@ byte read_keyboard() {
 // handle player input, implementing key autorepeat
 // for all keys except "rotate" and "drop"
 
-byte last_key = 0;
-int repeat_counter = 0;
-
 byte player_input() {
+   static byte last_key = 0;
+   static int repeat_counter = 0;
+
    byte key = read_keyboard() | read_joystick();
 
    if(key == 'J' || key == 'L' || key == 'K') {
       repeat_counter++;
-      if(repeat_counter == 128) {
+      if(repeat_counter == KEY_REPEAT_COUNTER_MAX) {
          repeat_counter = 0;
          last_key = 0;
       }
@@ -601,53 +573,7 @@ void gameOver() {
    while(!test_key(SCANCODE_RETN));
 }
 
-void test_sounds() {
-   int d;
-   while(1) {
-      scanf("%d",&d);
-      switch(d) {
-         case 0: bit_fx(0); break;
-         case 1: bit_fx(1); break;
-         case 2: bit_fx(2); break;
-         case 3: bit_fx(3); break;
-         case 4: bit_fx(4); break;
-         case 5: bit_fx(5); break;
-         case 6: bit_fx(6); break;
-         case 7: bit_fx(7); break;
-
-         case 20: bit_fx2(0); break;
-         case 21: bit_fx2(1); break;
-         case 22: bit_fx2(2); break;
-         case 23: bit_fx2(3); break;
-         case 24: bit_fx2(4); break;
-         case 25: bit_fx2(5); break;
-         case 26: bit_fx2(6); break;
-         case 27: bit_fx2(7); break;
-
-         case 30: bit_fx3(0); break;
-         case 31: bit_fx3(1); break;
-         case 32: bit_fx3(2); break;
-         case 33: bit_fx3(3); break;
-         case 34: bit_fx3(4); break;
-         case 35: bit_fx3(5); break;
-         case 36: bit_fx3(6); break;
-         case 37: bit_fx3(7); break;
-
-         case 40: bit_fx4(0); break;
-         case 41: bit_fx4(1); break;
-         case 42: bit_fx4(2); break;
-         case 43: bit_fx4(3); break;
-         case 44: bit_fx4(4); break;
-         case 45: bit_fx4(5); break;
-         case 46: bit_fx4(6); break;
-         case 47: bit_fx4(7); break;
-      }
-   }
-}
-
 int main() {
-   //test_sounds();
-
    screen_buffer_ready = 0;
    install_interrupt(0);
    while(1) {
