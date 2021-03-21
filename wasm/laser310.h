@@ -190,7 +190,7 @@ byte laser310_io_read(laser310_t *sys, word ioport) {
    }
    else {
       byte unused = (byte) EM_ASM_INT({ console.log("io read from unknown port", $0) }, port);
-      return 0xFF; // as in VZEM
+      return (ioport & 0xFF) | 1;
    }
 }
 
