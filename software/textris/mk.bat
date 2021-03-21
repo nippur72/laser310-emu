@@ -1,1 +1,2 @@
-zcc +vz textris.c -o textris.vz -create-app -Cz--audio --list -compiler sdcc
+zcc +vz textris.c -o textris.vz -create-app -Cz--audio -compiler sdcc
+@del *.cas

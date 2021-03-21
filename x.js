@@ -192,6 +192,8 @@ sys_set_debug(1);
 })();
 
 (function() {
+   let round = 0;
+
    let text = [
  // 0123456789012345678901234567890123456789012345678901234567890123
 
@@ -227,12 +229,12 @@ sys_set_debug(1);
       let byte = mem_read(addr);
       let range;
 
-      if(ch == 'A') range = 128+16*0;
-      if(ch == 'B') range = 128+16*1;
-      if(ch == 'C') range = 128+16*2;
-      if(ch == 'D') range = 128+16*3;
-      if(ch == 'E') range = 128+16*4;
-      if(ch == 'X') range = 128+16*5;
+      if(ch == 'A') range = 128+16*((round+0)%6);
+      if(ch == 'C') range = 128+16*((round+1)%6);
+      if(ch == 'B') range = 128+16*((round+2)%6);
+      if(ch == 'D') range = 128+16*((round+3)%6);
+      if(ch == 'E') range = 128+16*((round+4)%6);
+      if(ch == 'X') range = 128+16*((round+5)%6);
 
       if(byte < range || byte >= range+16) byte = range;
 
@@ -244,13 +246,22 @@ sys_set_debug(1);
       mem_write(addr, byte);
    }
 
-   for(let t=0x7000;t<0x7000+512;t++) mem_write(t,128);
-
-   for(let y=0;y<32;y++) {
-      for(let x=0;x<64;x++) {
-         let ch = point(x,y)
-         if(ch != " ") pset(x,y,ch);
+   for(round=0;round<6;round++) {
+      for(let t=0x7000;t<0x7000+512;t++) mem_write(t,128);
+      for(let y=0;y<32;y++) {
+         for(let x=0;x<64;x++) {
+            let ch = point(x,y)
+            if(ch != " ") pset(x,y,ch);
+         }
       }
+
+      let dump = [];
+      for(let t=0x7000;t<0x7000+32*6;t++) {
+         let c = mem_read(t);
+         dump.push("0x"+hex(c));
+         dump.push(",");
+      }
+      console.log(`${dump.join("")}`);
    }
 
 })();
