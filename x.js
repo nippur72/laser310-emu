@@ -255,7 +255,48 @@ sys_set_debug(1);
 
 })();
 
+/*
+void test_sounds() {
+   int d;
+   while(1) {
+      scanf("%d",&d);
+      switch(d) {
+         case 0: bit_fx(0); break;
+         case 1: bit_fx(1); break;
+         case 2: bit_fx(2); break;
+         case 3: bit_fx(3); break;
+         case 4: bit_fx(4); break;
+         case 5: bit_fx(5); break;
+         case 6: bit_fx(6); break;
+         case 7: bit_fx(7); break;
 
+         case 20: bit_fx2(0); break;
+         case 21: bit_fx2(1); break;
+         case 22: bit_fx2(2); break;
+         case 23: bit_fx2(3); break;
+         case 24: bit_fx2(4); break;
+         case 25: bit_fx2(5); break;
+         case 26: bit_fx2(6); break;
+         case 27: bit_fx2(7); break;
 
+         case 30: bit_fx3(0); break;
+         case 31: bit_fx3(1); break;
+         case 32: bit_fx3(2); break;
+         case 33: bit_fx3(3); break;
+         case 34: bit_fx3(4); break;
+         case 35: bit_fx3(5); break;
+         case 36: bit_fx3(6); break;
+         case 37: bit_fx3(7); break;
 
-
+         case 40: bit_fx4(0); break;
+         case 41: bit_fx4(1); break;
+         case 42: bit_fx4(2); break;
+         case 43: bit_fx4(3); break;
+         case 44: bit_fx4(4); break;
+         case 45: bit_fx4(5); break;
+         case 46: bit_fx4(6); break;
+         case 47: bit_fx4(7); break;
+      }
+   }
+}
+*/
