@@ -311,3 +311,10 @@ void test_sounds() {
    }
 }
 */
+
+
+for(let t=0;t<256;t++) {
+   if((t & 0xF0) == 0x20) {
+      console.log(hex(t));
+   }
+}
