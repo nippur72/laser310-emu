@@ -164,16 +164,16 @@ void interrupt_handler() {
 }
 
 // installs or deinstalls the interrupt handler
-void install_interrupt(byte disable) {
+void install_interrupt(void *handler) {
    byte *ptr = (byte *) 0x787d;   /* address in RAM where the CPU jumps at every interrupt */
-   if(disable) {
+   if(handler == NULL) {
       // write a RET instruction
       *ptr = 0xC9;
    }
    else {
       // write a JP interrupt_handler instruction
-      *(ptr+1) = ((word) interrupt_handler) & 0xFF;
-      *(ptr+2) = ((word) interrupt_handler) >> 8;
+      *(ptr+1) = ((word) handler) & 0xFF;
+      *(ptr+2) = ((word) handler) >> 8;
       *ptr = 0xC3;
    }
 }
@@ -582,7 +582,7 @@ void gameOver() {
 
 int main() {
    screen_buffer_ready = 0;
-   install_interrupt(0);
+   install_interrupt(interrupt_handler);
    while(1) {
       introScreen();
       initGame();
