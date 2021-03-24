@@ -163,17 +163,18 @@ void laser310_mem_write(laser310_t *sys, word address, byte value) {
    }
 }
 
-byte laser310_io_read(laser310_t *sys, word ioport) {
+// returns 0xFFFF if read is not handled by any I/O port
+word laser310_io_read(laser310_t *sys, word ioport) {
    byte port = ioport & 0xFF;
 
-   if((port & 0xF0) == 0x00) {
+   if(port == 0x00) {
       // printer
       if(sys->printer_readst != NULL) return sys->printer_readst(port & 0x0F);
-      else return 0xFF; // as in VZEM
+      else return 0xFFFF;
    }
    else if((port & 0xF0) == 0x20) {
       // joysticks
-      byte data = 0xFF;
+      byte data = 0x1F; // only 5 bits
       if(((port & 1) == 0) && sys->joy0_up   ) data &=  ~1;
       if(((port & 1) == 0) && sys->joy0_down ) data &=  ~2;
       if(((port & 1) == 0) && sys->joy0_left ) data &=  ~4;
@@ -189,8 +190,11 @@ byte laser310_io_read(laser310_t *sys, word ioport) {
       return data;
    }
    else {
+      /*
       byte unused = (byte) EM_ASM_INT({ console.log("io read from unknown port", $0) }, port);
       return (ioport & 0xFF) | 1;
+      */
+      return 0xFFFF;
    }
 }
 
@@ -203,7 +207,7 @@ void laser310_io_write(laser310_t *sys, word ioport, byte value) {
    }
    else
    {
-      byte unused = (byte) EM_ASM_INT({ console.log("io write to unknown port ", $0, $1) }, port & 0xFF, value);
+      //byte unused = (byte) EM_ASM_INT({ console.log("io write to unknown port ", $0, $1) }, port & 0xFF, value);
       //console.warn(`write on unknown port ${hex(port)}h value ${hex(value)}h`);
    }
 }
@@ -244,7 +248,12 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
    }
    else if(pins & Z80_IORQ) {
       if(pins & Z80_RD) {
-         byte data = laser310_io_read(sys, address);
+         word data = laser310_io_read(sys, address);
+         if(data == 0xFFFF) {
+            // I/O read non handled by any port, the value changes depending of the opcode
+            if(sys->cpu.op == 0xdb) data = (address & 0xFF) | 1;   // IN A,(port)
+            else data = sys->cpu.op | 1;                           // IN r,(C)
+         }
          Z80_SET_DATA(pins, data);
       }
       else if(pins & Z80_WR) {
