@@ -399,6 +399,7 @@ typedef struct {
     z80_trap_t trap_cb;
     void* trap_user_data;
     int trap_id;                /* != 0 if a trap has been hit */
+    uint8_t op;                 /* opcode being processed, used to discern between IN A,(port) (0xDB) and IN r,(C) */
 } z80_t;
 
 /* initialize a new z80 instance */
@@ -863,6 +864,7 @@ uint32_t z80_exec(z80_t* cpu, uint32_t num_ticks) {
             ws = _z80_map_regs(r0, r1, r2);
         }
         /* decode instruction */
+        cpu->op = op;
         switch (op) {
             case 0x0:/*NOP*/ break;
             case 0x1:/*LD BC,nn*/_IMM16(d16);_S_BC(d16);break;
@@ -1190,6 +1192,7 @@ uint32_t z80_exec(z80_t* cpu, uint32_t num_ticks) {
             case 0xec:/*CALL PE,nn*/_IMM16(addr);if((_G_F()&Z80_PF)){_T(1);uint16_t sp=_G_SP();_MW(--sp,pc>>8);_MW(--sp,pc);_S_SP(sp);pc=addr;}break;
             case 0xED: {
                 _FETCH(op);
+                cpu->op = op;
                 switch(op) {
                     case 0x40:/*IN B,(C)*/{addr=_G_BC();_IN(addr++,d8);_S_WZ(addr);uint8_t f=(_G_F()&Z80_CF)|_z80_szp[d8];_S8(ws,_F,f);_S_B(d8);}break;
                     case 0x41:/*OUT (C),B*/addr=_G_BC();_OUT(addr++,_G_B());_S_WZ(addr);break;
