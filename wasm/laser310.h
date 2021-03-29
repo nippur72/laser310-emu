@@ -138,9 +138,21 @@ void laser310_reset(laser310_t *sys) {
 }
 
 byte laser310_mem_read(laser310_t *sys, uint16_t address) {
-        if(address < 0x6800) return sys->rom[address];                                           // ROM
-   else if(address < 0x7000) return (sys->cassette_in << 6) | keyboard_poll(&sys->kbd, address); // mapped I/O
-   else                      return sys->ram[address];                                           // RAM
+   if(address < 0x6800) {
+      // ROM
+      return sys->rom[address];
+   }
+   else if(address < 0x7000) {
+      // mapped I/O
+      byte D7 = !sys->vdc.fs & 1;
+      byte D6 = sys->cassette_in & 1;
+      byte D5_D0 = keyboard_poll(&sys->kbd, address) & 0x3f;
+      return (D7 << 7) | (D6 << 6) | D5_D0;
+   }
+   else {
+      // RAM
+      return sys->ram[address];
+   }
 }
 
 void laser310_mem_write(laser310_t *sys, word address, byte value) {
