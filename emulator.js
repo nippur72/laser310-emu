@@ -143,6 +143,8 @@ function main() {
       autoload.forEach((e,i)=>rom_load(i,e));
    }
 
+   emulator.connectJoystick(true);
+
    // starts drawing frames
    oneFrame();
 
@@ -207,5 +209,14 @@ let emulator = {
    },
    setMachineType(machineType) {
 
+   },
+   connectJoystick(isChecked) {
+      sys_set_joystick_connected(isChecked);
+   },
+   getJoystickConnected() {
+      return sys_get_joystick_connected();
    }
 };
+
+
+

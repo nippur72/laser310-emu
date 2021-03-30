@@ -2,12 +2,16 @@ import React = require("react");
 
 import { PrimaryButton, DefaultButton, Dropdown, IDropdownOption, Pivot, PivotItem, Label, Stack, IStackTokens } from '@fluentui/react';
 import { Modal } from "@fluentui/react";
+import { ChoiceGroup, IChoiceGroupOption } from "@fluentui/react";
+import { Checkbox } from "@fluentui/react";
 
 interface IEmulator {
    reset(): void;
    droppedFiles(files: FileList): void;
    setMachineType(machineType: string): void;
    setMemory(memory: string): void;
+   getJoystickConnected(): boolean;
+   connectJoystick(isconnected: boolean): void;
 }
 
 declare var emulator: IEmulator;
@@ -26,6 +30,17 @@ let memoryOptions: IDropdownOption<any>[] = [
    { key: "34K" , text: "34K RAM" }
 ];
 
+let joystickOptions: IChoiceGroupOption[] = [
+   { key: 'A', text: 'Option A' },
+   { key: 'B', text: 'Option B' },
+   { key: 'C', text: 'Option C', disabled: true },
+   { key: 'D', text: 'Option D' },
+];
+
+function _onChange(ev?: React.FormEvent<HTMLElement | HTMLInputElement> | undefined, option?: IChoiceGroupOption | undefined): void {
+   console.dir(option);
+}
+
 const numericalSpacingStackTokens: IStackTokens = {
    childrenGap: 10,
    padding: 10,
@@ -33,11 +48,16 @@ const numericalSpacingStackTokens: IStackTokens = {
 
 class Some extends React.Component
 {
-   state = {
-       showPreferences: false,
-       machine: 'vz300pal',
-       memory: "18K"
-   };
+   state = this.getInitialState();
+
+   getInitialState() {
+      return {
+         showPreferences: false,
+         machine: 'vz300pal',
+         memory: "18K",
+         joystick_connected: emulator.getJoystickConnected()
+     };
+   }
 
    togglePreferences = () => {
       this.setState({showPreferences: !this.state.showPreferences});
@@ -49,7 +69,8 @@ class Some extends React.Component
 
    handleKeyDown = (e: any) => {
       if(e.code == "F10") {
-         // F10 toggle preferences window         
+         // F10 toggle preferences window
+         this.setState(this.getInitialState());
          this.togglePreferences();
       }
       else if(e.code == "Escape") {
@@ -98,6 +119,10 @@ class Some extends React.Component
       emulator.setMemory(String(memory));
    }
 
+   handleChangeJoystickConnected = (ev?: React.FormEvent<HTMLElement | HTMLInputElement> | undefined, isChecked?: boolean) => {
+      emulator.connectJoystick(isChecked==true);
+   }
+
    render() {
       return (
          <Modal isOpen={this.state.showPreferences}>
@@ -118,11 +143,15 @@ class Some extends React.Component
                      */}
                   </PivotItem>
 
-                  <PivotItem headerText="Machine" headerButtonProps={{'data-order': 2}}>
-                     <Dropdown label="Machine" options={machineOptions} selectedKey={this.state.machine} onChange={this.handleChangeMachine} />
+                  <PivotItem headerText="CPU" headerButtonProps={{'data-order': 2}}>
+                     <Dropdown label="CPU" options={machineOptions} selectedKey={this.state.machine} onChange={this.handleChangeMachine} />
                      <Dropdown label="Memory" options={memoryOptions} selectedKey={this.state.memory} onChange={this.handleChangeMemory} />
                      <div>MC6847 snow: on/off</div>
-                     <div>joystick emulation: off/numpad/cursor keys</div>
+                  </PivotItem>
+
+                  <PivotItem headerText="Joysticks" headerButtonProps={{'data-order': 2}}>
+                     <Checkbox label="Joystick interface connected" onChange={this.handleChangeJoystickConnected} />
+                     <ChoiceGroup defaultSelectedKey="B" options={joystickOptions} onChange={_onChange} label="Pick one" required={true} />;
                   </PivotItem>
 
                   <PivotItem headerText="Tape" headerButtonProps={{'data-order': 3}}>

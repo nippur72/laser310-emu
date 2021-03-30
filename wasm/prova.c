@@ -237,3 +237,12 @@ KEEP
 void sys_set_machine_type(int machineType) {
    l310.PAL = (machineType == 0 || machineType == 2);
 }
+
+KEEP void sys_set_joystick_connected(bool joystick_connected) {
+   l310.joystick_connected = joystick_connected;
+}
+
+KEEP bool sys_get_joystick_connected() {
+   return l310.joystick_connected;
+}
+

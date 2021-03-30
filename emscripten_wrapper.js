@@ -86,6 +86,8 @@ let sys_tape_record;
 let sys_tape_stop;
 
 let sys_joystick;
+let sys_set_joystick_connected;
+let sys_get_joystick_connected;
 
 let sys_total_cycles;
 let sys_snow_effect;
@@ -185,7 +187,10 @@ function load_wasm(ready_cb) {
       sys_tape_record    = instance.cwrap("sys_tape_record", null );
       sys_tape_stop      = instance.cwrap("sys_tape_stop", null );
 
-      sys_joystick       = instance.cwrap("sys_joystick", null, [ 'number', 'number'] );
+      // joystick
+      sys_joystick               = instance.cwrap("sys_joystick", null, [ 'number', 'number'] );
+      sys_set_joystick_connected = instance.cwrap("sys_set_joystick_connected", null, [ 'bool'] );
+      sys_get_joystick_connected = instance.cwrap("sys_get_joystick_connected", 'bool');
 
       // export instance globally (not strictly required)
       wasm_instance = instance;

@@ -49,6 +49,7 @@ typedef struct {
    byte cassette_out_MSB; // bit 1 output latch
    byte speaker_A;        // bit 0 output latch
 
+   bool joystick_connected;
    bool joy0_up;
    bool joy0_down;
    bool joy0_left;
@@ -184,7 +185,7 @@ word laser310_io_read(laser310_t *sys, word ioport) {
       if(sys->printer_readst != NULL) return sys->printer_readst(port & 0x0F);
       else return 0xFFFF;
    }
-   else if((port & 0xF0) == 0x20) {
+   else if(sys->joystick_connected && ((port & 0xF0) == 0x20)) {
       // joysticks
       byte data = 0x1F; // only 5 bits
       if(((port & 1) == 0) && sys->joy0_up   ) data &=  ~1;

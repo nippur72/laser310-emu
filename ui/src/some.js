@@ -2,6 +2,8 @@
 const React = require("react");
 const react_1 = require("@fluentui/react");
 const react_2 = require("@fluentui/react");
+const react_3 = require("@fluentui/react");
+const react_4 = require("@fluentui/react");
 let machineOptions = [
     { key: "vz200pal", text: "VZ200 (Laser 210) PAL" },
     { key: "vz300pal", text: "VZ300 (Laser 310) PAL" },
@@ -14,6 +16,15 @@ let memoryOptions = [
     { key: "24K", text: "24K RAM" },
     { key: "34K", text: "34K RAM" }
 ];
+let joystickOptions = [
+    { key: 'A', text: 'Option A' },
+    { key: 'B', text: 'Option B' },
+    { key: 'C', text: 'Option C', disabled: true },
+    { key: 'D', text: 'Option D' },
+];
+function _onChange(ev, option) {
+    console.dir(option);
+}
 const numericalSpacingStackTokens = {
     childrenGap: 10,
     padding: 10,
@@ -21,17 +32,14 @@ const numericalSpacingStackTokens = {
 class Some extends React.Component {
     constructor() {
         super(...arguments);
-        this.state = {
-            showPreferences: false,
-            machine: 'vz300pal',
-            memory: "18K"
-        };
+        this.state = this.getInitialState();
         this.togglePreferences = () => {
             this.setState({ showPreferences: !this.state.showPreferences });
         };
         this.handleKeyDown = (e) => {
             if (e.code == "F10") {
-                // F10 toggle preferences window         
+                // F10 toggle preferences window
+                this.setState(this.getInitialState());
                 this.togglePreferences();
             }
             else if (e.code == "Escape") {
@@ -61,6 +69,17 @@ class Some extends React.Component {
             this.setState({ memory });
             emulator.setMemory(String(memory));
         };
+        this.handleChangeJoystickConnected = (ev, isChecked) => {
+            emulator.connectJoystick(isChecked == true);
+        };
+    }
+    getInitialState() {
+        return {
+            showPreferences: false,
+            machine: 'vz300pal',
+            memory: "18K",
+            joystick_connected: emulator.getJoystickConnected()
+        };
     }
     close() {
         this.setState({ showPreferences: false });
@@ -88,11 +107,14 @@ class Some extends React.Component {
                         React.createElement(react_1.Stack, { horizontal: true, horizontalAlign: "start", tokens: numericalSpacingStackTokens },
                             React.createElement(UploadButton, { value: "Load VZ", onUpload: this.handleUpload, accept: ".vz" }),
                             React.createElement(react_1.DefaultButton, { onClick: () => { }, disabled: true }, "Save VZ"))),
-                    React.createElement(react_1.PivotItem, { headerText: "Machine", headerButtonProps: { 'data-order': 2 } },
-                        React.createElement(react_1.Dropdown, { label: "Machine", options: machineOptions, selectedKey: this.state.machine, onChange: this.handleChangeMachine }),
+                    React.createElement(react_1.PivotItem, { headerText: "CPU", headerButtonProps: { 'data-order': 2 } },
+                        React.createElement(react_1.Dropdown, { label: "CPU", options: machineOptions, selectedKey: this.state.machine, onChange: this.handleChangeMachine }),
                         React.createElement(react_1.Dropdown, { label: "Memory", options: memoryOptions, selectedKey: this.state.memory, onChange: this.handleChangeMemory }),
-                        React.createElement("div", null, "MC6847 snow: on/off"),
-                        React.createElement("div", null, "joystick emulation: off/numpad/cursor keys")),
+                        React.createElement("div", null, "MC6847 snow: on/off")),
+                    React.createElement(react_1.PivotItem, { headerText: "Joysticks", headerButtonProps: { 'data-order': 2 } },
+                        React.createElement(react_4.Checkbox, { label: "Joystick interface connected", onChange: this.handleChangeJoystickConnected }),
+                        React.createElement(react_3.ChoiceGroup, { defaultSelectedKey: "B", options: joystickOptions, onChange: _onChange, label: "Pick one", required: true }),
+                        ";"),
                     React.createElement(react_1.PivotItem, { headerText: "Tape", headerButtonProps: { 'data-order': 3 } },
                         React.createElement(UploadButton, { value: "Load .WAV", onUpload: this.handleUpload, accept: ".wav" }),
                         React.createElement("div", null, "Record file WAV"),
