@@ -22,8 +22,9 @@ typedef struct {
    int PAL;
    int ramsize;
 
-   byte ram[65536];       // RAM
    byte rom[65536];       // ROM
+   byte ram[65536];       // RAM
+   word memsize;          // top RAM location
 
    keyboard_t kbd;        // then keyboard matrix
    z80_t cpu;             // the Z80 CPU
@@ -170,7 +171,7 @@ void laser310_mem_write(laser310_t *sys, word address, byte value) {
       sys->cassette_out_MSB  = (value >> 1) & 1;
       sys->speaker_A         = (value >> 0) & 1;
    }
-   else {
+   else if(address <= sys->memsize) {
       // RAM
       sys->ram[address] = value;
    }
@@ -203,10 +204,7 @@ word laser310_io_read(laser310_t *sys, word ioport) {
       return data;
    }
    else {
-      /*
       byte unused = (byte) EM_ASM_INT({ console.log("io read from unknown port", $0) }, port);
-      return (ioport & 0xFF) | 1;
-      */
       return 0xFFFF;
    }
 }
@@ -294,6 +292,8 @@ uint64_t laser310_cpu_tick(int num_ticks, uint64_t pins, void *user_data) {
       if(IS_ONE(vdc_pins,MC6847_FS)) BITSET(pins,Z80_INT);     // connect the /INT line to MC6847 FS pin
       else BITRESET(pins,Z80_INT);
       if(sys->PAL && sys->vdc.fs == 0 && sys->vdc.fs != sys->last_fs) {
+         // TODO in the real hardware additional lines are split in two pieces of 25 (24) lines
+         // insert before and after VSYNC
               if(sys->model == LASER310_MODEL_VZ200) sys->PAL_counter += MC6847_TICKS_PER_SCANLINE * 50; // adds 50 PAL lines         
          else if(sys->model == LASER310_MODEL_VZ300) sys->PAL_counter += MC6847_TICKS_PER_SCANLINE * 48; // adds 48 PAL lines
       }
@@ -404,6 +404,11 @@ uint32_t applySaturation(float r, float g, float b, float s, float c, float l) {
 void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
    sys->model = desc->model;
    sys->PAL = desc->PAL;
+
+   // 18K = 2K video $7000-$77FF + 16K $7800-$B7FF
+   // 34K = 2K video $7000-$77FF + 32K $7800-$F7FF
+
+   sys->memsize = 0xF7FF;
 
    CHIPS_ASSERT(sys->model == LASER310_MODEL_VZ200 || sys->model == LASER310_MODEL_VZ300);
    
