@@ -138,7 +138,8 @@ async function parseQueryStringCommands() {
       setTimeout(async ()=>{
          if(name.startsWith("http")) {
             // external load
-            await externalLoad("loadPrg", name);
+            let vz = await externalLoad("loadPrg", name);
+            load_vz_bytes(vz, true);
          }
          else {
             // internal load

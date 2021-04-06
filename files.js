@@ -52,6 +52,10 @@ const VZ_BINARY  = 0xF1
 
 async function load_vz(filename, runAfterLoad) {
     const vz_bytes = await storage.readFile(filename);
+    load_vz_bytes(vz_bytes, runAfterLoad);
+}
+
+async function load_vz_bytes(vz_bytes, runAfterLoad) {
     const VZ = unpackvz(vz_bytes);
 
     const isROM = VZ.start === 0 || VZ.start === 16384;
@@ -65,10 +69,10 @@ async function load_vz(filename, runAfterLoad) {
     }
 
     if(VZ.type == VZ_BASIC) {
-        console.log(`loaded "${filename}" ('${VZ.filename}') as BASIC program of ${VZ.data.length} bytes from ${hex(VZ.start,4)}h to ${hex(VZ.start+VZ.data.length,4)}h`);
+        console.log(`loaded '${VZ.filename}' as BASIC program of ${VZ.data.length} bytes from ${hex(VZ.start,4)}h to ${hex(VZ.start+VZ.data.length,4)}h`);
     }
     else if(VZ.type == VZ_BINARY) {
-        console.log(`loaded "${filename}" ('${VZ.filename}') as binary data of ${VZ.data.length} bytes from ${hex(VZ.start,4)}h to ${hex(VZ.start+VZ.data.length,4)}h`);
+        console.log(`loaded '${VZ.filename}' as binary data of ${VZ.data.length} bytes from ${hex(VZ.start,4)}h to ${hex(VZ.start+VZ.data.length,4)}h`);
     }
 
     // binary program
