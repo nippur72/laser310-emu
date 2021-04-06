@@ -1,5 +1,6 @@
-Z80.js-master/
-node_modules/
+node_modules/*
+!node_modules/@nippur72
+ui/node_modules/*
 software/test_snow/*.cas
 software/test_snow/*.wav
 # Windows thumbnail cache files
