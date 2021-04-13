@@ -1,0 +1,164 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <vz.h>
+
+typedef unsigned char byte;
+typedef unsigned int word;
+
+#define VIDEO 0x7000              /* video memory */
+#define SCREEN_SIZE 2048
+
+byte screen_buffer[SCREEN_SIZE];
+byte screen_buffer_ready = 0;
+
+void interrupt_handler() {
+   if(!screen_buffer_ready) return;
+   /*
+   __asm
+   ld hl, _screen_buffer
+   ld de, 0x7000
+   ld bc, 2048
+   ldir
+   __endasm;
+   */
+
+   __asm
+   ld hl, _screen_buffer
+   ld de, 0x7000
+   ld bc, 2048
+Loop:
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    ldi
+    jp pe,Loop  ; Loop until bc = zero
+   __endasm;
+
+   //memcpy((byte *)VIDEO, screen_buffer, SCREEN_SIZE);
+   screen_buffer_ready = 0;
+}
+
+// installs or deinstalls the interrupt handler
+void install_interrupt(void *handler) {
+   byte *ptr = (byte *) 0x787d;   /* address in RAM where the CPU jumps at every interrupt */
+   if(handler == NULL) {
+      // write a RET instruction
+      *ptr = 0xC9;
+   }
+   else {
+      // write a JP interrupt_handler instruction
+      *(ptr+1) = ((word) handler) & 0xFF;
+      *(ptr+2) = ((word) handler) >> 8;
+      *ptr = 0xC3;
+   }
+}
+
+unsigned int ptr = 0;
+void main_old() {
+   vz_mode(1);
+
+   // fill the buffer with something
+   for(int t=0; t<4096; t++) {
+      screen_buffer[t] = (unsigned char) (t<<5);
+   }
+
+   screen_buffer_ready = 0;
+   install_interrupt(interrupt_handler);
+
+   while(1) {
+      screen_buffer_ready = 1;
+      while(screen_buffer_ready != 0) {
+         screen_buffer[ptr]++;
+         ptr = (ptr+1) & 2047;
+      }
+
+   }
+}
+
+#define FIRST_SLICE 2048-512
+#define SECOND_SLICE 512
+
+void screen_update() {
+   __asm
+   di
+
+   ; prepare for first slice
+   ld hl, _screen_buffer
+   ld de, 0x7000
+   ld bc, FIRST_SLICE
+
+   ; wait for first retrace
+screen_update_loop1:      
+   ld a, (0x6800)
+   rla
+   jr c,screen_update_loop1
+
+   ; copy first slice during the retrace
+   ldir
+
+   ; prepare for second slice 
+   ld bc, SECOND_SLICE
+
+   ; wait for second retrace
+screen_update_loop2:      
+   ld a, (0x6800)
+   rla
+   jr c,screen_update_loop2
+
+   ldir
+
+   ei
+   ret
+   __endasm;
+}
+
+unsigned int pos=0;
+void main() {
+   vz_mode(1);
+
+   // clears the buffer 
+   for(int t=0; t<4096; t++) {
+      screen_buffer[t] = (t<<6);
+   }
+   
+   while(1) {
+      // do some animation
+      screen_buffer[1024+pos] = 0;
+      pos = pos + 1;
+      pos = pos & 31; 
+      screen_buffer[1024+pos] = 255;
+
+      // updates the screen 
+      screen_update();
+   }
+}
+
