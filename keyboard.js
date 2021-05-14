@@ -1,5 +1,5 @@
 let keyboard_buffer = [];
-let use_keyboard_buffer = true;
+let use_keyboard_buffer = false;
 
 function keyDown(e) {
 
