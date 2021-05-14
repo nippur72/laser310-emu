@@ -108,6 +108,15 @@ function oneFrame(timestamp) {
    if(!stopped) requestAnimationFrame(oneFrame);
 }
 
+function oneFrameSetTimeout() {
+   if(use_keyboard_buffer) poll_keyboard();
+   updateGamePad();
+   sys_joystick(joy0, joy1);  
+   let cycles = 228 * 312/2; 
+   sys_ticks(cycles);   
+   setTimeout(oneFrameSetTimeout, 8);
+}
+
 function main() {
 
    parseQueryStringCommands();
@@ -147,6 +156,7 @@ function main() {
 
    // starts drawing frames
    oneFrame();
+   //oneFrameSetTimeout();
 
    /*
    // autoload program and run it
