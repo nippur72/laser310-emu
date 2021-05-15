@@ -60,18 +60,6 @@ function renderFrame() {
    sys_ticks(310 * 2 * cyclesPerLine);
 }
 
-function poll_keyboard() {
-   if(keyboard_buffer.length > 0) {
-      let key_event = keyboard_buffer[0];
-      keyboard_buffer = keyboard_buffer.slice(1);
-
-      keyboardReset();
-      if(key_event.type === "press") {
-         key_event.hardware_keys.forEach((k) => keyPress(k));
-      }
-   }
-}
-
 let end_of_frame_hook = undefined;
 
 let last_timestamp = 0;
@@ -90,7 +78,6 @@ function oneFrame(timestamp) {
       frame_skips++;
    }
 
-   if(use_keyboard_buffer) poll_keyboard();
    updateGamePad();
    sys_joystick(joy0, joy1);
 
@@ -109,7 +96,6 @@ function oneFrame(timestamp) {
 }
 
 function oneFrameSetTimeout() {
-   if(use_keyboard_buffer) poll_keyboard();
    updateGamePad();
    sys_joystick(joy0, joy1);  
    let cycles = 228 * 312/2; 
