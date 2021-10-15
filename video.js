@@ -40,10 +40,15 @@ const MC_OFFSET_Y = 0;
 
 let mc6847_canvas = document.getElementById("canvas");
 let mc6847_context = mc6847_canvas.getContext('2d');
+let mc6847_imagedata = mc6847_context.createImageData(MC_DOT_WIDTH*RENDER_MULTIPLIER, MC_DOT_HEIGHT*RENDER_MULTIPLIER);
+let mc6847_imagedata_data = new Uint32Array(mc6847_imagedata.data.buffer);
+
+/*
 let mc6847_imagedata = mc6847_context.getImageData(0, 0, MC_DOT_WIDTH*RENDER_MULTIPLIER, MC_DOT_HEIGHT*RENDER_MULTIPLIER);
 let mc6847_imagedata_buffer = new ArrayBuffer(mc6847_imagedata.data.length);
 let mc6847_imagedata_buf8 = new Uint8ClampedArray(mc6847_imagedata_buffer);
 let mc6847_imagedata_data = new Uint32Array(mc6847_imagedata_buffer);
+*/
 
 // not interlaced
 function vdp_screen_update_mc(ptr) {
@@ -83,7 +88,10 @@ function vdp_screen_update_mc(ptr) {
       }
    }
 
+   /*
    mc6847_imagedata.data.set(mc6847_imagedata_buf8);
+   mc6847_context.putImageData(mc6847_imagedata, MC_OFFSET_X, MC_OFFSET_Y);
+   */
    mc6847_context.putImageData(mc6847_imagedata, MC_OFFSET_X, MC_OFFSET_Y);
 
    frames++;
