@@ -95,13 +95,29 @@ function oneFrame(timestamp) {
    if(!stopped) requestAnimationFrame(oneFrame);
 }
 
+/*
 function oneFrameSetTimeout() {
-   updateGamePad();
-   sys_joystick(joy0, joy1);  
-   let cycles = 228 * 312/2; 
-   sys_ticks(cycles);   
-   setTimeout(oneFrameSetTimeout, 8);
+   let cycles = 228 * 310;
+   renderCycles(cycles);
+   if(!stopped) setTimeout(oneFrameSetTimeout, 4);
 }
+
+function renderCycles(cycles) {
+   updateGamePad();
+   sys_joystick(joy0, joy1);
+   let starttime = performance.now();
+   sys_ticks(cycles);
+   let endtime = performance.now();
+   let elapsed = endtime - starttime;
+
+   let load = cycles / elapsed;
+
+   //if(!skip && msec != 0) {
+      averageFrameTime = 16;
+      averageLoad = averageLoad * 0.992 + load * 0.008;
+   //}
+}
+*/
 
 function main() {
 
