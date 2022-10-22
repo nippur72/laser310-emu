@@ -42,7 +42,7 @@ async function load_vz(filename, runAfterLoad) {
     load_vz_bytes(vz_bytes, runAfterLoad);
 }
 
-async function load_vz_bytes(vz_bytes, runAfterLoad) {
+function load_vz_bytes(vz_bytes, runAfterLoad) {
     const VZ = unpackvz(vz_bytes);
 
     const isROM = VZ.start === 0 || VZ.start === 16384;
