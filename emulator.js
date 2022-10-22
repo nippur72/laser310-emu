@@ -226,7 +226,7 @@ let emulator = {
       sys_set_joystick_connected(isChecked);
    },
    getJoystickConnected() {
-      return sys_get_joystick_connected();
+      return sys_get_joystick_connected === undefined ? false : sys_get_joystick_connected();
    }
 };
 
