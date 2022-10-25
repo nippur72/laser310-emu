@@ -95,6 +95,11 @@ class EmulatorGUI extends Component<State> {
       this.close();
    }
 
+   handleUploadText(files: FileList) {
+      emulator.droppedFiles(files);
+      this.close();
+   }
+
    handleChangeMachine(event: React.FormEvent<HTMLDivElement>, item: IDropdownOption|undefined) {
       if(item===undefined) return;
       let machineType = String(item.key);
@@ -175,8 +180,8 @@ class EmulatorGUI extends Component<State> {
                </PivotItem>
 
                <PivotItem headerText="Text files" headerButtonProps={{'data-order': 7}}>
-                  <div>Load text file</div>
-                  <div>Paste clipboard text</div>
+                  <Uploader value="Load text file" onUpload={(e)=>this.handleUploadText(e)} accept=".txt,.bas" />
+                  {/* paste clipboard */}
                </PivotItem>
 
                <PivotItem headerText="About" headerButtonProps={{'data-order': 8}}>

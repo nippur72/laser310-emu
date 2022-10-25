@@ -104,6 +104,13 @@ async function droppedFile(outName, bytes) {
 
       return;
    }
+   else if(ext == ".txt") {
+      console.log("TXT file dropped");
+      // const text = bytes.buffer.toString();
+      const text = String.fromCharCode.apply(null, new Uint8Array(bytes.buffer));
+      paste(text);
+      return;
+   }
    else {
       // unknown extensions are saved as is
       await storage.writeFile(outName, bytes);

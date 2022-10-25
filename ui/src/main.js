@@ -10,9 +10,7 @@ const react_2 = require("@fluentui/react");
 react_2.initializeIcons();
 // ...or, register icons and pull the fonts from your own cdn:
 //initializeIcons('https://my.cdn.com/path/to/icons/');
-const some_1 = __importDefault(require("./some"));
+const EmulatorGUI_1 = __importDefault(require("./EmulatorGUI"));
 let process = {};
 const mountNode = document.getElementById("mountnode");
-console.log(mountNode);
-const props = {};
-react_dom_1.render(react_1.createElement(some_1.default, props), mountNode);
+react_dom_1.render(react_1.createElement(EmulatorGUI_1.default), mountNode);

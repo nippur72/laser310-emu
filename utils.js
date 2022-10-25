@@ -8,31 +8,75 @@ function cpu_status() {
 async function crun(filename) {
    await load(filename);
    //await print_string("\nrun:\n");
-   pasteLine("RUN\r\n");
+   paste("RUN\n");
 }
 
 function paste(text) {
-   const lines = text.split("\n");
-   for(let t=0; t<lines.length; t++) {
-      const linea = lines[t];
-      console.log(linea);
-      pasteLine(linea);
-      pasteChar(13);   // CR
+   let r = new RegExp(/{ctrl (?<ctrled>.)}|{shift (?<shifted>.)}|{(?<code>.*)}|(?<plain>(.|\r|\n))/g);
+
+   let match;
+   let pasteBuffer = [];
+   while (match = r.exec(text)) {
+      let {ctrled, shifted, code, crlf, plain} = match.groups;
+           if(ctrled)  pasteBuffer.push({ascii: ctrled,      ctrl: true,  shift: false });
+      else if(shifted) pasteBuffer.push({ascii: shifted,     ctrl: false, shift: true  });
+      else if(code)    pasteBuffer.push({ascii: `{${code}}`, ctrl: false, shift: false });
+      else if(plain)   pasteBuffer.push({ascii: plain,       ctrl: false, shift: false });
    }
-   console.log("pasted!");
+
+   function do_async_paste() {
+      if(pasteBuffer.length == 0) return;
+      let item = pasteBuffer.shift();
+      if(item === undefined) return;
+      let {ascii,ctrl,shift} = item;
+      pasteChar(ascii, ctrl, shift);
+      setTimeout(do_async_paste, 0);
+   }
+
+   do_async_paste();
 }
 
-function pasteLine(line) {
-   renderFrame();
+function pasteChar(c, ctrl, shift) {
+   let KEYBUF = 0x7836;
+   let hk = ascii_to_hardware_keys(c, ctrl, shift);
 
-   for(let t=0;t<line.length;t++) {
-      let c = line.charCodeAt(t);
-      pasteChar(c);
+   if(hk.length == 0) return;
+
+   // wait until laser detects no key pressed
+   let i=0;
+   while(mem_read(KEYBUF)!=0) {
+      renderFrame();
+      if(i++ == 10) {
+         console.log("failed 1");
+         return;
+      }
    }
-}
 
-function pasteChar(c) {
-   // TODO
+   // do key press
+   hk.forEach(k=>keyPress(k));
+
+   // wait until laser detects key press
+   i=0;
+   while(mem_read(KEYBUF)==0) {
+      renderFrame();
+      if(i++ == 10) {
+         console.log("failed 2");
+         return;
+      }
+   }
+
+   // release key
+   hk.forEach(k=>keyRelease(k));
+
+   // wait until laser detects no key pressed
+   i=0;
+   while(mem_read(KEYBUF)!=0) {
+      renderFrame();
+      if(i++ == 10) {
+         console.log("failed 3");
+         return;
+      }
+   }
 }
 
 function resetROM(firmware) {
