@@ -57,7 +57,7 @@ let audio = new Audio(4096);
 let storage = new BrowserStorage("laser310");
 
 function renderFrame() {
-   sys_ticks(310 * 2 * cyclesPerLine);
+   sys_ticks(310 * cyclesPerLine);
 }
 
 let end_of_frame_hook = undefined;
@@ -94,30 +94,6 @@ function oneFrame(timestamp) {
 
    if(!stopped) requestAnimationFrame(oneFrame);
 }
-
-/*
-function oneFrameSetTimeout() {
-   let cycles = 228 * 310;
-   renderCycles(cycles);
-   if(!stopped) setTimeout(oneFrameSetTimeout, 4);
-}
-
-function renderCycles(cycles) {
-   updateGamePad();
-   sys_joystick(joy0, joy1);
-   let starttime = performance.now();
-   sys_ticks(cycles);
-   let endtime = performance.now();
-   let elapsed = endtime - starttime;
-
-   let load = cycles / elapsed;
-
-   //if(!skip && msec != 0) {
-      averageFrameTime = 16;
-      averageLoad = averageLoad * 0.992 + load * 0.008;
-   //}
-}
-*/
 
 function main() {
 
@@ -158,20 +134,6 @@ function main() {
 
    // starts drawing frames
    oneFrame();
-   //oneFrameSetTimeout();
-
-   /*
-   // autoload program and run it
-   if(autoload !== undefined) {
-      //zap();
-      //cpu.reset();
-
-      setTimeout(()=>{
-         loadBytes(autoload);
-         pasteLine("RUN\r\n");
-      }, 200);
-   }
-   */
 }
 
 // FORMULA: one buffer arrives every t cpu cycles
