@@ -1,51 +1,51 @@
-// all 76 keys on the real Laser 310
+// all 45 keys on the real Laser 310
 
-const KEY_RESET         =  0; // TODO remove ?
-const KEY_1             = 01;
-const KEY_2             = 02;
-const KEY_3             = 03;
-const KEY_4             = 04;
-const KEY_5             = 05;
-const KEY_6             = 06;
-const KEY_7             = 07;
-const KEY_8             = 08;
-const KEY_9             = 09;
-const KEY_0             = 10;
-const KEY_MINUS         = 11;
-const KEY_Q             = 12;
-const KEY_W             = 13;
-const KEY_E             = 14;
-const KEY_R             = 15;
-const KEY_T             = 16;
-const KEY_Y             = 17;
-const KEY_U             = 18;
-const KEY_I             = 19;
-const KEY_O             = 20;
-const KEY_P             = 21;
-const KEY_RETURN        = 22;
-const KEY_CTRL          = 23;
-const KEY_A             = 24;
-const KEY_S             = 25;
-const KEY_D             = 26;
-const KEY_F             = 27;
-const KEY_G             = 28;
-const KEY_H             = 29;
-const KEY_J             = 30;
-const KEY_K             = 31;
-const KEY_L             = 32;
-const KEY_SEMICOLON     = 33;
-const KEY_COLON         = 34;
-const KEY_SHIFT         = 35;
-const KEY_Z             = 36;
-const KEY_X             = 37;
-const KEY_C             = 38;
-const KEY_V             = 39;
-const KEY_B             = 40;
-const KEY_N             = 41;
-const KEY_M             = 42;
-const KEY_COMMA         = 43;
-const KEY_DOT           = 44;
-const KEY_SPACE         = 45;
+export const KEY_RESET         =  0; // TODO remove ?
+export const KEY_1             =  1;
+export const KEY_2             =  2;
+export const KEY_3             =  3;
+export const KEY_4             =  4;
+export const KEY_5             =  5;
+export const KEY_6             =  6;
+export const KEY_7             =  7;
+export const KEY_8             =  8;
+export const KEY_9             =  9;
+export const KEY_0             = 10;
+export const KEY_MINUS         = 11;
+export const KEY_Q             = 12;
+export const KEY_W             = 13;
+export const KEY_E             = 14;
+export const KEY_R             = 15;
+export const KEY_T             = 16;
+export const KEY_Y             = 17;
+export const KEY_U             = 18;
+export const KEY_I             = 19;
+export const KEY_O             = 20;
+export const KEY_P             = 21;
+export const KEY_RETURN        = 22;
+export const KEY_CTRL          = 23;
+export const KEY_A             = 24;
+export const KEY_S             = 25;
+export const KEY_D             = 26;
+export const KEY_F             = 27;
+export const KEY_G             = 28;
+export const KEY_H             = 29;
+export const KEY_J             = 30;
+export const KEY_K             = 31;
+export const KEY_L             = 32;
+export const KEY_SEMICOLON     = 33;
+export const KEY_COLON         = 34;
+export const KEY_SHIFT         = 35;
+export const KEY_Z             = 36;
+export const KEY_X             = 37;
+export const KEY_C             = 38;
+export const KEY_V             = 39;
+export const KEY_B             = 40;
+export const KEY_N             = 41;
+export const KEY_M             = 42;
+export const KEY_COMMA         = 43;
+export const KEY_DOT           = 44;
+export const KEY_SPACE         = 45;
 
 // circuit lines that map on the address bus
 const KA0 =  0;
@@ -125,15 +125,15 @@ mapKey(KEY_L            , KA7, KD1);
 mapKey(KEY_H            , KA7, KD0);
 
 function keyboardReset() {
-   keyboard_reset();
+   laser310.keyboard_reset();
 }
 
-function keyPress(hardware_key) {   
+export function keyPress(hardware_key) {
    const { row, col } = key_row_col[hardware_key];
-   keyboard_press(row,col);
+   laser310.keyboard_press(row,col);
 }
 
-function keyRelease(hardware_key) {
+export function keyRelease(hardware_key) {
    const { row, col } = key_row_col[hardware_key];
-   keyboard_release(row,col);
+   laser310.keyboard_release(row,col);
 }

@@ -1,4 +1,4 @@
-function keyDown(e) {
+export function keyDown(e) {
 
    // from Chrome 71 audio is suspended by default and must resume within an user-generated event
    audio.resume();
@@ -23,7 +23,7 @@ function keyDown(e) {
    }
 }
 
-function keyUp(e) {
+export function keyUp(e) {
    const hardware_keys = pckey_to_hardware_keys_ITA(e.code, e.key, e);
    if(hardware_keys.length > 0) {
       hardware_keys.forEach((k) => keyRelease(k));
@@ -31,9 +31,5 @@ function keyUp(e) {
    }
 }
 
-// connect DOM events
-const element = document; 
-element.onkeydown = keyDown;
-element.onkeyup = keyUp;
 
 

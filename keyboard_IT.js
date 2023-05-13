@@ -1,4 +1,51 @@
-function pckey_to_hardware_keys_ITA(code, key, e) {
+import { KEY_RESET    } from "./keys.js";
+import { KEY_1        } from "./keys.js";
+import { KEY_2        } from "./keys.js";
+import { KEY_3        } from "./keys.js";
+import { KEY_4        } from "./keys.js";
+import { KEY_5        } from "./keys.js";
+import { KEY_6        } from "./keys.js";
+import { KEY_7        } from "./keys.js";
+import { KEY_8        } from "./keys.js";
+import { KEY_9        } from "./keys.js";
+import { KEY_0        } from "./keys.js";
+import { KEY_MINUS    } from "./keys.js";
+import { KEY_Q        } from "./keys.js";
+import { KEY_W        } from "./keys.js";
+import { KEY_E        } from "./keys.js";
+import { KEY_R        } from "./keys.js";
+import { KEY_T        } from "./keys.js";
+import { KEY_Y        } from "./keys.js";
+import { KEY_U        } from "./keys.js";
+import { KEY_I        } from "./keys.js";
+import { KEY_O        } from "./keys.js";
+import { KEY_P        } from "./keys.js";
+import { KEY_RETURN   } from "./keys.js";
+import { KEY_CTRL     } from "./keys.js";
+import { KEY_A        } from "./keys.js";
+import { KEY_S        } from "./keys.js";
+import { KEY_D        } from "./keys.js";
+import { KEY_F        } from "./keys.js";
+import { KEY_G        } from "./keys.js";
+import { KEY_H        } from "./keys.js";
+import { KEY_J        } from "./keys.js";
+import { KEY_K        } from "./keys.js";
+import { KEY_L        } from "./keys.js";
+import { KEY_SEMICOLON} from "./keys.js";
+import { KEY_COLON    } from "./keys.js";
+import { KEY_SHIFT    } from "./keys.js";
+import { KEY_Z        } from "./keys.js";
+import { KEY_X        } from "./keys.js";
+import { KEY_C        } from "./keys.js";
+import { KEY_V        } from "./keys.js";
+import { KEY_B        } from "./keys.js";
+import { KEY_N        } from "./keys.js";
+import { KEY_M        } from "./keys.js";
+import { KEY_COMMA    } from "./keys.js";
+import { KEY_DOT      } from "./keys.js";
+import { KEY_SPACE    } from "./keys.js";
+
+export function pckey_to_hardware_keys_ITA(code, key, e) {
 
    let hardware_keys = [];
 
@@ -123,17 +170,7 @@ function pckey_to_hardware_keys_ITA(code, key, e) {
    return hardware_keys;
 }
 
-function emulatekey(k1, k2) {
-   renderFrame();
-   keyPress(k1);
-   if(k2 !== undefined) keyPress(k2);
-   renderFrame();
-   if(k2 !== undefined) keyRelease(k2);
-   keyRelease(k1);
-   renderFrame();
-}
-
-function ascii_to_hardware_keys(ascii, ctrl, shift) {
+export function ascii_to_hardware_keys(ascii, ctrl, shift) {
 
    let hardware_keys = [];
    let key = ascii.toUpperCase();

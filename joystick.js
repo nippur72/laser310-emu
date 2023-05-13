@@ -27,6 +27,8 @@ const JOY_RIGHT =  8;
 const JOY_FIRE  = 16;
 const JOY_ARM   = 32;
 
+/*
+// not implemented: joystick emulation via keyboard TODO
 function handleJoyStick(key, press)
 {
    let joystick_key = true;
@@ -60,33 +62,37 @@ function handleJoyStick(key, press)
    }
    return joystick_key;
 }
+*/
 
-function updateGamePad() {
+export function updateGamePad() {
    let gamepads = navigator.getGamepads();
-   if(gamepads.length < 1) return;
+   if(gamepads.length >= 1) {
+      // joy 0
+      let g0 = gamepads[0];
+      if(g0)
+      {
+         if(g0.axes[0] < -0.5)                              joy0 = set(joy0, JOY_LEFT);   else joy0 = reset(joy0, JOY_LEFT);
+         if(g0.axes[0] >  0.5)                              joy0 = set(joy0, JOY_RIGHT);  else joy0 = reset(joy0, JOY_RIGHT);
+         if(g0.axes[1] < -0.5)                              joy0 = set(joy0, JOY_UP);     else joy0 = reset(joy0, JOY_UP);
+         if(g0.axes[1] >  0.5)                              joy0 = set(joy0, JOY_DOWN);   else joy0 = reset(joy0, JOY_DOWN);
+         if(g0.buttons[0].pressed || g0.buttons[3].pressed) joy0 = set(joy0, JOY_FIRE);   else joy0 = reset(joy0, JOY_FIRE);
+         if(g0.buttons[1].pressed || g0.buttons[2].pressed) joy0 = set(joy0, JOY_ARM);    else joy0 = reset(joy0, JOY_ARM);
+      }
 
-   // joy 0
-   let g0 = gamepads[0];
-   if(g0)
-   {
-      if(g0.axes[0] < -0.5)                              joy0 = set(joy0, JOY_LEFT);   else joy0 = reset(joy0, JOY_LEFT);
-      if(g0.axes[0] >  0.5)                              joy0 = set(joy0, JOY_RIGHT);  else joy0 = reset(joy0, JOY_RIGHT);
-      if(g0.axes[1] < -0.5)                              joy0 = set(joy0, JOY_UP);     else joy0 = reset(joy0, JOY_UP);
-      if(g0.axes[1] >  0.5)                              joy0 = set(joy0, JOY_DOWN);   else joy0 = reset(joy0, JOY_DOWN);
-      if(g0.buttons[0].pressed || g0.buttons[3].pressed) joy0 = set(joy0, JOY_FIRE);   else joy0 = reset(joy0, JOY_FIRE);
-      if(g0.buttons[1].pressed || g0.buttons[2].pressed) joy0 = set(joy0, JOY_ARM);    else joy0 = reset(joy0, JOY_ARM);
+      // second (optional) joystick
+      if(gamepads.length >= 2) {
+         let g1 = gamepads[1];
+         if(g1)
+         {
+            if(g1.axes[0] < -0.5)                              joy1 = set(joy1, JOY_LEFT);   else joy1 = reset(joy1, JOY_LEFT);
+            if(g1.axes[0] >  0.5)                              joy1 = set(joy1, JOY_RIGHT);  else joy1 = reset(joy1, JOY_RIGHT);
+            if(g1.axes[1] < -0.5)                              joy1 = set(joy1, JOY_UP);     else joy1 = reset(joy1, JOY_UP);
+            if(g1.axes[1] >  0.5)                              joy1 = set(joy1, JOY_DOWN);   else joy1 = reset(joy1, JOY_DOWN);
+            if(g1.buttons[0].pressed || g1.buttons[3].pressed) joy1 = set(joy1, JOY_FIRE);   else joy1 = reset(joy1, JOY_FIRE);
+            if(g1.buttons[1].pressed || g1.buttons[2].pressed) joy1 = set(joy1, JOY_ARM);    else joy1 = reset(joy1, JOY_ARM);
+         }
+      }
    }
 
-   // joy 1
-   if(gamepads.length < 2) return;
-   let g1 = gamepads[1];
-   if(g1)
-   {
-      if(g1.axes[0] < -0.5)                              joy1 = set(joy1, JOY_LEFT);   else joy1 = reset(joy1, JOY_LEFT);
-      if(g1.axes[0] >  0.5)                              joy1 = set(joy1, JOY_RIGHT);  else joy1 = reset(joy1, JOY_RIGHT);
-      if(g1.axes[1] < -0.5)                              joy1 = set(joy1, JOY_UP);     else joy1 = reset(joy1, JOY_UP);
-      if(g1.axes[1] >  0.5)                              joy1 = set(joy1, JOY_DOWN);   else joy1 = reset(joy1, JOY_DOWN);
-      if(g1.buttons[0].pressed || g1.buttons[3].pressed) joy1 = set(joy1, JOY_FIRE);   else joy1 = reset(joy1, JOY_FIRE);
-      if(g1.buttons[1].pressed || g1.buttons[2].pressed) joy1 = set(joy1, JOY_ARM);    else joy1 = reset(joy1, JOY_ARM);
-   }
+   return { joy0, joy1 };
 }

@@ -8,7 +8,7 @@ function makeFile(filename, buffer, varname) {
 
    let s = `// '${filename}' \r\n\r\n`;
 
-   s += `const ${varname} = new Uint8Array([\n   `;
+   s += `export const ${varname} = new Uint8Array([\n   `;
 
    for(let i=0; i<buffer.length; i++)
    {

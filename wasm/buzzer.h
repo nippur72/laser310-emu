@@ -1,5 +1,5 @@
 
-typedef void (*buzzer_audio_ready_cb)();
+typedef void (*buzzer_audio_ready_cb)(float buf[], int size);
 
 typedef struct {
    int cpu_clock;

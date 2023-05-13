@@ -9,10 +9,10 @@ typedef struct vzFile
 } VZFILE;
 */
 
-const VZ_BASIC   = 0xF0
-const VZ_BINARY  = 0xF1
+export const VZ_BASIC   = 0xF0
+export const VZ_BINARY  = 0xF1
 
-function packvz(filename, type, start, data) {
+export function packvz(filename, type, start, data) {
    console.assert(type == VZ_BASIC || type == VZ_BINARY, `unknown VZ data type ${hex(type)}`);
 
    const VZ = [];
@@ -37,7 +37,7 @@ function packvz(filename, type, start, data) {
    return new Uint8Array(VZ);
 }
 
-function unpackvz(vz) {
+export function unpackvz(vz) {
    // TODO check header
    const header = uint8ToString(vz.slice(0,4));
    const start  = vz[22]+vz[23]*256;

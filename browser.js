@@ -45,12 +45,12 @@ window.onbeforeunload = function(e) {
 window.addEventListener("visibilitychange", function() {
    if(document.visibilityState === "hidden")
    {
-      stopped = true;
+      emulator.stopped = true;
       audio.stop();
    }
    else if(document.visibilityState === "visible")
    {
-      stopped = false;
+      emulator.stopped = false;
       oneFrame();
       audio.start();
    }
@@ -77,7 +77,7 @@ dropZone.addEventListener('drop', e => {
    droppedFiles(files);
 });
 
-function droppedFiles(files) {
+export function droppedFiles(files) {
    for(let i=0, file; file=files[i]; i++) {
       const reader = new FileReader();
       reader.onload = e2 => droppedFile(file.name, new Uint8Array(e2.target.result));
@@ -132,7 +132,7 @@ function getQueryStringObject(options) {
    return o;
 }
 
-async function parseQueryStringCommands() {
+export async function parseQueryStringCommands() {
    options = getQueryStringObject(options);
 
    if(options.restore !== false) {

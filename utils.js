@@ -11,7 +11,7 @@ async function crun(filename) {
    paste("RUN\n");
 }
 
-function paste(text) {
+export function paste(text) {
    // regex that parses {ctrl} and {shift} codes
    let r = new RegExp(/{ctrl (?<ctrled>.)}|{shift (?<shifted>.)}|{(?<code>.*)}|(?<plain>(.|\r|\n))/g);
 
@@ -88,8 +88,8 @@ function pasteChar(c, ctrl, shift) {
    }
 }
 
-function resetROM(firmware) {
-   firmware.forEach((v,i)=>rom_load(i,v));
+export function resetROM(firmware) {
+   firmware.forEach((v,i)=>laser310.rom_load(i,v));
 }
 
 function zap() {
@@ -104,7 +104,7 @@ function power() {
    setTimeout(()=>cpu.reset(), 200);
 }
 
-function saveState() {
+export function saveState() {
    const saveObject = {
       ram: Array.from(ram),
       cpu: cpu.getState()  
@@ -113,7 +113,7 @@ function saveState() {
    window.localStorage.setItem(`laser310_emu_state`, JSON.stringify(saveObject));
 }
 
-function restoreState() {   
+export function restoreState() {   
    try
    {
       let s = window.localStorage.getItem(`laser310_emu_state`);
@@ -142,8 +142,6 @@ function topMem() {
    return mem_read_word(0x78b1);
 }
 
-let debugBefore = undefined;
-let debugAfter = undefined;
 
 function dumpStack() {
    const sp = cpu.getState().sp;

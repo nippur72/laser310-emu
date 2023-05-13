@@ -1,3 +1,6 @@
+// console commands disabled for now
+
+/*
 // console command
 async function run(filename) {
     if(!await storage.fileExists(filename)) {
@@ -33,16 +36,17 @@ async function bsave(filename, start, end) {
     if(ext == ".vz" ) await save_vz(filename, start, end);
     else console.log(`extension '${ext}' not supported`);
 }
+*/
 
 // =====================================================================================
 
 
-async function load_vz(filename, runAfterLoad) {
+export async function load_vz(filename, runAfterLoad) {
     const vz_bytes = await storage.readFile(filename);
     load_vz_bytes(vz_bytes, runAfterLoad);
 }
 
-function load_vz_bytes(vz_bytes, runAfterLoad) {
+export function load_vz_bytes(vz_bytes, runAfterLoad) {
     const VZ = unpackvz(vz_bytes);
 
     const isROM = VZ.start === 0 || VZ.start === 16384;
@@ -68,15 +72,7 @@ function load_vz_bytes(vz_bytes, runAfterLoad) {
             if(!isROM) {
                 // normal binary file
                 USR(VZ.start); // set USR(0) address;
-                emulatekey(KEY_X);
-                emulatekey(KEY_SHIFT, KEY_MINUS);
-                emulatekey(KEY_U);
-                emulatekey(KEY_S);
-                emulatekey(KEY_R);
-                emulatekey(KEY_SHIFT, KEY_8);
-                emulatekey(KEY_X);
-                emulatekey(KEY_SHIFT, KEY_9);
-                emulatekey(KEY_RETURN);
+                paste("X=USR(X)\n");
             }
             else {
                 // ROM or cartdrige
@@ -91,15 +87,12 @@ function load_vz_bytes(vz_bytes, runAfterLoad) {
         let end = VZ.start + VZ.data.length;
         if(VZ.start === mem_read_word(BASTXT)) mem_write_word(BASEND, end+1);
         if(runAfterLoad) {
-            emulatekey(KEY_R);
-            emulatekey(KEY_U);
-            emulatekey(KEY_N);
-            emulatekey(KEY_RETURN);
+            paste("RUN\n");
         }
     }
 }
 
-async function save_vz(filename, start, end) {
+export async function save_vz(filename, start, end) {
     let type = VZ_BINARY;
 
     if(start == undefined || end == undefined) {

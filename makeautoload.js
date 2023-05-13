@@ -8,14 +8,14 @@ function makeAutoLoad() {
 
    if(!fs.existsSync(fileName)) {
       console.log(`${fileName} not found, disabling autoload`);
-      s += "const autoload = undefined;\r\n";   
+      s += "export const autoload = undefined;\r\n";   
       fs.writeFileSync(outName,s);
       process.exit(-1);
    }
 
    const bytes = fs.readFileSync(fileName);   
    
-   s += "const autoload = new Uint8Array([\n   ";
+   s += "export const autoload = new Uint8Array([\n   ";
 
    bytes.forEach((value, i)=> {   
       const comma = (i != bytes.length-1) ? ',':'';

@@ -1,5 +1,7 @@
 "use strict";
 
+import { get_wasm_instance } from "./emscripten_wrapper.js";
+
 // TODO find a good palette
 // TODO load cart
 // TODO selectable PAL NTSC
@@ -39,32 +41,28 @@ let vdcSpeed = 3546900;               // same clock as CPU
 let frameRate = 50.1812;              // ~50 Hz, 50.1812 measured on my Laser 310
 let cyclesPerLine = 228;              // was: cpuSpeed / vdcSpeed * 320;
 
-let stopped = false; // allows to stop/resume the emulation
-
 let frames = 0;
 let averageFrameTime = 0;
 let averageLoad = 0;
 
 let cycle = 0;
 
-let options = {
+export let options = {
    load: undefined,
    restore: false
 };
 
-let audio = new Audio(4096);
+export const audio = new Audio(4096);
 
 let storage = new BrowserStorage("laser310");
 
-function renderFrame() {
-   sys_ticks(310 * cyclesPerLine);
+export function renderFrame() {
+   laser310.sys_ticks(310 * cyclesPerLine);
 }
-
-let end_of_frame_hook = undefined;
 
 let last_timestamp = 0;
 let frame_skips = 0;
-function oneFrame(timestamp) {
+export function oneFrame(timestamp) {
    const stamp = timestamp == undefined ? last_timestamp : timestamp;
    const msec = stamp - last_timestamp;
    let cycles = cpuSpeed * msec / 1000;
@@ -78,11 +76,11 @@ function oneFrame(timestamp) {
       frame_skips++;
    }
 
-   updateGamePad();
-   sys_joystick(joy0, joy1);
+   let { joy0, joy1 } = updateGamePad();
+   laser310.sys_joystick(joy0, joy1);
 
    let starttime = performance.now();
-   sys_ticks(cycles);
+   laser310.sys_ticks(cycles);
    let endtime = performance.now();
    let elapsed = endtime - starttime;
    let load = (elapsed / msec) * 100;
@@ -92,10 +90,10 @@ function oneFrame(timestamp) {
       averageLoad = averageLoad * 0.992 + load * 0.008;
    }
 
-   if(!stopped) requestAnimationFrame(oneFrame);
+   if(!emulator.stopped) requestAnimationFrame(oneFrame);
 }
 
-function main() {
+export function main() {
 
    parseQueryStringCommands();
 
@@ -110,7 +108,7 @@ function main() {
 
    cpu =
    {
-      reset: cpu_reset,
+      reset: laser310.cpu_reset,
       getState: ()=>{
          return {
             pc: get_z80_pc()
@@ -120,8 +118,8 @@ function main() {
 
    cpu.reset();
 
-   sys_init();
-   sys_reset();
+   laser310.sys_init();
+   laser310.sys_reset();
 
    audio.start();
 
@@ -136,13 +134,25 @@ function main() {
    oneFrame();
 }
 
+function __get_wasm_float32_array(ptr, size) {
+   let start = ptr / get_wasm_instance().HEAPF32.BYTES_PER_ELEMENT;
+   let buffer =  get_wasm_instance().HEAPF32.subarray(start,start+size);
+   return buffer;
+}
+
+function get_wasm_uint8_array(ptr, size) {
+   let start = ptr / get_wasm_instance().HEAPU8.BYTES_PER_ELEMENT;
+   let buffer = get_wasm_instance().HEAPU8.subarray(start,start+size);
+   return buffer;
+}
+
 // FORMULA: one buffer arrives every t cpu cycles
 // T = (3686400 / 2) / (48000 / BUFFER_SIZE)
 // in msec: t = BUFFER_SIZE / 48000 = 85.3
 
-function ay38910_audio_buf_ready(ptr, size) {
+export function ay38910_audio_buf_ready(ptr, size) {
    if(!audio.playing) return;
-   let buffer = get_wasm_float32_array(ptr, size);
+   let buffer = __get_wasm_float32_array(ptr, size);
    audio.playBuffer(buffer);
 }
 
@@ -164,17 +174,18 @@ function csave_cb(ptr, size, samplerate) {
 
 // cassette save
 function csave() {
-   sys_tape_record();
+   laser310.sys_tape_record();
 }
 
 // cassette stop
 function cstop() {
-   sys_tape_stop();
+   laser310.sys_tape_stop();
 }
 
 // emulator for the UI
 
-let emulator = {
+export const emulator = {
+   stopped: false,   
    reset: function() {
       cpu.reset();
    },
@@ -185,10 +196,10 @@ let emulator = {
 
    },
    connectJoystick(isChecked) {
-      sys_set_joystick_connected(isChecked);
+      laser310.sys_set_joystick_connected(isChecked);
    },
    getJoystickConnected() {
-      return sys_get_joystick_connected === undefined ? false : sys_get_joystick_connected();
+      return sys_get_joystick_connected === undefined ? false : laser310.sys_get_joystick_connected();
    }
 };
 

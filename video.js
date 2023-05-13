@@ -1,3 +1,5 @@
+import { get_wasm_instance } from "./emscripten_wrapper.js";
+
 let RENDER_MULTIPLIER = 2;
 
 function calculateGeometry_mc() {
@@ -51,10 +53,10 @@ let mc6847_imagedata_data = new Uint32Array(mc6847_imagedata_buffer);
 */
 
 // not interlaced
-function vdp_screen_update_mc(ptr) {
-   let start = ptr / wasm_instance.HEAPU32.BYTES_PER_ELEMENT;
+export function vdp_screen_update_mc(ptr) {
+   let start = ptr / get_wasm_instance().HEAPU32.BYTES_PER_ELEMENT;
    let size = MC_DOT_WIDTH*MC_DOT_HEIGHT;
-   let buffer = wasm_instance.HEAPU32.subarray(start,start+size);
+   let buffer = get_wasm_instance().HEAPU32.subarray(start,start+size);
 
    if(RENDER_MULTIPLIER === 2) {
       let ptr0 = 0;
@@ -95,7 +97,7 @@ function vdp_screen_update_mc(ptr) {
    mc6847_context.putImageData(mc6847_imagedata, MC_OFFSET_X, MC_OFFSET_Y);
 
    frames++;
-   if(end_of_frame_hook !== undefined) end_of_frame_hook();
+   if(window.end_of_frame_hook !== undefined) window.end_of_frame_hook();
 
    if(frames % 60 == 0) {
       // update LED
