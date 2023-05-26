@@ -26,12 +26,12 @@ void screen_update(uint32_t *buffer) {
 
 void printer_write(byte port, byte data) {
    if(port == 0x0d) {
-      byte unused = (byte) EM_ASM_INT({ printerWrite($0); }, data );
+      byte unused = (byte) EM_ASM_INT({ laser310.printer.print($0); }, data );
    }
 }
 
 byte printer_readst(byte port) {
-   return (byte) EM_ASM_INT({ return printerReady; });
+   return (byte) EM_ASM_INT({ return laser310.printer.ready; });
 }
 
 KEEP

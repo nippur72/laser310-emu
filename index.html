@@ -5,55 +5,13 @@
    </head>
 
 <body style="padding:0; margin:0; background: black; color: green;">
-
    <div style="margin: auto" id="screen">
-      <div id="LED" style="position: absolute; background-color: orange; visibility: hidden;">&nbsp;&nbsp;&nbsp;&nbsp;</div>
-      <div id="framerate" style="position: absolute; padding: 5px; visibility: hidden; color:aqua; font-family: 'Courier New', Courier, monospace;"></div>
       <canvas id="canvas" style="display: block; border:black 0px solid; padding: 0px; margin:auto;"></canvas>
    </div>
-
-   <!-- core emulator files -->
-
-   <script type="text/javascript" src="node_modules/@nippur72/libemu/wav-decoder.js"></script>
-   <script type="text/javascript" src="node_modules/@nippur72/libemu/wav-encoder.js"></script>
-   <script type="text/javascript" src="node_modules/@nippur72/libemu/bytes.js"></script>
-   <script type="text/javascript" src="node_modules/@nippur72/libemu/FileSaver.js"></script>               <!-- allows to "Save As..." programs from the emulator -->
-   <script type="text/javascript" src="node_modules/@nippur72/libemu/idb-keyval-iife.min.js"></script>     <!-- allows to used a keyval store with IndexedDB -->
-   <script type="text/javascript" src="node_modules/@nippur72/libemu/audio.js"></script>
-   <script type="text/javascript" src="node_modules/@nippur72/libemu/filesystem.js"></script>
-   <script type="text/javascript" src="node_modules/@nippur72/libemu/mdawson.js"></script>
-   <script type="text/javascript" src="node_modules/@nippur72/libemu/printer.js"></script>
-         
-   <script type="module" src="emulator.js"></script>
-   <script type="module" src="utils.js"></script>
-   <script type="module" src="browser.js"></script>
-   <script type="module" src="files.js"></script>   
-   <script type="module" src="video.js"></script>
-   <script type="module" src="autoload.js"></script>
-   <script type="module" src="roms/vzrom20.js"></script>
-   <script type="module" src="roms/vzrom21.js"></script>
-   <script type="module" src="roms/vzdos.js"></script>
-   <script type="module" src="joystick.js"></script>
-   <script type="module" src="keyboard_IT.js"></script>
-   <script type="module" src="keys.js"></script>
-   <script type="module" src="keyboard.js"></script>
-   <script type="module" src="vz.js"></script>
-
 </body>
 </html>
 
-<script type="module" src="emscripten_module.js"></script>
-<script type="module" src="emscripten_wrapper.js"></script>
-
-<script type="module" src="main.js"></script>
-
-<!-- experimental ui -->
-
-<script>
-   let process = { env: { NODE_ENV: "debug" }};
-</script>
-
 <div id="mountnode"></div>
 
-<script src="./ui/dist/bundle.js"></script>
+<script src="./dist/bundle.js"></script>
 
