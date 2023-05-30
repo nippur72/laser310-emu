@@ -1,12 +1,21 @@
 import { Laser310 } from "./emscripten_wrapper";
 import { ascii_to_hardware_keys } from "./keyboard_IT";
 
-export function paste(laser310: Laser310, text: string) {
-   // regex that parses {ctrl} and {shift} codes
-   let r = new RegExp(/{ctrl (?<ctrled>.)}|{shift (?<shifted>.)}|{(?<code>.*)}|(?<plain>(.|\r|\n))/g);
+interface PasteItem {
+   ascii: string;
+   ctrl: boolean;
+   shift: boolean;
+}
+
+// parse a string of text where special characters are enclosed in {}
+// e.g. {CTRL}, {SHIFT}, {INSERT}, {RUBOUT}, {BREAK}, {UP}, {DOWN}, {LEFT}, {RIGHT}
+
+function parseText(text: string): PasteItem[] {
+
+   const r = new RegExp(/{ctrl (?<ctrled>.)}|{shift (?<shifted>.)}|{(?<code>.*)}|(?<plain>(.|\r|\n))/g);
 
    // array containing the decoded text to be pasted
-   let pasteBuffer: any[] = [];
+   const pasteBuffer: PasteItem[] = [];
 
    let match;
    while (match = r.exec(text)) {
@@ -16,6 +25,11 @@ export function paste(laser310: Laser310, text: string) {
       else if(code)    pasteBuffer.push({ascii: `{${code}}`, ctrl: false, shift: false });
       else if(plain)   pasteBuffer.push({ascii: plain,       ctrl: false, shift: false });
    }
+
+   return pasteBuffer;
+}
+
+export function paste(laser310: Laser310, text: string) {
 
    function do_async_paste() {
       if(pasteBuffer.length == 0) return;
@@ -31,48 +45,49 @@ export function paste(laser310: Laser310, text: string) {
       else do_async_paste();
    }
 
-   // start pasting in async fashion to allow screen refreshes
-   do_async_paste();
+   const pasteBuffer = parseText(text);
+
+   do_async_paste();  // start pasting in async fashion to allow screen refreshes
 }
 
 function pasteChar(laser310: Laser310, c: string, ctrl: boolean, shift: boolean) {
-   let KEYBUF = 0x7836;
+
    let hk = ascii_to_hardware_keys(c, ctrl, shift);
 
    if(hk.length == 0) return;
 
    // wait until laser detects no key pressed
    let i=0;
-   while(laser310.mem_read(KEYBUF)!=0) {
+   while(laser310.mem_read(laser310.KEYBUF)!=0) {
       laser310.renderFrame();
       if(i++ == 10) {
-         console.log("failed 1");
+         console.log("paste failed: keyboard buffer never gets empty");
          return;
       }
    }
 
    // do key press
-   hk.forEach((k:any)=>laser310.keyPress(k));
+   hk.forEach(k=>laser310.keyPress(k));
 
    // wait until laser detects key press
    i=0;
-   while(laser310.mem_read(KEYBUF)==0) {
+   while(laser310.mem_read(laser310.KEYBUF)==0) {
       laser310.renderFrame();
       if(i++ == 10) {
-         console.log("failed 2");
+         console.log("paste failed: keyboard buffer always empty");
          return;
       }
    }
 
    // release key
-   hk.forEach((k:any)=>laser310.keyRelease(k));
+   hk.forEach(k=>laser310.keyRelease(k));
 
    // wait until laser detects no key pressed
    i=0;
-   while(laser310.mem_read(KEYBUF)!=0) {
+   while(laser310.mem_read(laser310.KEYBUF)!=0) {
       laser310.renderFrame();
       if(i++ == 10) {
-         console.log("failed 3");
+         console.log("paste failed: keyboard buffer never gets empty after key release");
          return;
       }
    }

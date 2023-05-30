@@ -41,7 +41,6 @@ export function ay38910_audio_buf_ready(ptr: number, size:number) {
 import { encode } from "wav-encoder";
 
 import { downloadBytes } from "./download";
-import { Laser310 } from "./emscripten_wrapper";
 import { get_wasm_float32_array } from "./wasm_utils";
 
 // called from WASM after tape has finished recording

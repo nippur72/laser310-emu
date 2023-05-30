@@ -126,6 +126,7 @@ export class Laser310 {
    BASTXT: number = 0;       // points to basic free area (start of program)
    BASEND: number = 0;       // points to end of the basic program
    CRSR_STATE: number = 0;   // cursor visibility state (for injecting keys)
+   KEYBUF: number = 0x7836;  // keyboard buffer (0=empty buffer)
 
    wasm_instance: any;
 
