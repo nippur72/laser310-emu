@@ -1,4 +1,5 @@
 import emscripten_module from "../emscripten_module";
+
 import { paste } from "./paste";
 import { lo, hi, hex } from "./bytes";
 import { init_keyboard } from "./keys";
@@ -8,6 +9,10 @@ import { droppedFiles } from "./browser";
 import { Printer } from "./printer";
 
 import { packvz, unpackvz, VZ_BASIC, VZ_BINARY } from "./vz";
+
+import { updateGamePad } from "./joystick";
+import { vzrom20 } from "./roms/vzrom20";
+import { vzrom21 } from "./roms/vzrom21";
 
 const cyclesPerLine = 228;              // was: cpuSpeed / vdcSpeed * 320;
 
@@ -403,5 +408,46 @@ export class Laser310 {
 
    renderFrame() {
       this.sys_ticks(310 * cyclesPerLine);
+   }
+
+   go() {
+      this.audio.start();
+      this.stopped = false;
+      this.oneFrame(undefined);
+   }
+
+   stop() {
+      this.stopped = true;
+      this.audio.stop();
+   }
+
+   cpuSpeed = 3546900;               // VZEM: 3546900 VZ300, 3579500 VZ200
+   frameRate = 50.1812;              // ~50 Hz, 50.1812 measured on my Laser 310
+   last_timestamp = 0;
+
+   oneFrame = (timestamp: number|undefined) => {
+      const stamp = timestamp == undefined ? this.last_timestamp : timestamp;
+      const msec = stamp - this.last_timestamp;
+      let cycles = this.cpuSpeed * msec / 1000;
+      this.last_timestamp = stamp;
+
+      // put a limit on the maximum frame time
+      if(msec > this.frameRate*2) {
+         cycles = this.cpuSpeed * (this.frameRate*2 / 1000);
+      }
+
+      let { joy0, joy1 } = updateGamePad();
+      this.sys_joystick(joy0, joy1);
+      this.sys_ticks(cycles);
+
+      if(!this.stopped) requestAnimationFrame(this.oneFrame);
+   }
+
+   setFirmwareROM(rom: string|undefined) {
+      let firmware: Uint8Array;
+      if(rom == undefined) rom = "v21";
+      if(rom == "v20") { firmware = vzrom20; this.BASTXT=0x78A4; this.BASEND=0x78F9; this.CRSR_STATE=0x52C7; }
+      if(rom == "v21") { firmware = vzrom21; this.BASTXT=0x78A4; this.BASEND=0x78F9; this.CRSR_STATE=0x52F7; }
+      this.resetROM(firmware!);
    }
 }

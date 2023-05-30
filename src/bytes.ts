@@ -177,18 +177,6 @@ function not_bit(b,n) {
    return (b & (1<<n))>0 ? 0 : 1;
 }
 
-function stop() {
-   audio.stop();
-   stopped = true;
-   console.log("emulation stopped");
-}
-
-function go() {
-   stopped = false;
-   oneFrame();
-   console.log("emulation resumed");
-}
-
 let show_info = false;
 function info() {
    show_info = true;

@@ -1,9 +1,7 @@
 // handles interaction between browser and emulation
 
-import { oneFrame } from "./emulator";
 import { getLaser310 } from "./index";
 import { getFileExtension } from "./bytes";
-import { QueryStringOptions } from "./emulator";
 import { externalLoad } from "./mdawson";
 
 let aspect = 1.25;
@@ -51,14 +49,11 @@ window.onbeforeunload = function(e) {
 window.addEventListener("visibilitychange", function() {
    if(document.visibilityState === "hidden")
    {
-      getLaser310().stopped = true;
-      getLaser310().audio.stop();
+      getLaser310().stop();
    }
    else if(document.visibilityState === "visible")
    {
-      getLaser310().stopped = false;
-      oneFrame(undefined);
-      getLaser310().audio.start();
+      getLaser310().go();
    }
 });
 
@@ -154,49 +149,7 @@ async function droppedFile(outName: string, bytes: Uint8Array) {
    }
 }
 
-function getQueryStringObject(options: QueryStringOptions) {
-   let a = window.location.search.split("&");
-   let o = a.reduce((o: any, v) =>{
-      var kv = v.split("=");
-      const key = kv[0].replace("?", "");
-      let value: string|boolean = kv[1];
-           if(value === "true") value = true;
-      else if(value === "false") value = false;
-      o[key] = value;
-      return o;
-   }, options);
-   return o;
-}
-
-import { options as defaultOptions } from "./emulator";
-
-export async function parseQueryStringCommands() {
-   let options = getQueryStringObject(defaultOptions) as QueryStringOptions;
-
-   /*
-   if(options.restore !== false) {
-      // try to restore previous state, if any
-      restoreState();
-   }
-   */
-
-   if(options.load !== undefined) {
-      const name = options.load;
-      setTimeout(async ()=>{
-         if(name.startsWith("http")) {
-            // external load
-            let vz = await externalLoad(name);
-            getLaser310().load_vz_bytes(vz, true);
-         }
-         else {
-            // internal load
-            await fetchProgram(name);
-         }
-      }, 4000);
-   }
-}
-
-async function fetchProgram(name: string)
+export async function fetchProgram(name: string)
 {
    //console.log(`wanting to load ${name}`);
    try
