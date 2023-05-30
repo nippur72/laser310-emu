@@ -1,7 +1,6 @@
 import { Laser310 } from "./emscripten_wrapper";
 
 declare var laser310: Laser310;
-declare function renderFrame():void;
 
 // console commands disabled for now
 

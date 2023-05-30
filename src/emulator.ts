@@ -37,7 +37,6 @@ import { vzrom21 } from "./roms/vzrom21";
 let cpuSpeed = 3546900;               // VZEM: 3546900 VZ300, 3579500 VZ200
 let vdcSpeed = 3546900;               // same clock as CPU
 let frameRate = 50.1812;              // ~50 Hz, 50.1812 measured on my Laser 310
-let cyclesPerLine = 228;              // was: cpuSpeed / vdcSpeed * 320;
 
 let frames = 0;
 let averageFrameTime = 0;
@@ -58,12 +57,6 @@ export let options: QueryStringOptions = {
    rom: undefined,
    load: undefined
 };
-
-//let storage = new BrowserStorage("laser310");
-
-export function renderFrame() {
-   getLaser310().sys_ticks(310 * cyclesPerLine);
-}
 
 let last_timestamp = 0;
 let frame_skips = 0;

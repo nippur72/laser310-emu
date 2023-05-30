@@ -9,6 +9,8 @@ import { Printer } from "./printer";
 
 import { packvz, unpackvz, VZ_BASIC, VZ_BINARY } from "./vz";
 
+const cyclesPerLine = 228;              // was: cpuSpeed / vdcSpeed * 320;
+
 let wasm_instance: any;
 
 export async function load_wasm() {
@@ -397,5 +399,9 @@ export class Laser310 {
             this.paste("RUN\n");
          }
       }
+   }
+
+   renderFrame() {
+      this.sys_ticks(310 * cyclesPerLine);
    }
 }

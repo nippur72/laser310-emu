@@ -1,5 +1,4 @@
 import { Laser310 } from "./emscripten_wrapper";
-import { renderFrame } from "./emulator";
 import { ascii_to_hardware_keys } from "./keyboard_IT";
 
 export function paste(laser310: Laser310, text: string) {
@@ -45,7 +44,7 @@ function pasteChar(laser310: Laser310, c: string, ctrl: boolean, shift: boolean)
    // wait until laser detects no key pressed
    let i=0;
    while(laser310.mem_read(KEYBUF)!=0) {
-      renderFrame();
+      laser310.renderFrame();
       if(i++ == 10) {
          console.log("failed 1");
          return;
@@ -58,7 +57,7 @@ function pasteChar(laser310: Laser310, c: string, ctrl: boolean, shift: boolean)
    // wait until laser detects key press
    i=0;
    while(laser310.mem_read(KEYBUF)==0) {
-      renderFrame();
+      laser310.renderFrame();
       if(i++ == 10) {
          console.log("failed 2");
          return;
@@ -71,7 +70,7 @@ function pasteChar(laser310: Laser310, c: string, ctrl: boolean, shift: boolean)
    // wait until laser detects no key pressed
    i=0;
    while(laser310.mem_read(KEYBUF)!=0) {
-      renderFrame();
+      laser310.renderFrame();
       if(i++ == 10) {
          console.log("failed 3");
          return;
