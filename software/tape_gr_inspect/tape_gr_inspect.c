@@ -53,12 +53,6 @@ word read_some_bits() FASTNAKED {
    __endasm;
 }
 
-void draw_horizontal_bar(byte x, byte y, byte color)
-{
-   vz_line(  0,y,  x,y,color);
-   vz_line(x+1,y,127,y,0);
-}
-
 byte bars[256];
 
 void main() {
