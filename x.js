@@ -337,3 +337,71 @@ paste(`
 RUN
 `)
 */
+
+// debug turbo tape bits
+(function() {
+   let acc = new Uint8Array(255).fill(0);
+   let acc0 = new Uint8Array(255).fill(0);
+
+   let time_acc = 0;
+
+   let tail = false;
+   let bit_n = 0;
+
+   const label_set_threshold = 0x97d2;
+   const label_loop_file = 0x97a5;
+   const label_autorun = 0x9773;
+
+   debugBefore = function() {
+      
+      let pc = laser310.get_z80_pc();
+
+      if(pc == label_loop_file && !tail) {
+         tail = true;
+         console.log("start of body");
+      }
+
+      if(tail && pc === label_set_threshold) {      
+         let a = laser310.get_z80_a();
+         time_acc++;
+         if(bit_n == 0) acc0[a]++;
+         else acc[a]++; 
+         console.log(`${hex(pc,4)}: A=${a} ${time_acc} ${bit_n}`);  
+         bit_n = (bit_n + 1) % 8;
+      }
+
+      if(tail && pc === label_autorun) {         
+         pacc();
+         pacc8();         
+      }
+   }
+   debugAfter = ()=>{};
+   laser310.sys_set_debug(1);
+   function average_peak(acc,start,end) {
+      let sum = 0;
+      let vals = 0;
+      for(let t=start;t<=end;t++) {
+         sum += acc[t]*t;
+         vals += acc[t];         
+      }
+      let average = sum / vals;
+      console.log(`average: ${average} (${start}-${end})`);
+   }
+
+   function stat(acc, msg) {
+      console.log(msg);
+      let min_index = acc.findIndex(e=>e!=0);
+      let max_index = acc.findLastIndex(e=>e!=0);
+      let middle = Math.round((max_index + min_index) / 2);
+      for(let i=min_index;i<=max_index;i++) console.log(`${i}: ${acc[i]}`);
+      average_peak(acc, min_index, middle);
+      average_peak(acc, middle, max_index);
+
+   }
+   function pacc() {
+      stat(acc, "bit 1-7");
+   }   
+   function pacc8() {
+      stat(acc0, "bit 0");
+   }
+})();
