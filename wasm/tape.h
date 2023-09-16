@@ -110,7 +110,7 @@ void tape_load_tick(tape_t *tape, int ticks) {
       }
 
       load->tick_counter += ticks;
-      if(load->tick_counter > load->cycles_per_sample) {
+      if(load->tick_counter >= load->cycles_per_sample) {
          load->tick_counter -= load->cycles_per_sample;
          load->sample = load->buffer[load->ptr];
          load->ptr++;
@@ -123,7 +123,7 @@ void tape_load_tick(tape_t *tape, int ticks) {
       if(save->ptr < save->size) {
          // save tape into buffer
          save->tick_counter += ticks;
-         if(save->tick_counter > save->cycles_per_sample) {
+         if(save->tick_counter >= save->cycles_per_sample) {
             save->tick_counter -= save->cycles_per_sample;
             save->buffer[save->ptr] = save->sample;
             save->ptr++;
