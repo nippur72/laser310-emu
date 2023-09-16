@@ -44,7 +44,7 @@ import { downloadBytes } from "./download";
 import { get_wasm_float32_array } from "./wasm_utils";
 
 // called from WASM after tape has finished recording
-function csave_cb(ptr: number, size: number, samplerate: number) {
+export function csave_cb(ptr: number, size: number, samplerate: number) {
 
    let audio = get_wasm_float32_array(getLaser310().wasm_instance, ptr, size);
    const length = Math.round(audio.length / samplerate);

@@ -4,12 +4,16 @@
 // ************************** publish globals
 
 // emulator
-import { ay38910_audio_buf_ready } from "./emulator";
+import { ay38910_audio_buf_ready, csave_cb } from "./emulator";
 (window as any).ay38910_audio_buf_ready = ay38910_audio_buf_ready;
+(window as any).csave_cb = csave_cb;
 
 import { load_wasm, get_wasm_instance, Laser310 } from "./emscripten_wrapper";
 
 import "./video";
+
+import { hex } from "./bytes";
+(window as any).hex = hex;
 
 let laser310: Laser310;
 
