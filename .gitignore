@@ -1,5 +1,4 @@
 node_modules/*
-dist/*
 !node_modules/@nippur72
 ui/node_modules/*
 software/test_snow/*.cas
