@@ -53,6 +53,7 @@ export async function load_vz(filename: string, runAfterLoad: boolean) {
 
 import { packvz, unpackvz, VZ_BASIC, VZ_BINARY } from "./vz";
 import { hex } from "./bytes";
+import { downloadBytes } from "./download";
 
 /*
 export function load_vz_bytes(vz_bytes: Uint8Array, runAfterLoad: boolean) {
@@ -125,10 +126,7 @@ export async function save_vz(filename: string, start_address: number, end_addre
     // make name uppercase and remove extension
     let vzname = filename.toUpperCase().replace(".VZ","");
 
-    let VZ = packvz(vzname, type, start, new Uint8Array(data));
-
-    // await storage.writeFile(filename, VZ);
-    throw "not implemented";
+    let VZ = packvz(vzname, type, start, new Uint8Array(data));    
 
     if(type == VZ_BASIC) {
         console.log(`saved "${filename}" as BASIC program of ${data.length} bytes from ${hex(start,4)}h to ${hex(end,4)}h`);
@@ -136,5 +134,7 @@ export async function save_vz(filename: string, start_address: number, end_addre
     else if(type == VZ_BINARY) {
         console.log(`saved "${filename}" as binary data of ${data.length} bytes from ${hex(start,4)}h to ${hex(end,4)}h`);
     }
+
+    downloadBytes(filename, VZ);
 }
 

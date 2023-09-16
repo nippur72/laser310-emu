@@ -98,6 +98,10 @@ export class EmulatorGUI extends Component<State> {
       }            
    }
 
+   async saveVZBasicProgram() {
+      await getLaser310().save_vz_bytes("PROGRAM.VZ");
+   }
+
    handleUploadText(files: FileList) {
       getLaser310().droppedFiles(files);
       this.close();
@@ -134,7 +138,7 @@ export class EmulatorGUI extends Component<State> {
                   <Label>Programs</Label>
                   <Stack horizontal horizontalAlign="start" tokens={numericalSpacingStackTokens}>
                      <Uploader value="Load VZ file" onUpload={(e)=>this.uploadVZFile(e)} accept=".vz" />
-                     {/*<DefaultButton onClick={()=>{}} disabled={true}>Save VZ</DefaultButton>*/}
+                     <DefaultButton onClick={()=>this.saveVZBasicProgram()}>Save Basic program</DefaultButton>
                   </Stack>
                   {/*
                   <DefaultButton onClick={()=>{}} disabled={true}>Download BINARY memory area</DefaultButton>

@@ -13,6 +13,7 @@ import { packvz, unpackvz, VZ_BASIC, VZ_BINARY } from "./vz";
 import { updateGamePad } from "./joystick";
 import { vzrom20 } from "./roms/vzrom20";
 import { vzrom21 } from "./roms/vzrom21";
+import { downloadBytes } from "./download";
 
 const cyclesPerLine = 228;              // was: cpuSpeed / vdcSpeed * 320;
 
@@ -407,6 +408,41 @@ export class Laser310 {
       }
    }
 
+   async save_vz_bytes(filename: string, start_address?: number, end_address?: number) {
+      let type = VZ_BINARY;
+  
+      let start: number, end: number;
+  
+      if(start_address == undefined || end_address == undefined) {
+          start = this.mem_read_word(this.BASTXT);
+          end = this.mem_read_word(this.BASEND)-1;
+          type = VZ_BASIC;
+      }
+      else {
+          start = start_address;
+          end = end_address;
+      }
+  
+      let data = [];
+      for(let i=0,t=start; t<=end; i++,t++) {
+          data.push(this.mem_read(t));
+      }
+  
+      // make name uppercase and remove extension
+      let vzname = filename.toUpperCase().replace(".VZ","");
+  
+      let VZ = packvz(vzname, type, start, new Uint8Array(data));    
+  
+      if(type == VZ_BASIC) {
+          console.log(`saved "${filename}" as BASIC program of ${data.length} bytes from ${hex(start,4)}h to ${hex(end,4)}h`);
+      }
+      else if(type == VZ_BINARY) {
+          console.log(`saved "${filename}" as binary data of ${data.length} bytes from ${hex(start,4)}h to ${hex(end,4)}h`);
+      }
+  
+      downloadBytes(filename, VZ);
+   }
+  
    renderFrame() {
       this.sys_ticks(310 * cyclesPerLine);
    }

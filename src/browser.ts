@@ -118,9 +118,7 @@ async function droppedFile(outName: string, bytes: Uint8Array) {
    const ext = getFileExtension(outName);
 
    if(ext == ".vz") {
-      throw "not implemented";
-      //await storage.writeFile(outName, bytes);
-      //await run(outName);
+      getLaser310().load_vz_bytes(bytes, true);      
    }
    else if(ext == ".wav") {
       console.log("WAV file dropped");
