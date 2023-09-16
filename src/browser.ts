@@ -127,6 +127,10 @@ async function droppedFile(outName: string, bytes: Uint8Array) {
       const { sampleRate, channelData } = decode.sync(bytes.buffer);
       let samples = channelData[0];
 
+      // this fixes the polarity inversion that occurs on the tape port
+      // for frequencies above 2000 Hz 
+      let sample = fix_cassette_port(samples, sampleRate);
+
       // allocates the playback buffer on the WASM side
       getLaser310().sys_tape_init_load(samples.length, sampleRate);
       samples.forEach((e:number,i:number) => getLaser310().sys_tape_load_data(i,e));
@@ -184,5 +188,6 @@ export async function download(fileName: string) {
 
 // keyboard.js
 import { keyDown, keyUp } from "./keyboard";
+import { fix_cassette_port } from "./tape";
 document.onkeydown = keyDown;
 document.onkeyup = keyUp;
