@@ -459,7 +459,7 @@ export class Laser310 {
    }
 
    cpuSpeed = 3546900;               // VZEM: 3546900 VZ300, 3579500 VZ200
-   frameRate = 50.1812;              // ~50 Hz, 50.1812 measured on my Laser 310
+   frameRate = 50.1812;              // ~50 Hz, 50.1812 measured on my Laser 310 (3546900/310/228)
    last_timestamp = 0;
 
    oneFrame = (timestamp: number|undefined) => {
