@@ -4,7 +4,7 @@ import { getLaser310 } from "./index";
 import { getFileExtension } from "./bytes";
 import { externalLoad } from "./mdawson";
 
-let aspect = 1.4;
+let aspect = 1.3;
 
 function onResize() {
    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
