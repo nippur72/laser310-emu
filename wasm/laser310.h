@@ -417,24 +417,58 @@ void laser310_init(laser310_t *sys, laser310_desc_t *desc) {
 
    sys->user_data = desc->user_data;
 
-   float sat = 0.9;        // 1.0 normal saturation
+   float sat = 1.0;        // 1.0 normal saturation
    float contrast = 1.0;   // 1.0 normal contrast
    float lum = 1.0;        // 1.0 normal luminosity  
 
    // MAME palette, slightly modified
-   sys->palette[ 0] = applySaturation(0x30, 0xd2, 0x00, sat, contrast, lum);  /* GREEN */
-   sys->palette[ 1] = applySaturation(0xc1, 0xe5, 0x00, sat, contrast, lum);  /* YELLOW */
-   sys->palette[ 2] = applySaturation(0x4c, 0x3a, 0xb4, sat, contrast, lum);  /* BLUE */
-   sys->palette[ 3] = applySaturation(0x9a, 0x32, 0x36, sat, contrast, lum);  /* RED */
-   sys->palette[ 4] = applySaturation(0xbf, 0xc8, 0xad, sat, contrast, lum);  /* BUFF */
-   sys->palette[ 5] = applySaturation(0x41, 0xaf, 0x71, sat, contrast, lum);  /* CYAN */
-   sys->palette[ 6] = applySaturation(0xc8, 0x4e, 0xf0, sat, contrast, lum);  /* MAGENTA */
-   sys->palette[ 7] = applySaturation(0xd4, 0x7f, 0x00, sat, contrast, lum);  /* ORANGE */
-   sys->palette[ 8] = applySaturation(  17,   17,   17, sat, contrast, lum);  /* BLACK */
-   sys->palette[ 9] = applySaturation(0x30, 0xd2, 0x00, sat, contrast, lum);  /* ALPHANUMERIC BRIGHT GREEN */
-   sys->palette[10] = applySaturation(0x00,   46, 0x00, sat, contrast, lum);  /* ALPHANUMERIC DARK GREEN */
-   sys->palette[11] = applySaturation(0xff, 0xb7, 0x00, sat, contrast, lum);  /* ALPHANUMERIC BRIGHT ORANGE */
-   sys->palette[12] = applySaturation(0x6b, 0x27, 0x00, sat, contrast, lum);  /* ALPHANUMERIC DARK ORANGE */
+   
+   /*
+   sys->palette[ 0] = applySaturation(0x30, 0xd2, 0x00, sat, contrast, lum);  // GREEN
+   sys->palette[ 1] = applySaturation(0xc1, 0xe5, 0x00, sat, contrast, lum);  // YELLOW
+   sys->palette[ 2] = applySaturation(0x4c, 0x3a, 0xb4, sat, contrast, lum);  // BLUE
+   sys->palette[ 3] = applySaturation(0x9a, 0x32, 0x36, sat, contrast, lum);  // RED
+   sys->palette[ 4] = applySaturation(0xbf, 0xc8, 0xad, sat, contrast, lum);  // BUFF
+   sys->palette[ 5] = applySaturation(0x41, 0xaf, 0x71, sat, contrast, lum);  // CYAN
+   sys->palette[ 6] = applySaturation(0xc8, 0x4e, 0xf0, sat, contrast, lum);  // MAGENTA
+   sys->palette[ 7] = applySaturation(0xd4, 0x7f, 0x00, sat, contrast, lum);  // ORANGE
+   sys->palette[ 8] = applySaturation(  17,   17,   17, sat, contrast, lum);  // BLACK
+   sys->palette[ 9] = applySaturation(0x30, 0xd2, 0x00, sat, contrast, lum);  // ALPHANUMERIC BRIGHT GREEN
+   sys->palette[10] = applySaturation(0x00,   46, 0x00, sat, contrast, lum);  // ALPHANUMERIC DARK GREEN
+   sys->palette[11] = applySaturation(0xff, 0xb7, 0x00, sat, contrast, lum);  // ALPHANUMERIC BRIGHT ORANGE
+   sys->palette[12] = applySaturation(0x6b, 0x27, 0x00, sat, contrast, lum);  // ALPHANUMERIC DARK ORANGE
+   */
+
+   /*
+   // https://forums.bannister.org/ubbthreads.php?ubb=showflat&Number=64986&page=1
+   sys->palette[ 0] = applySaturation(0x07, 0xff, 0x00, sat, contrast, lum);  // GREEN
+   sys->palette[ 1] = applySaturation(0xff, 0xff, 0x00, sat, contrast, lum);  // YELLOW
+   sys->palette[ 2] = applySaturation(0x3b, 0x08, 0xff, sat, contrast, lum);  // BLUE
+   sys->palette[ 3] = applySaturation(0xcc, 0x00, 0x3b, sat, contrast, lum);  // RED
+   sys->palette[ 4] = applySaturation(0xff, 0xff, 0xff, sat, contrast, lum);  // BUFF
+   sys->palette[ 5] = applySaturation(0x07, 0xe3, 0x99, sat, contrast, lum);  // CYAN
+   sys->palette[ 6] = applySaturation(0xff, 0x1c, 0xff, sat, contrast, lum);  // MAGENTA
+   sys->palette[ 7] = applySaturation(0xff, 0x81, 0x00, sat, contrast, lum);  // ORANGE
+   sys->palette[ 8] = applySaturation(  17,   17,   17, sat, contrast, lum);  // BLACK ***
+   sys->palette[ 9] = applySaturation(0x07, 0xff, 0x00, sat, contrast, lum);  // ALPHANUMERIC BRIGHT GREEN
+   sys->palette[10] = applySaturation(0x00, 0x7c, 0x00, sat, contrast, lum);  // ALPHANUMERIC DARK GREEN
+   sys->palette[11] = applySaturation(0xff, 0x81, 0x00, sat, contrast, lum);  // ALPHANUMERIC BRIGHT ORANGE
+   sys->palette[12] = applySaturation(0x91, 0x00, 0x00, sat, contrast, lum);  // ALPHANUMERIC DARK ORANGE
+   */
+
+   sys->palette[ 0] = applySaturation(0x30, 0xd2, 0x00, sat, contrast, lum);  // GREEN
+   sys->palette[ 1] = applySaturation(0xf5, 0xf5, 0x80, sat, contrast, lum);  // YELLOW
+   sys->palette[ 2] = applySaturation(0x4c, 0x3a, 0xb4, sat, contrast, lum);  // BLUE
+   sys->palette[ 3] = applySaturation(0x9a, 0x32, 0x36, sat, contrast, lum);  // RED
+   sys->palette[ 4] = applySaturation(0xd8, 0xd8, 0xd8, sat, contrast, lum);  // BUFF
+   sys->palette[ 5] = applySaturation(0x41, 0xaf, 0x71, sat, contrast, lum);  // CYAN
+   sys->palette[ 6] = applySaturation(0xd8, 0x6e, 0xf0, sat, contrast, lum);  // MAGENTA
+   sys->palette[ 7] = applySaturation(0xd4, 0x7f, 0x00, sat, contrast, lum);  // ORANGE
+   sys->palette[ 8] = applySaturation(  17,   17,   17, sat, contrast, lum);  // BLACK
+   sys->palette[ 9] = applySaturation(0x30, 0xd2, 0x00, sat, contrast, lum);  // ALPHANUMERIC BRIGHT GREEN
+   sys->palette[10] = applySaturation(0x00,   46, 0x00, sat, contrast, lum);  // ALPHANUMERIC DARK GREEN
+   sys->palette[11] = applySaturation(0xff, 0xb7, 0x00, sat, contrast, lum);  // ALPHANUMERIC BRIGHT ORANGE
+   sys->palette[12] = applySaturation(0x6b, 0x27, 0x00, sat, contrast, lum);  // ALPHANUMERIC DARK ORANGE
 
    sys->snow_effect = true;
 
