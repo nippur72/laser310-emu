@@ -132,6 +132,8 @@ async function droppedFile(outName: string, bytes: Uint8Array) {
       samples.forEach((e:number,i:number) => getLaser310().sys_tape_load_data(i,e));
       getLaser310().sys_tape_play();
 
+      getLaser310().paste("CRUN\n");
+
       return;
    }
    else if(ext == ".txt") {
