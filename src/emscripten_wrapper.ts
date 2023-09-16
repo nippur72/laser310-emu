@@ -451,4 +451,12 @@ export class Laser310 {
       if(rom == "v21") { firmware = vzrom21; this.BASTXT=0x78A4; this.BASEND=0x78F9; this.CRSR_STATE=0x52F7; }
       this.resetROM(firmware!);
    }
+
+   isInImmediateMode() {
+      return (this.mem_read(0x7839) & 1) === 0;
+   }
+
+   isKeyboardBufferEmpty() {
+      return this.mem_read(this.KEYBUF) === 0;
+   }   
 }

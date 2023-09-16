@@ -47,6 +47,12 @@ export function paste(laser310: Laser310, text: string) {
 
    const pasteBuffer = parseText(text);
 
+   // check cursor is flashing   
+   if(!laser310.isInImmediateMode()) {
+      console.log(`didn't paste because not in immediate mode`);
+      return;
+   }
+
    do_async_paste();  // start pasting in async fashion to allow screen refreshes
 }
 
@@ -58,10 +64,10 @@ function pasteChar(laser310: Laser310, c: string, ctrl: boolean, shift: boolean)
 
    // wait until laser detects no key pressed
    let i=0;
-   while(laser310.mem_read(laser310.KEYBUF)!=0) {
+   while(!laser310.isKeyboardBufferEmpty()) {
       laser310.renderFrame();
       if(i++ == 10) {
-         console.log("paste failed: keyboard buffer never gets empty");
+         console.log("paste aborted: keyboard buffer never gets empty");
          return;
       }
    }
@@ -69,26 +75,43 @@ function pasteChar(laser310: Laser310, c: string, ctrl: boolean, shift: boolean)
    // do key press
    hk.forEach(k=>laser310.keyPress(k));
 
+   laser310.renderFrame();
+   laser310.renderFrame();
+
    // wait until laser detects key press
    i=0;
-   while(laser310.mem_read(laser310.KEYBUF)==0) {
+   while(laser310.isKeyboardBufferEmpty()) {
       laser310.renderFrame();
       if(i++ == 10) {
-         console.log("paste failed: keyboard buffer always empty");
+         console.log("paste aborted: keyboard buffer always empty");
+         return;
+      }
+   }  
+
+   // release key
+   hk.forEach(k=>laser310.keyRelease(k));   
+
+   laser310.renderFrame();
+   laser310.renderFrame();
+
+   // wait until laser detects no key pressed
+   i=0;
+   while(!laser310.isKeyboardBufferEmpty()) {
+      laser310.renderFrame();
+      if(i++ == 10) {
+         console.log("paste aborted: keyboard buffer never gets empty after key release");
          return;
       }
    }
 
-   // release key
-   hk.forEach(k=>laser310.keyRelease(k));
-
-   // wait until laser detects no key pressed
-   i=0;
-   while(laser310.mem_read(laser310.KEYBUF)!=0) {
+   if(c === '\n') {
       laser310.renderFrame();
-      if(i++ == 10) {
-         console.log("paste failed: keyboard buffer never gets empty after key release");
-         return;
-      }
+      laser310.renderFrame();
+      laser310.renderFrame();
+      laser310.renderFrame();
+      laser310.renderFrame();
+      laser310.renderFrame();
+      laser310.renderFrame();
+      laser310.renderFrame();
    }
 }
