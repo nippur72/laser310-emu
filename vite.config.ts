@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { join } from 'path';
 
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
     {
@@ -20,6 +21,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: '',
+    emptyOutDir: false,
     rollupOptions: {
       input: join(__dirname, 'src/index.ts'),
       output: {

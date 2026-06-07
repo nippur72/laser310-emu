@@ -1,4 +1,4 @@
-import emscripten_module from "../emscripten_module";
+import emscripten_module from "../dist/emscripten_module";
 
 import { paste } from "./paste";
 import { lo, hi, hex } from "./bytes";
