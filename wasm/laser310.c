@@ -201,7 +201,7 @@ void sys_tape_play() {
 }
 
 void csave_cb(float *samples, int size, int samplerate) {
-   byte unused = (byte) EM_ASM_INT({ csave_cb($0, $1, $2); }, samples, size, samplerate );
+   byte unused = (byte) EM_ASM_INT({ laser310.csave_cb($0, $1, $2); }, samples, size, samplerate );
 }
 
 KEEP

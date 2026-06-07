@@ -6,7 +6,7 @@ if "%EMSDK%"=="" (
 
 if not exist dist mkdir dist
 
-call emcc wasm\prova.c -O3 ^
+call emcc wasm\laser310.c -O3 ^
    -s EXPORTED_RUNTIME_METHODS=ccall,cwrap,HEAPU8,HEAPU32,HEAPF32 ^
    -s ENVIRONMENT=web ^
    -s MODULARIZE=1 ^
