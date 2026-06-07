@@ -36,7 +36,7 @@ import { initializeIcons } from "@fluentui/react";
 initializeIcons();
 
 import { EmulatorGUI } from "./GUI";
-import { externalLoad } from "./mdawson";
+import { externalLoad } from "./externalLoad";
 import { fetchProgram } from "./browser";
 
 const mountNode = document.getElementById("mountnode");
@@ -105,7 +105,9 @@ export async function parseQueryStringCommands() {
          if(name.startsWith("http")) {
             // external load
             let vz = await externalLoad(name);
-            getLaser310().load_vz_bytes(vz, true);
+            if (vz) {
+               getLaser310().load_vz_bytes(vz, true);
+            }
          }
          else {
             // internal load
