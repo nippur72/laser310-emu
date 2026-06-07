@@ -10,6 +10,8 @@ import { getLaser310 } from "./index";
 import { Uploader } from "./UploadButton";
 import { readFiles } from "./browser";
 
+import { VZ_to_WAV } from "laser500-wav/dist/tape_creator";
+
 let machineOptions: IDropdownOption<any>[] = [
    { key: "vz200pal" , text: "VZ200 (Laser 210) PAL"  },
    { key: "vz300pal" , text: "VZ300 (Laser 310) PAL"  },
@@ -93,13 +95,25 @@ export class EmulatorGUI extends Component<State> {
       let vzfiles = await readFiles(files);
       if(vzfiles.length > 0) {
          let vzfile = vzfiles[0];
-         getLaser310().load_vz_bytes(vzfile, true);
+         getLaser310().load_vz_bytes(new Uint8Array(vzfile), true);
          this.close();
       }            
    }
 
    async saveVZBasicProgram() {
       await getLaser310().save_vz_bytes("PROGRAM.VZ");
+   }
+
+   async upload_wav_file(files: FileList) {
+      let wav_files = await readFiles(files);      
+      if(wav_files.length !== 1) return;
+      let wavfile = wav_files[0];
+      getLaser310().load_wav_file(wavfile);
+      this.close();                  
+   }
+
+   saveturbotape() {
+      
    }
 
    handleUploadText(files: FileList) {
@@ -160,9 +174,9 @@ export class EmulatorGUI extends Component<State> {
                </PivotItem>
 
                <PivotItem headerText="Tape" headerButtonProps={{'data-order': 3}}>
-                  <Uploader value="Load .WAV" onUpload={(f)=>this.uploadVZFile(f)} accept=".wav" />
-                  <div>Record file WAV</div>
-                  <div>Stop tape</div>
+                  <Uploader value="Load .WAV" onUpload={(f)=>this.upload_wav_file(f)} accept=".wav" />
+                  <DefaultButton onClick={()=>getLaser310().record_wav()}>Record</DefaultButton>
+                  <DefaultButton onClick={()=>getLaser310().stop_record_wav()}>Stop recording</DefaultButton>
                   <div>cassette audio: on/off</div>
                </PivotItem>
 

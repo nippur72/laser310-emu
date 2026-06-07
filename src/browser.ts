@@ -78,20 +78,20 @@ dropZone.addEventListener('drop', e => {
    droppedFiles(files);
 });
 
-function readFile(file: File): Promise<Uint8Array> {
+function readFile(file: File): Promise<ArrayBuffer> {
    return new Promise((resolve, reject)=>{
       const reader = new FileReader();
       reader.onload = e => {
          if(e.target!== null && e.target.result !== null && e.target.result instanceof ArrayBuffer) {
-            resolve(new Uint8Array(e.target.result));            
+            resolve(e.target.result);            
          }
       }
       reader.readAsArrayBuffer(file);   
    });
 }
 
-export async function readFiles(files: FileList): Promise<Uint8Array[]> {
-   let result: Uint8Array[] = [];
+export async function readFiles(files: FileList): Promise<ArrayBuffer[]> {
+   let result: ArrayBuffer[] = [];
    for(let i=0; i<files.length; i++) {
       result.push(await readFile(files[i]));
    }
@@ -104,44 +104,27 @@ export function droppedFiles(files: FileList) {
       const reader = new FileReader();
       reader.onload = e2 => {
          if(e2.target!== null && e2.target.result !== null && e2.target.result instanceof ArrayBuffer) {
-            droppedFile(file.name, new Uint8Array(e2.target.result));
+            droppedFile(file.name, e2.target.result);
          }
       }
       reader.readAsArrayBuffer(file);
    }
 }
 
-import { decode } from "wav-decoder";
-
-async function droppedFile(outName: string, bytes: Uint8Array) {
+async function droppedFile(outName: string, bytes: ArrayBuffer) {
 
    const ext = getFileExtension(outName);
 
    if(ext == ".vz") {
-      getLaser310().load_vz_bytes(bytes, true);      
+      getLaser310().load_vz_bytes(new Uint8Array(bytes), true);      
    }
    else if(ext == ".wav") {
-      console.log("WAV file dropped");
-      const { sampleRate, channelData } = decode.sync(bytes.buffer);
-      let samples = channelData[0];
-
-      // this fixes the polarity inversion that occurs on the tape port
-      // for frequencies above 2000 Hz 
-      let sample = fix_cassette_port(samples, sampleRate);
-
-      // allocates the playback buffer on the WASM side
-      getLaser310().sys_tape_init_load(samples.length, sampleRate);
-      samples.forEach((e:number,i:number) => getLaser310().sys_tape_load_data(i,e));
-      getLaser310().sys_tape_play();
-
-      getLaser310().paste("CRUN\n");
-
-      return;
+      getLaser310().load_wav_file(bytes);      
    }
    else if(ext == ".txt") {
       console.log("TXT file dropped");
       // const text = bytes.buffer.toString();
-      const text = String.fromCharCode.apply(null, Array.from(bytes));
+      const text = String.fromCharCode.apply(null, Array.from(new Uint8Array(bytes)));
       getLaser310().paste(text);
       return;
    }
@@ -186,6 +169,5 @@ export async function download(fileName: string) {
 
 // keyboard.js
 import { keyDown, keyUp } from "./keyboard";
-import { fix_cassette_port } from "./tape";
 document.onkeydown = keyDown;
 document.onkeyup = keyUp;

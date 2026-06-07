@@ -15,6 +15,11 @@ import { vzrom20 } from "./roms/vzrom20";
 import { vzrom21 } from "./roms/vzrom21";
 import { downloadBytes } from "./download";
 
+import { decode } from "wav-decoder";
+import { fix_cassette_port } from "./tape";
+import { get_wasm_float32_array } from "./wasm_utils";
+import { encode } from "wav-encoder";
+
 const cyclesPerLine = 228;              // was: cpuSpeed / vdcSpeed * 320;
 
 let wasm_instance: any;
@@ -495,4 +500,43 @@ export class Laser310 {
    isKeyboardBufferEmpty() {
       return this.mem_read(this.KEYBUF) === 0;
    }   
+
+   load_wav_file(wav: ArrayBuffer) {
+      const { sampleRate, channelData } = decode.sync(wav);
+      let samples = channelData[0];
+
+      // this fixes the polarity inversion that occurs on the tape port
+      // for frequencies above 2000 Hz 
+      fix_cassette_port(samples, sampleRate);
+
+      // allocates the playback buffer on the WASM side
+      this.sys_tape_init_load(samples.length, sampleRate);
+      samples.forEach((e:number,i:number) => this.sys_tape_load_data(i,e));
+      this.sys_tape_play();
+
+      this.paste("CRUN\n");      
+   }
+
+   record_wav() {
+      this.sys_tape_record();
+   }
+
+   stop_record_wav() {
+      this.sys_tape_stop();   // this calls laser310.csave_cb()
+   }
+
+   csave_cb(ptr: number, size: number, samplerate: number) {
+      let audio = get_wasm_float32_array(this.wasm_instance, ptr, size);
+      const length = Math.round(audio.length / samplerate);
+
+      const wavData = {
+         sampleRate: samplerate,
+         channelData: [ audio ]
+      };
+
+      const buffer = encode.sync(wavData, { bitDepth: 16, float: false, symmetric: false });
+      let fileName = "csaved.wav"
+      downloadBytes(fileName, buffer);
+   }   
 }
+
